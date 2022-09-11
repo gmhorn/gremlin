@@ -18,6 +18,10 @@ func (a Vec3) Plus(b Vec3) Vec3 {
 	return Vec3{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }
 
+func (a Vec3) Minus(b Vec3) Vec3 {
+	return Vec3{a.X - b.X, a.Y - b.Y, a.Z - b.Z}
+}
+
 func (a Vec3) Scale(t float64) Vec3 {
 	return Vec3{t * a.X, t * a.Y, t * a.Z}
 }
