@@ -9,6 +9,7 @@ import (
 	"unsafe"
 
 	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/pkg/render"
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 )
 
@@ -19,6 +20,9 @@ func main() {
 	fmt.Printf("Image width: %d, height: %d\n", image_w, image_h)
 	doImage()
 	doFilm()
+
+	f := render.NewFilm(800, 600)
+	fmt.Println(f.Height)
 }
 
 func compareSizes() {
