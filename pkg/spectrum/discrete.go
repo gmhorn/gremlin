@@ -5,14 +5,14 @@ import (
 )
 
 const (
-	discWavelengthMin  = 400
-	discWavelengthMax  = 700
+	discWavelengthMin  = 380
+	discWavelengthMax  = 780
 	discWavelengthStep = 5
 )
 
 // DiscreteSize is the number of wavelengths in a Discrete Distribution. That
 // is, it's the size of the underlying array.
-const DiscreteSize = (discWavelengthMax - discWavelengthMin) / discWavelengthStep
+const DiscreteSize = (discWavelengthMax-discWavelengthMin)/discWavelengthStep + 1
 
 // DiscreteWavelengths holds the fixed wavelength values every Discrete
 // distribution is measured at. It is intended to make it easy to iterate over
@@ -42,6 +42,21 @@ func (d Discrete) Lookup(wavelength float64) float64 {
 		return DiscreteWavelengths[i] > wavelength
 	})
 	return d[idx-1]
+}
+
+// Discretize returns the Discrete spectrum obtained by evaluting the given
+// Distribution at the fixed DiscreteWavelengths values.
+func Discretize(dist Distribution) Discrete {
+	// If its already a Discrete instance, then we're done.
+	if discrete, ok := dist.(Discrete); ok {
+		return discrete
+	}
+
+	discrete := Discrete{}
+	for i, wavelength := range DiscreteWavelengths {
+		discrete[i] = dist.Lookup(wavelength)
+	}
+	return discrete
 }
 
 func _discreteWavelengths() Discrete {

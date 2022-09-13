@@ -1,6 +1,7 @@
 package spectrum
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,9 @@ func TestDiscrete_Lookup(t *testing.T) {
 	for idx := range d {
 		d[idx] = float64(idx)
 	}
+
+	v := DiscreteWavelengths
+	fmt.Println(v[0])
 
 	tests := []struct {
 		name       string

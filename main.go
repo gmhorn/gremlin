@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"image"
 	"image/color"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"unsafe"
 
+	"github.com/gmhorn/gremlin/pkg/colorspace"
 	"github.com/gmhorn/gremlin/pkg/geo"
 	"github.com/gmhorn/gremlin/pkg/render"
 	"github.com/gmhorn/gremlin/pkg/spectrum"
@@ -21,8 +23,10 @@ func main() {
 	doImage()
 	doFilm()
 
+	fmt.Println(colorspace.CIE_X[0])
+
 	f := render.NewFilm(800, 600)
-	fmt.Println(f.Height)
+	fmt.Println(unsafe.Sizeof(f))
 }
 
 func compareSizes() {
