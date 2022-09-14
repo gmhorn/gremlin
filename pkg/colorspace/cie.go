@@ -4,6 +4,28 @@ import (
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 )
 
+// SpectrumToXYZ calculates the CIE 1931 X, Y and Z coordinates for a light
+// source with the given spectral distribution. The distribution will be
+// evaluated from 380nm to 780nm at 5nm intervals and should return the
+// emittance at that wavelength. The precise units it returns do not matter,
+// as the chromaticity coordinates are scaled to respect the identity
+//
+//	X + Y + Z = 1
+func SpectrumToXYZ(spec spectrum.Distribution) [3]float64 {
+	X := 0.0
+	Y := 0.0
+	Z := 0.0
+
+	for i, power := range spectrum.Discretize(spec) {
+		X += power * CIE_X[i]
+		Y += power * CIE_Y[i]
+		Z += power * CIE_Z[i]
+	}
+	XYZ := X + Y + Z
+
+	return [3]float64{X / XYZ, Y / XYZ, Z / XYZ}
+}
+
 var CIE_X = spectrum.Discrete{
 	0.001368, 0.002236, 0.004243, 0.007650, 0.014310, 0.023190, 0.043510,
 	0.077630, 0.134380, 0.214770, 0.283900, 0.328500, 0.348280, 0.348060,

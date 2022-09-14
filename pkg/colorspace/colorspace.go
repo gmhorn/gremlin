@@ -9,26 +9,32 @@
 // https://scipython.com/blog/converting-a-spectrum-to-a-colour/
 package colorspace
 
-import "github.com/gmhorn/gremlin/pkg/spectrum"
-
-// SpectrumToXYZ calculates the CIE 1931 X, Y and Z coordinates for a light
-// source with the given spectral distribution. The distribution will be
-// evaluated from 380nm to 780nm at 5nm intervals and should return the
-// emittance at that wavelength. The precise units it returns do not matter,
-// as the chromaticity coordinates are scaled to respect the identity
-//
-//	X + Y + Z = 1
-func SpectrumToXYZ(spec spectrum.Distribution) [3]float64 {
-	X := 0.0
-	Y := 0.0
-	Z := 0.0
-
-	for i, power := range spectrum.Discretize(spec) {
-		X += power * CIE_X[i]
-		Y += power * CIE_Y[i]
-		Z += power * CIE_Z[i]
-	}
-	XYZ := X + Y + Z
-
-	return [3]float64{X / XYZ, Y / XYZ, Z / XYZ}
+// Illuminant are the normalized chromaticity coordinates of an illuminant
+// white point.
+// https://en.wikipedia.org/wiki/Standard_illuminant
+type Illuminant struct {
+	X, Y float64
 }
+
+// White points of standard illuminants.
+var (
+	IlluminantD65 = Illuminant{0.31271, 0.32902}
+	IlluminantC   = Illuminant{0.31006, 0.31616}
+	IlluminantE   = Illuminant{0.33333, 0.33333}
+)
+
+// Colorspace is a mathetical color space based on the RGB color model.
+// https://en.wikipedia.org/wiki/RGB_color_spaces
+type Colorspace struct {
+	Red, Green, Blue, White Illuminant
+	Gamma                   func(float64) float64
+}
+
+// Standard color spaces
+var (
+	SRGB = Colorspace{
+		Red:   Illuminant{0.64, 0.33},
+		Green: Illuminant{0.3, 0.6},
+		Blue:  Illuminant{0.15, 0.06},
+		White: IlluminantD65}
+)
