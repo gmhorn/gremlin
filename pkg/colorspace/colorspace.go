@@ -9,6 +9,22 @@
 // https://scipython.com/blog/converting-a-spectrum-to-a-colour/
 package colorspace
 
+import "github.com/gmhorn/gremlin/pkg/spectrum"
+
+// Colorspace converts a spectral distribution of light intensity to tristimulus
+// values.
+type Colorspace interface {
+	Convert(spectrum.Distribution) [3]float64
+}
+
+// ColorspaceFunc is a convenience typedef for defining a Colorspace from a
+// function.
+type ColorspaceFunc func(spectrum.Distribution) [3]float64
+
+func (cf ColorspaceFunc) Convert(spec spectrum.Distribution) [3]float64 {
+	return cf(spec)
+}
+
 // Illuminant are the normalized chromaticity coordinates of an illuminant
 // white point.
 // https://en.wikipedia.org/wiki/Standard_illuminant
@@ -25,16 +41,16 @@ var (
 
 // Colorspace is a mathetical color space based on the RGB color model.
 // https://en.wikipedia.org/wiki/RGB_color_spaces
-type Colorspace struct {
+type Model struct {
 	Red, Green, Blue, White Illuminant
 	Gamma                   func(float64) float64
 }
 
 // Standard color spaces
-var (
-	SRGB = Colorspace{
-		Red:   Illuminant{0.64, 0.33},
-		Green: Illuminant{0.3, 0.6},
-		Blue:  Illuminant{0.15, 0.06},
-		White: IlluminantD65}
-)
+// var (
+// 	SRGB = Model{
+// 		Red:   Illuminant{0.64, 0.33},
+// 		Green: Illuminant{0.3, 0.6},
+// 		Blue:  Illuminant{0.15, 0.06},
+// 		White: IlluminantD65}
+// )

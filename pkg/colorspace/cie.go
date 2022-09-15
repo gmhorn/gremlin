@@ -4,29 +4,39 @@ import (
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 )
 
-// SpectrumToXYZ calculates the CIE 1931 X, Y and Z coordinates for a light
-// source with the given spectral distribution. The distribution will be
-// evaluated from 380nm to 780nm at 5nm intervals and should return the
-// emittance at that wavelength. The precise units it returns do not matter,
-// as the chromaticity coordinates are scaled to respect the identity
+// CIE1931 is a Colorspace implementing the CIE 1931 colorspace and color model.
+// The values it returns are the X, Y and Z chromaticity coordinates, scaled
+// to respect the identity:
 //
 //	X + Y + Z = 1
-func SpectrumToXYZ(spec spectrum.Distribution) [3]float64 {
+//
+// As such, the precise units of the provided spectrum distribution do not
+// matter.
+//
+// The calculate this, it evaluates the provided distribution against the CIE
+// color matching curves from 380nm to 780nm at 5nm intervals.
+//
+// This code is more-or-less a straight port of John Walker's "SpectrumToXYZ"
+// function from his "Colour Rendering of Spectra" page:
+//
+//	https://www.fourmilab.ch/documents/specrend/
+//	https://www.fourmilab.ch/documents/specrend/specrend.c
+var CIE1931 = ColorspaceFunc(func(spec spectrum.Distribution) [3]float64 {
 	X := 0.0
 	Y := 0.0
 	Z := 0.0
 
 	for i, power := range spectrum.Discretize(spec) {
-		X += power * CIE_X[i]
-		Y += power * CIE_Y[i]
-		Z += power * CIE_Z[i]
+		X += power * cieX[i]
+		Y += power * cieY[i]
+		Z += power * cieZ[i]
 	}
 	XYZ := X + Y + Z
 
 	return [3]float64{X / XYZ, Y / XYZ, Z / XYZ}
-}
+})
 
-var CIE_X = spectrum.Discrete{
+var cieX = spectrum.Discrete{
 	0.001368, 0.002236, 0.004243, 0.007650, 0.014310, 0.023190, 0.043510,
 	0.077630, 0.134380, 0.214770, 0.283900, 0.328500, 0.348280, 0.348060,
 	0.336200, 0.318700, 0.290800, 0.251100, 0.195360, 0.142100, 0.095640,
@@ -41,7 +51,7 @@ var CIE_X = spectrum.Discrete{
 	0.000117, 0.000083, 0.000059, 0.000042,
 }
 
-var CIE_Y = spectrum.Discrete{
+var cieY = spectrum.Discrete{
 	0.000039, 0.000064, 0.000120, 0.000217, 0.000396, 0.000640, 0.001210,
 	0.002180, 0.004000, 0.007300, 0.011600, 0.016840, 0.023000, 0.029800,
 	0.038000, 0.048000, 0.060000, 0.073900, 0.090980, 0.112600, 0.139020,
@@ -56,7 +66,7 @@ var CIE_Y = spectrum.Discrete{
 	0.000042, 0.000030, 0.000021, 0.000015,
 }
 
-var CIE_Z = spectrum.Discrete{
+var cieZ = spectrum.Discrete{
 	0.006450, 0.010550, 0.020050, 0.036210, 0.067850, 0.110200, 0.207400,
 	0.371300, 0.645600, 1.039050, 1.385600, 1.622960, 1.747060, 1.782600,
 	1.772110, 1.744100, 1.669200, 1.528100, 1.287640, 1.041900, 0.812950,

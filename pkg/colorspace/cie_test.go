@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSpectrumToXYZ(t *testing.T) {
+func TestCIE1931(t *testing.T) {
 	tests := map[float64][3]float64{
 		2000: {0.5267, 0.4133, 0.0600},
 		2500: {0.4770, 0.4137, 0.1093},
@@ -30,7 +30,7 @@ func TestSpectrumToXYZ(t *testing.T) {
 
 	for temp, expected := range tests {
 		t.Run(fmt.Sprintf("%gK Blackbody", temp), func(t *testing.T) {
-			actual := SpectrumToXYZ(spectrum.Blackbody(temp))
+			actual := CIE1931.Convert(spectrum.Blackbody(temp))
 
 			assert.InEpsilon(t, expected[0], actual[0], 1e-3)
 			assert.InEpsilon(t, expected[1], actual[1], 1e-3)

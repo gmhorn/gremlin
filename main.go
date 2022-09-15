@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"fmt"
 	"image"
 	"image/color"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"unsafe"
 
-	"github.com/gmhorn/gremlin/pkg/colorspace"
 	"github.com/gmhorn/gremlin/pkg/geo"
 	"github.com/gmhorn/gremlin/pkg/render"
 	"github.com/gmhorn/gremlin/pkg/spectrum"
@@ -22,8 +20,6 @@ func main() {
 	fmt.Printf("Image width: %d, height: %d\n", image_w, image_h)
 	doImage()
 	doFilm()
-
-	fmt.Println(colorspace.CIE_X[0])
 
 	f := render.NewFilm(800, 600)
 	fmt.Println(unsafe.Sizeof(f))
@@ -68,9 +64,12 @@ func doImage() {
 
 	for x := 0; x < image_w; x++ {
 		for y := 0; y < image_h; y++ {
-			r := float64(x) / (image_w - 1)
-			g := float64(y) / (image_h - 1)
-			b := 0.25
+			// r := float64(x) / (image_w - 1)
+			// g := float64(y) / (image_h - 1)
+			// b := 0.25
+			r := 1.0
+			g := 0.0
+			b := 0.0
 
 			ir := uint8(255.999 * r)
 			ig := uint8(255.999 * g)
@@ -81,7 +80,7 @@ func doImage() {
 		}
 	}
 
-	f, _ := os.Create("out.png")
+	f, _ := os.Create("out-1.0.png")
 	png.Encode(f, img)
 }
 
