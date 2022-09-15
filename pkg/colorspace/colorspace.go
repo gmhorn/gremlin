@@ -14,41 +14,43 @@ import (
 )
 
 // Colorspace converts a spectral distribution of light intensity to a
-// tristimulus Pixel value.
+// tristimulus value.
 type Colorspace interface {
-	Convert(spectrum.Distribution) Pixel
+	Convert(spectrum.Distribution) Point
 }
 
 // ColorspaceFunc is a convenience typedef for defining a Colorspace from a
 // function.
-type ColorspaceFunc func(spectrum.Distribution) Pixel
+type ColorspaceFunc func(spectrum.Distribution) Point
 
-func (cf ColorspaceFunc) Convert(spec spectrum.Distribution) Pixel {
+func (cf ColorspaceFunc) Convert(spec spectrum.Distribution) Point {
 	return cf(spec)
 }
 
-// Pixel represents tristimulus coordinate values in a Colorspace. It's kind of
-// an abuse of the term "pixel" -- calling it "Coordinates" may be more
-// accurate. But since our goal is ultimately to paint pixels, the name is good
-// enough.
-type Pixel [3]float64
+// Point represents a (tristimulus) point in a Colorspace.
+type Point [3]float64
 
-// Max returns the minumum component value.
-func (p Pixel) Max() float64 {
+// Max returns the maximum component value.
+func (p Point) Max() float64 {
 	return math.Max(p[0], math.Max(p[1], p[2]))
 }
 
 // Min returns the minumum component value.
-func (p Pixel) Min() float64 {
+func (p Point) Min() float64 {
 	return math.Min(p[0], math.Min(p[1], p[2]))
 }
 
-// CAdd returns a new Pixel obtained by adding v to all component values.
-func (p Pixel) CAdd(v float64) Pixel {
-	return Pixel{p[0] + v, p[1] + v, p[2] + v}
+// Scale "scales" a point by multiplying all components by v.
+func (p Point) Scale(v float64) Point {
+	return Point{p[0] * v, p[1] * v, p[2] * v}
 }
 
-// CDiv returns a new Pixel obtained by dividing all component values by v.
-func (p Pixel) CDiv(v float64) Pixel {
-	return Pixel{p[0] / v, p[1] / v, p[2] / v}
+// Shift "shifts" a point by adding v to all components.
+func (p Point) Shift(v float64) Point {
+	return Point{p[0] + v, p[1] + v, p[2] + v}
+}
+
+// Zero returns true if the components are all 0
+func (p Point) Zero() bool {
+	return p[0] == 0 && p[1] == 0 && p[2] == 0
 }

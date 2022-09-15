@@ -21,7 +21,7 @@ import (
 //
 //	https://www.fourmilab.ch/documents/specrend/
 //	https://www.fourmilab.ch/documents/specrend/specrend.c
-var CIE1931 = ColorspaceFunc(func(spec spectrum.Distribution) Pixel {
+var CIE1931 = ColorspaceFunc(func(spec spectrum.Distribution) Point {
 	X := 0.0
 	Y := 0.0
 	Z := 0.0
@@ -33,7 +33,7 @@ var CIE1931 = ColorspaceFunc(func(spec spectrum.Distribution) Pixel {
 	}
 	XYZ := X + Y + Z
 
-	return Pixel{X / XYZ, Y / XYZ, Z / XYZ}
+	return Point{X / XYZ, Y / XYZ, Z / XYZ}
 })
 
 var cieX = spectrum.Discrete{

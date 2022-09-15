@@ -1,101 +1,42 @@
 package main
 
 import (
-	"fmt"
-	"image"
-	"image/color"
 	"image/png"
+	"log"
 	"os"
-	"unsafe"
 
-	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/pkg/colorspace"
 	"github.com/gmhorn/gremlin/pkg/render"
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 )
 
-const image_w = 256
-const image_h = 256
-
 func main() {
-	fmt.Printf("Image width: %d, height: %d\n", image_w, image_h)
-	doImage()
-	doFilm()
-
-	f := render.NewFilm(800, 600)
-	fmt.Println(unsafe.Sizeof(f))
-}
-
-func compareSizes() {
-	var structs [800 * 600]geo.Vec3
-	for x := 0; x < 800; x++ {
-		for y := 0; y < 600; y++ {
-			structs[y*800+x] = geo.Origin
-		}
-	}
-
-	var flat [800 * 600 * 3]float64
-	for x := 0; x < 800*600*3; x++ {
-		flat[x] = 123.45
-	}
-
-	fmt.Printf("structs: %v, flat: %v\n", unsafe.Sizeof(structs), unsafe.Sizeof(flat))
-}
-
-func printImage() {
-	for j := 0; j < image_h; j++ {
-		for i := 0; i < image_w; i++ {
-			r := float64(i) / (image_w - 1)
-			g := float64(j) / (image_h - 1)
-			b := 0.25
-
-			ir := uint8(255.999 * r)
-			ig := uint8(255.999 * g)
-			ib := uint8(255.999 * b)
-
-			fmt.Printf("%d %d %d\n", ir, ig, ib)
-		}
+	if err := doBlackbody("blackbody.png"); err != nil {
+		log.Fatal(err)
 	}
 }
 
-func doImage() {
-	topLeft := image.Point{0, 0}
-	bottomRight := image.Point{image_w, image_h}
-	img := image.NewRGBA(image.Rectangle{topLeft, bottomRight})
-
-	for x := 0; x < image_w; x++ {
-		for y := 0; y < image_h; y++ {
-			// r := float64(x) / (image_w - 1)
-			// g := float64(y) / (image_h - 1)
-			// b := 0.25
-			r := 1.0
-			g := 0.0
-			b := 0.0
-
-			ir := uint8(255.999 * r)
-			ig := uint8(255.999 * g)
-			ib := uint8(255.999 * b)
-
-			c := color.RGBA{ir, ig, ib, 0xff}
-			img.Set(x, y, c)
-		}
+func doBlackbody(path string) error {
+	temps := make([]float64, 0)
+	for temp := 2000; temp <= 12000; temp += 1000 {
+		temps = append(temps, float64(temp))
 	}
 
-	f, _ := os.Create("out-1.0.png")
-	png.Encode(f, img)
-}
-
-func doFilm() {
-	f := spectrum.NewFilm(800, 600)
-	for x := 0; x < f.Width; x++ {
-		for y := 0; y < f.Height; y++ {
-			e := spectrum.Energy{
-				(float64(x) * 255) / (float64(f.Width) - 1),
-				(float64(y) * 255) / (float64(f.Height) - 1),
-				64,
+	f := render.NewFilm(100, 100*len(temps))
+	for i, temp := range temps {
+		b := spectrum.Blackbody(temp)
+		for x := 0; x < f.Width; x++ {
+			for y := 100 * i; y < 100*(i+1); y++ {
+				f.Add(x, y, b)
 			}
-			f.Add(x, y, e)
 		}
 	}
-	file, _ := os.Create("film.png")
-	png.Encode(file, f.Image())
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return png.Encode(file, f.Image(colorspace.SRGB))
 }

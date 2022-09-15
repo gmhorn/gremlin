@@ -12,3 +12,11 @@ func TestSRGB_ConvertXYZ(t *testing.T) {
 	rgb := SRGB.ConvertXYZ(xyz)
 	t.Log("RGB", rgb)
 }
+
+func TestSRGB_Convert(t *testing.T) {
+	for temp := 1000; temp <= 12000; temp += 500 {
+		b := spectrum.Blackbody(temp)
+		rgb := SRGB.Convert(b)
+		t.Log("Temp", temp, "sRGB", rgb)
+	}
+}

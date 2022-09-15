@@ -24,7 +24,7 @@ type RGB struct {
 //
 // Internally, this works by first converting the spectrum to (CIE 1931) XYZ,
 // then calling ConvertXYZ.
-func (cs *RGB) Convert(spec spectrum.Distribution) Pixel {
+func (cs *RGB) Convert(spec spectrum.Distribution) Point {
 	xyz := CIE1931.Convert(spec)
 	return cs.ConvertXYZ(xyz)
 }
@@ -43,8 +43,8 @@ func (cs *RGB) Convert(spec spectrum.Distribution) Pixel {
 //
 //	https://www.fourmilab.ch/documents/specrend/
 //	https://www.fourmilab.ch/documents/specrend/specrend.c
-func (cs *RGB) ConvertXYZ(xyz Pixel) Pixel {
-	rgb := Pixel{}
+func (cs *RGB) ConvertXYZ(xyz Point) Point {
+	rgb := Point{}
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			rgb[i] += cs.m[i][j] * xyz[j]
@@ -55,13 +55,18 @@ func (cs *RGB) ConvertXYZ(xyz Pixel) Pixel {
 
 	// if out of gamut, desaturate
 	if min := rgb.Min(); min < 0 {
-		rgb = rgb.CAdd(min)
+		rgb = rgb.Shift(-1 * min)
 	}
 
 	// clamp max value
 	if max := rgb.Max(); max > 1 {
-		rgb = rgb.CDiv(max)
+		rgb = rgb.Scale(1 / max)
 	}
+
+	// normalize
+	// if !rgb.Zero() {
+	// 	rgb = rgb.Scale(1 / rgb.Max())
+	// }
 
 	return rgb
 }
