@@ -2,15 +2,14 @@ package spectrum
 
 // Distribution represents a spectral distribution - a quantity that is a
 // function of wavelength. Examples are reflectance, refractive index, radiance,
-// etc.
+// etc. Typically these are implemented either analytically, or via lookup
+// table and interpolation.
 //
-// Typically these are implemented either analytically, or via lookup table and
-// interpolation.
+// The Lookup method evaluates the Distribution at a given wavelength.
+// Wavelength is expected to be given in nanometers; the visible spectrum is
+// between 380nm and 780nm. The returned value and its units are Distribution-
+// dependent.
 type Distribution interface {
-
-	// Lookup evaluates the Distribution at a given wavelength. The wavelength
-	// is in units of nanometers; visible spectrum is between 380 and 780. The
-	// returned value and its units are Distribution-dependent.
 	Lookup(wavelength float64) float64
 }
 
