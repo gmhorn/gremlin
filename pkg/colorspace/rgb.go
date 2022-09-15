@@ -92,3 +92,31 @@ var SRGB = RGB{
 		return 1.055*math.Pow(v, 0.41667) - 0.055
 	},
 }
+
+// Illuminant are the normalized chromaticity coordinates of an illuminant
+// white point.
+// https://en.wikipedia.org/wiki/Standard_illuminant
+// type Illuminant struct {
+// 	X, Y float64
+// }
+
+// White points of standard illuminants.
+// var IlluminantD65 = Illuminant{0.31271, 0.32902}
+// var IlluminantC   = Illuminant{0.31006, 0.31616}
+// var IlluminantE   = Illuminant{0.33333, 0.33333}
+
+// Model represents an instance of an RGB color model.
+// https://en.wikipedia.org/wiki/RGB_color_spaces
+// type Model struct {
+// 	Red, Green, Blue, White Illuminant
+// 	Gamma                   func(float64) float64
+// }
+
+// Standard color spaces
+// var (
+// 	ModelSRGB = Model{
+// 		Red:   Illuminant{0.64, 0.33},
+// 		Green: Illuminant{0.3, 0.6},
+// 		Blue:  Illuminant{0.15, 0.06},
+// 		White: IlluminantD65}
+// )
