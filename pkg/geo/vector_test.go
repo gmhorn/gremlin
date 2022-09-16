@@ -7,9 +7,9 @@ import (
 )
 
 func TestPlus(t *testing.T) {
-	a := Vec3{1, 2, 3}
-	b := Vec3{4, 5, 6}
+	a := Vector{1, 2, 3}
+	b := Vector{4, 5, 6}
 	actual := a.Plus(b)
 
-	assert.Equal(t, Vec3{5, 7, 9}, actual)
+	assert.Equal(t, Vector{5, 7, 9}, actual)
 }
