@@ -19,6 +19,19 @@ func (u Unit) Cross(v Unit) (Unit, bool) {
 	return Vec(u).Cross(Vec(v)).Unit()
 }
 
-func (u Unit) Dot(v Vec) float64 {
-	return Vec(u).Dot(v)
+// Dot returns the dot product of two units. Also happens to equal the cosine of
+// the angle between them.
+func (u Unit) Dot(v Unit) float64 {
+	return u[0]*v[0] + u[1]*v[1] + u[2]*v[2]
+}
+
+// Enters returns whether this Unit is entering the plane represented by the
+// normal.
+func (u Unit) Enters(normal Unit) bool {
+	return normal.Dot(u) < 0
+}
+
+// Reverse reverses the direction of a Unit vector.
+func (u Unit) Reverse() Unit {
+	return Unit{-u[0], -u[1], -u[2]}
 }

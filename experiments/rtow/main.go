@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 
 	"github.com/gmhorn/gremlin/pkg/geo"
@@ -15,11 +16,19 @@ const imageWidth = 400
 const imageHeight = 300
 const aspectRatio = float64(imageWidth) / float64(imageHeight)
 
+var Red = Color{1.0, 0.0, 0.0}
 var White = Color{1.0, 1.0, 1.0}
 var Blue = Color{0.5, 0.7, 1.0}
 
-func rayColor(r *geo.Ray) Color {
-	t := 0.5 * (r.Dir[1] + 1.0)
+func rayColor(ray *geo.Ray, world Hittable) Color {
+	// If hit something, pain normal (ish...)
+	if hit, success := world.Hit(ray, 0, math.MaxFloat64); success {
+		c := Color{hit.Norm[0] + 1, hit.Norm[1] + 1, hit.Norm[2] + 1}
+		return c.Mult(0.5)
+	}
+
+	// Else paint background
+	t := 0.5 * (ray.Dir[1] + 1.0)
 	return Blue.Lerp(White, t)
 }
 
@@ -39,23 +48,33 @@ func main() {
 	lowerLeft = lowerLeft.Minus(vertical.Scale(0.5))
 	lowerLeft = lowerLeft.Minus(geo.Vec{0, 0, focalLength})
 
+	//World
+	var world Aggregate
+	world = append(world, &Sphere{
+		Center: geo.Vec{0, 0, -1},
+		Radius: 0.5,
+	})
+	world = append(world, &Sphere{
+		Center: geo.Vec{0, -100.5, -1},
+		Radius: 100,
+	})
+
 	// Render
 	for y := 0; y < imageHeight; y++ {
 		for x := 0; x < imageWidth; x++ {
 			u := float64(x) / (imageWidth - 1)
-			v := float64(y) / (imageHeight - 1)
+			v := 1.0 - (float64(y) / (imageHeight - 1))
 
 			// calculate pixel pos in global coord space
 			scrn := lowerLeft.Plus(horizontal.Scale(u))
 			scrn = scrn.Plus(vertical.Scale(v))
-			scrn = scrn.Minus(origin)
 
 			// Normalize it
 			dir, _ := scrn.Unit()
-			ray := &geo.Ray{origin, dir}
+			ray := &geo.Ray{Origin: origin, Dir: dir}
 
 			// Calculate color
-			c := rayColor(ray)
+			c := rayColor(ray, world)
 
 			// Write to image
 			img.Set(x, y, c.ToRGBA())
