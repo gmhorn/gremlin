@@ -6,47 +6,63 @@ import (
 )
 
 // Origin is the unique 0-vector representing the origin of coordinate space.
-var Origin = Vec3{0, 0, 0}
+var Origin = Vector{0, 0, 0}
 
-// Vec3 is a vector in R3. Basis is the standard R3 basis. Coordinate values
-// are represented as 64-bit floats.
-type Vec3 [3]float64
+// Vector is "real-valued" (float64-valued) vector in R3. I went back and forth
+// between just making this a typedef to [3]float64; ultimately the explicit X,
+// Y, Z members seemed to make for better code ~*~aesthetics~*~.
+type Vector struct{ X, Y, Z float64 }
 
-func (a Vec3) Plus(b Vec3) Vec3 {
-	return Vec3{a[0] + b[0], a[1] + b[1], a[2] + b[2]}
+// Plus returns the Vector a + b.
+func (a Vector) Plus(b Vector) Vector {
+	return Vector{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }
 
-func (a Vec3) Minus(b Vec3) Vec3 {
-	return Vec3{a[0] - b[0], a[1] - b[1], a[2] - b[2]}
+// Minus returns the Vector a - b.
+func (a Vector) Minus(b Vector) Vector {
+	return Vector{a.X - b.X, a.Y - b.Y, a.Z - b.Z}
 }
 
-func (a Vec3) Scale(t float64) Vec3 {
-	return Vec3{t * a[0], t * a[1], t * a[2]}
+// Scale returns a copy of this vector, scaled by t.
+func (a Vector) Scale(t float64) Vector {
+	return Vector{t * a.X, t * a.Y, t * a.Z}
 }
 
-func (a Vec3) Dot(b Vec3) float64 {
-	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+// Dot returns the dot product of this vector with b.
+func (a Vector) Dot(b Vector) float64 {
+	return a.X*b.X + a.Y*b.Y + a.Z*b.Z
 }
 
-func (a Vec3) Cross(b Vec3) Vec3 {
-	return Vec3{
-		a[1]*b[2] - a[2]*b[1],
-		a[2]*b[0] - a[0]*b[2],
-		a[0]*b[1] - a[1]*b[0],
+// Cross returns the cross product of this Vector with b.
+func (a Vector) Cross(b Vector) Vector {
+	return Vector{
+		a.Y*b.Z - a.Z*b.Y,
+		a.Z*b.X - a.X*b.Z,
+		a.X*b.Y - a.Y*b.X,
 	}
 }
 
-func (a Vec3) Unit() Vec3 {
-	return a.Scale(1 / a.Len())
+// Unit normalizes this Vector.
+func (a Vector) Unit() (Unit, bool) {
+	d := a.Len()
+	return Unit(a.Scale(1 / d)), d > 0
 }
 
-func (a Vec3) Len() float64 {
-	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
+// Len returns the length of this Vector.
+func (a Vector) Len() float64 {
+	return math.Sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z)
 }
 
-func (a *Vec3) String() string {
+// HasNaNs returns true if any component of this Vector is an IEEE 754
+// NaN.
+func (a Vector) HasNaNs() bool {
+	return math.IsNaN(a.X) || math.IsNaN(a.Y) || math.IsNaN(a.Z)
+}
+
+// String returns a string representation of this Vector.
+func (a *Vector) String() string {
 	if a == nil {
 		return ""
 	}
-	return fmt.Sprintf("%g,%g,%g", a[0], a[1], a[2])
+	return fmt.Sprintf("%g,%g,%g", a.X, a.Y, a.Z)
 }

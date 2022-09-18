@@ -25,7 +25,7 @@ const DiscreteSize = (discWavelengthMax-discWavelengthMin)/discWavelengthStep + 
 //	}
 var DiscreteWavelengths = _discreteWavelengths()
 
-// Discrete is a Distribution with values defined at uniformly distributed
+// Discrete is a distribution with values defined at uniformly distributed
 // discrete wavelengths.
 //
 // The specific wavelengths are fixed and given by the DiscreteWavelengths
@@ -33,7 +33,7 @@ var DiscreteWavelengths = _discreteWavelengths()
 // as summing and merging them.
 type Discrete [DiscreteSize]float64
 
-func (d Discrete) Lookup(wavelength float64) float64 {
+func (d *Discrete) Lookup(wavelength float64) float64 {
 	if wavelength <= discWavelengthMin {
 		return d[0]
 	}
@@ -44,15 +44,25 @@ func (d Discrete) Lookup(wavelength float64) float64 {
 	return d[idx-1]
 }
 
+// Lerp returns a new Discrete distribution that is a linear interpolation.
+func (d *Discrete) Lerp(other *Discrete, t float64) *Discrete {
+	lerp := Discrete{}
+	s := 1 - t
+	for i := range d {
+		lerp[i] = d[i]*s + other[i]*t
+	}
+	return &lerp
+}
+
 // Discretize returns the Discrete spectrum obtained by evaluting the given
 // Distribution at the fixed DiscreteWavelengths values.
-func Discretize(dist Distribution) Discrete {
+func Discretize(dist Distribution) *Discrete {
 	// If its already a Discrete instance, then we're done.
-	if discrete, ok := dist.(Discrete); ok {
+	if discrete, ok := dist.(*Discrete); ok {
 		return discrete
 	}
 
-	discrete := Discrete{}
+	discrete := &Discrete{}
 	for i, wavelength := range DiscreteWavelengths {
 		discrete[i] = dist.Lookup(wavelength)
 	}
