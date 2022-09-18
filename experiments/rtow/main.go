@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 
 	"github.com/gmhorn/gremlin/pkg/geo"
@@ -15,12 +16,34 @@ const imageWidth = 400
 const imageHeight = 300
 const aspectRatio = float64(imageWidth) / float64(imageHeight)
 
+var Red = Color{1.0, 0.0, 0.0}
 var White = Color{1.0, 1.0, 1.0}
 var Blue = Color{0.5, 0.7, 1.0}
 
-func rayColor(r *geo.Ray) Color {
-	t := 0.5 * (r.Dir[1] + 1.0)
+func rayColor(ray *geo.Ray) Color {
+	// If hit sphere, paint normal (ish...)
+	t := hitSphere(geo.Vec{0, 0, -1}, 0.5, ray)
+	if t > 0 {
+		N, _ := ray.At(t).Minus(geo.Vec{0, 0, -1}).Unit()
+		return Color{N[0] + 1, N[1] + 1, N[2] + 1}.Mult(0.5)
+	}
+
+	// Else paint background
+	t = 0.5 * (ray.Dir[1] + 1.0)
 	return Blue.Lerp(White, t)
+}
+
+func hitSphere(center geo.Vec, radius float64, ray *geo.Ray) float64 {
+	oc := ray.Origin.Minus(center)
+	a := ray.Dir.Dot(geo.Vec(ray.Dir))
+	b := 2.0 * oc.Dot(geo.Vec(ray.Dir))
+	c := oc.Dot(oc) - radius*radius
+
+	disc := b*b - 4*a*c
+	if disc < 0 {
+		return -1.0
+	}
+	return (-b - math.Sqrt(disc)) / (2.0 * a)
 }
 
 func main() {
@@ -52,7 +75,7 @@ func main() {
 
 			// Normalize it
 			dir, _ := scrn.Unit()
-			ray := &geo.Ray{origin, dir}
+			ray := &geo.Ray{Origin: origin, Dir: dir}
 
 			// Calculate color
 			c := rayColor(ray)
