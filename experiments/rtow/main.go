@@ -19,7 +19,7 @@ var White = Color{1.0, 1.0, 1.0}
 var Blue = Color{0.5, 0.7, 1.0}
 
 func rayColor(r *geo.Ray) Color {
-	t := 0.5 * (r.Dir.Y + 1.0)
+	t := 0.5 * (r.Dir[1] + 1.0)
 	return Blue.Lerp(White, t)
 }
 
@@ -37,7 +37,7 @@ func main() {
 	vertical := geo.YAxis.Scale(viewportHeight)
 	lowerLeft := origin.Minus(horizontal.Scale(0.5))
 	lowerLeft = lowerLeft.Minus(vertical.Scale(0.5))
-	lowerLeft = lowerLeft.Minus(geo.Vector{0, 0, focalLength})
+	lowerLeft = lowerLeft.Minus(geo.Vec{0, 0, focalLength})
 
 	// Render
 	for y := 0; y < imageHeight; y++ {

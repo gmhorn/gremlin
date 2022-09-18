@@ -29,18 +29,18 @@ type Matrix [4][4]float64
 // https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/lookat-function
 // https://www.3dgep.com/understanding-the-view-matrix/#Look_At_Camera
 // https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatrh
-func LookAt(from, to Vector) *Matrix {
+func LookAt(from, to Vec) *Matrix {
 	zaxis, _ := from.Minus(to).Unit()
 	xaxis, _ := YAxis.Cross(zaxis)
 	yaxis, _ := zaxis.Cross(xaxis)
 
-	trans := Vector{xaxis.Dot(from), yaxis.Dot(from), zaxis.Dot(from)}.Scale(-1)
+	trans := Vec{xaxis.Dot(from), yaxis.Dot(from), zaxis.Dot(from)}.Scale(-1)
 
 	return &Matrix{
-		{xaxis.X, xaxis.Y, xaxis.Z, 0},
-		{yaxis.X, yaxis.Y, yaxis.Z, 0},
-		{zaxis.X, zaxis.Y, xaxis.Z, 0},
-		{trans.Z, trans.Y, trans.X, 1}}
+		{xaxis[0], xaxis[1], xaxis[2], 0},
+		{yaxis[0], yaxis[1], yaxis[2], 0},
+		{zaxis[0], zaxis[1], xaxis[2], 0},
+		{trans[2], trans[1], trans[0], 1}}
 }
 
 // Mult returns a new matrix that is the value of a*b.
