@@ -34,7 +34,7 @@ func LookAt(from, to Vec) *Matrix {
 	xaxis, _ := YAxis.Cross(zaxis)
 	yaxis, _ := zaxis.Cross(xaxis)
 
-	trans := Vec{xaxis.Dot(from), yaxis.Dot(from), zaxis.Dot(from)}.Scale(-1)
+	trans := Vec{from.Dot(Vec(xaxis)), from.Dot(Vec(yaxis)), from.Dot(Vec(zaxis))}.Scale(-1)
 
 	return &Matrix{
 		{xaxis[0], xaxis[1], xaxis[2], 0},
