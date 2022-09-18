@@ -54,7 +54,20 @@ func RTOW() error {
 }
 
 func radiance(r *geo.Ray) spectrum.Distribution {
-	t := 0.5 * (r.Dir.Y + 1)
-	temp := (1.0-t)*2000 + t*12000
-	return spectrum.Blackbody(temp)
+	if hitSphere(geo.Vector{0, 0, -1}, 0.5, r) {
+		return hot
+	}
+	return cold
+	// t := 0.5 * (r.Dir.Y + 1)
+	// temp := (1.0-t)*2000 + t*12000
+	// return spectrum.Blackbody(temp)
+}
+
+func hitSphere(center geo.Vector, radius float64, r *geo.Ray) bool {
+	oc := r.Origin.Minus(center)
+	a := r.Dir.Dot(geo.Vector(r.Dir))
+	b := 2.0 * oc.Dot(geo.Vector(r.Dir))
+	c := oc.Dot(oc) - radius*radius
+	disc := b*b - 4*a*c
+	return disc > 0
 }
