@@ -1,6 +1,10 @@
 package geo
 
-var YAxis = Unit{0, 1, 0}
+var (
+	XAxis = Unit{1, 0, 0}
+	YAxis = Unit{0, 1, 0}
+	ZAxis = Unit{0, 0, 1}
+)
 
 // Unit is a unit vector (Vector of length 1).
 type Unit Vector
