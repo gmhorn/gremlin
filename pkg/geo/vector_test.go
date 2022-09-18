@@ -8,11 +8,11 @@ import (
 )
 
 func TestPlus(t *testing.T) {
-	a := Vector{1, 2, 3}
-	b := Vector{4, 5, 6}
+	a := Vec{1, 2, 3}
+	b := Vec{4, 5, 6}
 	actual := a.Plus(b)
 
-	assert.Equal(t, Vector{5, 7, 9}, actual)
+	assert.Equal(t, Vec{5, 7, 9}, actual)
 }
 
 func TestNaN(t *testing.T) {

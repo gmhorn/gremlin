@@ -5,64 +5,69 @@ import (
 	"math"
 )
 
-// Origin is the unique 0-vector representing the origin of coordinate space.
-var Origin = Vector{0, 0, 0}
+// Origin is the unique 0-Vec representing the origin of coordinate space.
+var Origin = Vec{0, 0, 0}
 
-// Vector is "real-valued" (float64-valued) vector in R3. I went back and forth
-// between just making this a typedef to [3]float64; ultimately the explicit X,
-// Y, Z members seemed to make for better code ~*~aesthetics~*~.
-type Vector struct{ X, Y, Z float64 }
+// Vec is "real-valued" (float64-valued) vector in R3. I went back and forth
+// between this typedef and a struct with X, Y, Z members; ultimately having
+// the array typedef allows for cleaner calling code. Specifically,
+//
+//	v := Vec{1.2, 0, 7.5}
+//
+// gives an ugly warning for the struct-style. The tradeoff is slightly uglier
+// implementation code.
+type Vec [3]float64
 
-// Plus returns the Vector a + b.
-func (a Vector) Plus(b Vector) Vector {
-	return Vector{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
+// Plus returns the Vec a + b.
+func (a Vec) Plus(b Vec) Vec {
+	return Vec{a[0] + b[0], a[1] + b[1], a[2] + b[2]}
 }
 
-// Minus returns the Vector a - b.
-func (a Vector) Minus(b Vector) Vector {
-	return Vector{a.X - b.X, a.Y - b.Y, a.Z - b.Z}
+// Minus returns the Vec a - b.
+func (a Vec) Minus(b Vec) Vec {
+	return Vec{a[0] - b[0], a[1] - b[1], a[2] - b[2]}
 }
 
-// Scale returns a copy of this vector, scaled by t.
-func (a Vector) Scale(t float64) Vector {
-	return Vector{t * a.X, t * a.Y, t * a.Z}
+// Scale returns a copy of this Vec, scaled by t.
+func (a Vec) Scale(t float64) Vec {
+	return Vec{t * a[0], t * a[1], t * a[2]}
 }
 
-// Dot returns the dot product of this vector with b.
-func (a Vector) Dot(b Vector) float64 {
-	return a.X*b.X + a.Y*b.Y + a.Z*b.Z
+// Dot returns the dot product of this Vec with b.
+func (a Vec) Dot(b Vec) float64 {
+	return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 }
 
-// Cross returns the cross product of this Vector with b.
-func (a Vector) Cross(b Vector) Vector {
-	return Vector{
-		a.Y*b.Z - a.Z*b.Y,
-		a.Z*b.X - a.X*b.Z,
-		a.X*b.Y - a.Y*b.X,
+// Cross returns the cross product of this Vec with b.
+func (a Vec) Cross(b Vec) Vec {
+	return Vec{
+		a[1]*b[2] - a[2]*b[1],
+		a[2]*b[0] - a[0]*b[2],
+		a[0]*b[1] - a[1]*b[0],
 	}
 }
 
-// Unit normalizes this Vector.
-func (a Vector) Unit() (Unit, bool) {
+// Unit normalizes this Vec.
+func (a Vec) Unit() (Unit, bool) {
 	d := a.Len()
 	return Unit(a.Scale(1 / d)), d > 0
 }
 
-// Len returns the length of this Vector.
-func (a Vector) Len() float64 {
-	return math.Sqrt(a.X*a.X + a.Y*a.Y + a.Z*a.Z)
+// Len returns the length of this Vec.
+func (a Vec) Len() float64 {
+	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
 }
 
-// HasNaNs returns true if any component of this Vector is an IEEE 754
+// HasNaNs returns true if any component of this Vec is an IEEE 754
 // NaN.
-func (a Vector) HasNaNs() bool {
-	return math.IsNaN(a.X) || math.IsNaN(a.Y) || math.IsNaN(a.Z)
+func (a Vec) HasNaNs() bool {
+	return math.IsNaN(a[0]) || math.IsNaN(a[1]) || math.IsNaN(a[2])
 }
 
-// String returns a string representation of this Vector.
-func (a *Vector) String() string {
+// String returns a string representation of this Vec.
+func (a *Vec) String() string {
 	if a == nil {
 		return ""
 	}
-	return fmt.Sprintf("%g,%g,%g", a.X, a.Y, a.Z)
+	return fmt.Sprintf("%g,%g,%g", a[0], a[1], a[2])
 }

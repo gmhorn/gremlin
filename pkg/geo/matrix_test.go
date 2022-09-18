@@ -7,7 +7,7 @@ import (
 )
 
 func TestLookAt(t *testing.T) {
-	from := Vector{1, 1, 1}
+	from := Vec{1, 1, 1}
 	to := Origin
 	actual := LookAt(from, to)
 
