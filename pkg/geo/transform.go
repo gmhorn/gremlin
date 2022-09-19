@@ -1,5 +1,7 @@
 package geo
 
+import "math"
+
 // Shift returns a transform matrix that translates by the delta vector.
 //
 // Note that the inverse of Shift(v) is identical to the Shift of the complement
@@ -41,9 +43,32 @@ func Scale(v Vec) *Matrix {
 //	Rotate(axis).Inv() == Rotate(axis).T()
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
-func Rotate(axis Vec) *Matrix {
-	// TODO
-	return Identity
+func Rotate(theta float64, axis Unit) *Matrix {
+	sinTheta := math.Sin(theta)
+	cosTheta := math.Cos(theta)
+	mtx := &Matrix{}
+	// Rotation of first basis vector
+	mtx[0][0] = axis[0]*axis[0] + (1-axis[0]*axis[0])*cosTheta
+	mtx[0][1] = axis[0]*axis[1]*(1-cosTheta) - axis[2]*sinTheta
+	mtx[0][2] = axis[0]*axis[2]*(1-cosTheta) + axis[1]*sinTheta
+	mtx[0][3] = 0
+	// Rotation of second basis vector
+	mtx[1][0] = axis[0]*axis[1]*(1-cosTheta) + axis[2]*sinTheta
+	mtx[1][1] = axis[1]*axis[1] + (1-axis[1]*axis[1])*cosTheta
+	mtx[1][2] = axis[1]*axis[2]*(1-cosTheta) - axis[0]*sinTheta
+	mtx[1][3] = 0
+	// Rotation of third basis vector
+	mtx[2][0] = axis[0]*axis[2]*(1-cosTheta) - axis[1]*sinTheta
+	mtx[2][1] = axis[1]*axis[2]*(1-cosTheta) + axis[0]*sinTheta
+	mtx[2][2] = axis[2]*axis[2] + (1-axis[2]*axis[2])*cosTheta
+	mtx[2][3] = 0
+	// Last vector
+	mtx[3][0] = 0
+	mtx[3][1] = 0
+	mtx[3][2] = 0
+	mtx[3][3] = 1
+
+	return mtx
 }
 
 // LookAt returns the view matrix that can translate from camera space to world
@@ -56,7 +81,7 @@ func Rotate(axis Vec) *Matrix {
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#TheLook-AtTransformation
 // https://raytracing.github.io/books/RayTracingInOneWeekend.html#positionablecamera
 //
-// Note that PBRT uses a left-handed coordinate system, and thus their z axis is
+// Note that PBRT uses a left-handed coordinate system, so their z axis is
 // given by
 //
 //	to - from
