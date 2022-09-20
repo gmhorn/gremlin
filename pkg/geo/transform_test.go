@@ -1,6 +1,7 @@
 package geo
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,16 +9,27 @@ import (
 
 func TestShift(t *testing.T) {
 	m := Shift(Vec{10, 20, 30})
-	assert.Equal(t, 10, m[0][3])
+
+	assert.Equal(t, Vec{1, 2, 3}, m.MultVec(Vec{1, 2, 3}))
+	assert.Equal(t, Vec{11, 22, 33}, m.MultPoint(Vec{1, 2, 3}))
+}
+
+func TestScale(t *testing.T) {
+	m := Scale(Vec{10, 20, 30})
+
+	assert.Equal(t, Vec{10, 20, 30}, m.MultVec(Vec{1, 1, 1}))
+	assert.Equal(t, Vec{10, 20, 30}, m.MultPoint(Vec{1, 1, 1}))
 }
 
 func TestLookAt(t *testing.T) {
-	from := Vec{1, 1, 1}
+	from := Vec{10, 10, 10}
 	to := Origin
-	actual := LookAt(from, to, YAxis)
+	m := LookAt(from, to, YAxis)
 
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[0][0], actual[0][1], actual[0][2], actual[0][3])
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[1][0], actual[1][1], actual[1][2], actual[1][3])
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[2][0], actual[2][1], actual[2][2], actual[2][3])
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[3][0], actual[3][1], actual[3][2], actual[3][3])
+	r := Ray{Origin: Origin, Dir: ZAxis}
+
+	assert.Equal(t, from, m.MultPoint(r.Origin))
+
+	c := 1.0 / math.Sqrt(3.0)
+	assertVecEqual(t, Vec{c, c, c}, m.MultUnit(r.Dir), 0.00001)
 }

@@ -52,6 +52,7 @@ func (a *Matrix) Mult(b *Matrix) *Matrix {
 // preserve any translation effects.
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#HomogeneousCoordinates
+// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-points-and-vectors
 func (a *Matrix) MultPoint(v Vec) Vec {
 	return Vec{
 		a[0][0]*v[0] + a[0][1]*v[1] + a[0][2]*v[2] + a[0][3],
@@ -73,12 +74,20 @@ func (a *Matrix) MultPoint(v Vec) Vec {
 // translation effects.
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#HomogeneousCoordinates
+// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-points-and-vectors
 func (a *Matrix) MultVec(v Vec) Vec {
 	return Vec{
 		a[0][0]*v[0] + a[0][1]*v[1] + a[0][2]*v[2],
 		a[1][0]*v[0] + a[1][1]*v[1] + a[1][2]*v[2],
 		a[2][0]*v[0] + a[2][1]*v[1] + a[2][2]*v[2],
 	}
+}
+
+// MultUnit is a convenience method. Its precisely equilent to
+//
+//	MultVec(Vec(u))
+func (a *Matrix) MultUnit(u Unit) Vec {
+	return a.MultVec(Vec(u))
 }
 
 // T returns a new matrix that is the transpose of this matrix.
