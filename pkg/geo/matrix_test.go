@@ -1,6 +1,7 @@
 package geo
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,4 +24,19 @@ func TestMatrixMult(t *testing.T) {
 		{171, 146, 172, 268},
 		{105, 169, 128, 169},
 	}, *(a.Mult(b)))
+}
+
+func TestInv(t *testing.T) {
+	a := &Matrix{
+		{3, 4, 6, 8},
+		{1, 2, 7, 2},
+		{8, 9, 1, 3},
+		{7, 7, 6, 2},
+	}
+
+	b := a.Inv()
+
+	c := a.Mult(b)
+
+	fmt.Println(c)
 }

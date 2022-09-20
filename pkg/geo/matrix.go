@@ -1,5 +1,7 @@
 package geo
 
+import "math"
+
 var Identity = &Matrix{
 	{1, 0, 0, 0},
 	{0, 1, 0, 0},
@@ -23,6 +25,18 @@ var Identity = &Matrix{
 //	var a Matrix
 //	fmt.Println("a12", a[1][2])
 type Matrix [4][4]float64
+
+// Clone returns a copy of this matrix.
+func (a *Matrix) Clone() *Matrix {
+	b := &Matrix{}
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			b[i][j] = a[i][j]
+		}
+	}
+
+	return b
+}
 
 // Mult returns a new matrix that is the value of a*b.
 func (a *Matrix) Mult(b *Matrix) *Matrix {
@@ -99,4 +113,83 @@ func (a *Matrix) T() *Matrix {
 		}
 	}
 	return t
+}
+
+// Inv returns a new matrix that is the inverse of this matrix.
+//
+// Uses simple Gauss-Jordan elimination with partial pivoting.
+// https://en.wikipedia.org/wiki/Gaussian_elimination
+// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry
+func (a *Matrix) Inv() *Matrix {
+	// Create augmented matrix
+	m := [4][8]float64{}
+	for i := 0; i < 4; i++ {
+		copy(m[i][0:4], a[i][:])
+		copy(m[i][4:], Identity[i][:])
+	}
+
+	// Forward substitute
+	h, k := 0, 0
+	for h < 4 && k < 8 {
+		// Find k-th pivot
+		pivot := findPivot(h, k, &m)
+		// If no pivot in column, move to next column
+		if m[pivot][k] == 0 {
+			k++
+			continue
+		}
+		// If pivot row is not current row, swap rows
+		if pivot != h {
+			m[h], m[pivot] = m[pivot], m[h]
+		}
+
+		// For all rows below the pivot...
+		for i := h + 1; i < 4; i++ {
+			f := m[i][k] / m[h][k]
+			// Fill rest of column below pivot with 0
+			m[i][k] = 0
+			// Reduce all remaining elements in row
+			for j := k + 1; j < 8; j++ {
+				m[i][j] -= f * m[h][j]
+			}
+		}
+		// increment pivot row and column
+		h++
+		k++
+	}
+
+	// Back substitute
+	for i := 3; i >= 0; i-- {
+		f := m[i][i]
+		for j := 0; j < 8; j++ {
+			m[i][j] /= f
+		}
+
+		for j := 0; j < i; j++ {
+			f := m[j][i]
+
+			for k := 0; k < 8; k++ {
+				m[j][k] -= f * m[i][k]
+			}
+		}
+	}
+
+	aInv := &Matrix{}
+	copy(aInv[0][:], m[0][4:])
+	copy(aInv[1][:], m[1][4:])
+	copy(aInv[2][:], m[2][4:])
+	copy(aInv[3][:], m[3][4:])
+	return aInv
+}
+
+func findPivot(h, k int, m *[4][8]float64) int {
+	max := math.Abs(m[h][k])
+	pivot := h
+	for i := h + 1; i < 4; i++ {
+		if math.Abs(m[i][k]) > max {
+			max = math.Abs(m[i][k])
+			pivot = i
+		}
+	}
+	return pivot
 }
