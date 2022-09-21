@@ -23,3 +23,8 @@ func TestNaN(t *testing.T) {
 	t.Log("IsNaN?", math.IsNaN(c))
 	t.Log("IsInf?", math.IsInf(c, 0))
 }
+
+func assertVecEqual(t *testing.T, expected, actual Vec, epsilon float64) {
+	dist := expected.Minus(actual).Len()
+	assert.LessOrEqual(t, dist, epsilon)
+}

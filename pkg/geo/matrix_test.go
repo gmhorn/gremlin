@@ -1,37 +1,56 @@
 package geo
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLookAt(t *testing.T) {
-	from := Vec{1, 1, 1}
-	to := Origin
-	actual := LookAt(from, to)
-
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[0][0], actual[0][1], actual[0][2], actual[0][3])
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[1][0], actual[1][1], actual[1][2], actual[1][3])
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[2][0], actual[2][1], actual[2][2], actual[2][3])
-	t.Logf("%0.5f %0.5f %0.5f %0.5f", actual[3][0], actual[3][1], actual[3][2], actual[3][3])
-}
-
-func TestMatrixMult(t *testing.T) {
-	a := &Matrix{
+func TestMtx_Mult(t *testing.T) {
+	a := &Mtx{
 		{5, 7, 9, 10},
 		{2, 3, 3, 8},
 		{8, 10, 2, 3},
 		{3, 3, 4, 8}}
-	b := &Matrix{
+	b := &Mtx{
 		{3, 10, 12, 18},
 		{12, 1, 4, 9},
 		{9, 10, 12, 2},
 		{3, 12, 4, 10}}
-	assert.Equal(t, Matrix{
+	assert.Equal(t, &Mtx{
 		{210, 267, 236, 271},
 		{93, 149, 104, 149},
 		{171, 146, 172, 268},
 		{105, 169, 128, 169},
-	}, *(a.Mult(b)))
+	}, a.Mult(b))
+}
+
+func TestMtx_Transpose(t *testing.T) {
+	m := Mtx{
+		{10, 11, 12, 13},
+		{14, 15, 16, 17},
+		{18, 19, 20, 21},
+		{22, 23, 24, 25}}
+
+	assert.Equal(t, &Mtx{
+		{10, 14, 18, 22},
+		{11, 15, 19, 23},
+		{12, 16, 20, 24},
+		{13, 17, 21, 25}}, m.T())
+}
+
+func TestMtx_Inv(t *testing.T) {
+	a := &Mtx{
+		{3, 4, 6, 8},
+		{1, 2, 7, 2},
+		{8, 9, 1, 3},
+		{7, 7, 6, 2},
+	}
+
+	b := a.Inv()
+
+	c := a.Mult(b)
+
+	fmt.Println(c)
 }
