@@ -43,8 +43,9 @@ func Scale(v Vec) *Mtx {
 //	Rotate(axis).Inv() == Rotate(axis).T()
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
-func Rotate(theta float64, axis Unit) *Mtx {
+func Rotate(theta float64, axis Vec) *Mtx {
 	mtx := Identity.Clone()
+	axis, _ = axis.Normalize()
 
 	sinTheta := math.Sin(theta)
 	cosTheta := math.Cos(theta)
@@ -86,10 +87,10 @@ func Rotate(theta float64, axis Unit) *Mtx {
 //
 // We use a right-handed system, so the arguments are reversed. Other than that,
 // the PBRT and RTOW implementations are in agreement.
-func LookAt(from, to Vec, up Unit) *Mtx {
-	zaxis, _ := from.Minus(to).Unit()
-	xaxis, _ := up.Cross(zaxis)
-	yaxis, _ := zaxis.Cross(xaxis)
+func LookAt(from, to, up Vec) *Mtx {
+	zaxis, _ := from.Minus(to).Normalize()
+	xaxis, _ := up.Cross(zaxis).Normalize()
+	yaxis := zaxis.Cross(xaxis)
 
 	return &Mtx{
 		{xaxis[0], yaxis[0], zaxis[0], from[0]},

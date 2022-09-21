@@ -95,11 +95,10 @@ func (a *Mtx) MultVec(v Vec) Vec {
 	}
 }
 
-// MultUnit is a convenience method. Its precisely equilent to
-//
-//	MultVec(Vec(u))
-func (a *Mtx) MultUnit(u Unit) Vec {
-	return a.MultVec(Vec(u))
+// MultRay does a point-like multiplcation of the ray's origin and vector-like
+// multiplication of the ray's direction.
+func (a *Mtx) MultRay(r *Ray) *Ray {
+	return NewRay(a.MultPoint(r.Origin), a.MultVec(r.Dir))
 }
 
 // T returns a new matrix that is the transpose of this matrix.
