@@ -10,8 +10,8 @@ import "math"
 //	Shift(v).Inv() == Shift(v.Scale(-1.0))
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations
-func Shift(delta Vec) *Matrix {
-	return &Matrix{
+func Shift(delta Vec) *Mtx {
+	return &Mtx{
 		{1, 0, 0, delta[0]},
 		{0, 1, 0, delta[1]},
 		{0, 0, 1, delta[2]},
@@ -27,8 +27,8 @@ func Shift(delta Vec) *Matrix {
 //	Scale(Vec{x, y, z}).Inv() == Scale(Vec{1.0/x, 1.0/y, 1.0/z})
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling
-func Scale(v Vec) *Matrix {
-	return &Matrix{
+func Scale(v Vec) *Mtx {
+	return &Mtx{
 		{v[0], 0, 0, 0},
 		{0, v[1], 0, 0},
 		{0, 0, v[2], 0},
@@ -43,10 +43,11 @@ func Scale(v Vec) *Matrix {
 //	Rotate(axis).Inv() == Rotate(axis).T()
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
-func Rotate(theta float64, axis Unit) *Matrix {
+func Rotate(theta float64, axis Unit) *Mtx {
+	mtx := Identity.Clone()
+
 	sinTheta := math.Sin(theta)
 	cosTheta := math.Cos(theta)
-	mtx := &Matrix{}
 	// Rotation of first basis vector
 	mtx[0][0] = axis[0]*axis[0] + (1-axis[0]*axis[0])*cosTheta
 	mtx[0][1] = axis[0]*axis[1]*(1-cosTheta) - axis[2]*sinTheta
@@ -62,11 +63,7 @@ func Rotate(theta float64, axis Unit) *Matrix {
 	mtx[2][1] = axis[1]*axis[2]*(1-cosTheta) + axis[0]*sinTheta
 	mtx[2][2] = axis[2]*axis[2] + (1-axis[2]*axis[2])*cosTheta
 	mtx[2][3] = 0
-	// Last vector
-	mtx[3][0] = 0
-	mtx[3][1] = 0
-	mtx[3][2] = 0
-	mtx[3][3] = 1
+	// Final row identical to identity matrix, so we're fine
 
 	return mtx
 }
@@ -75,6 +72,7 @@ func Rotate(theta float64, axis Unit) *Matrix {
 // space. All vectors given in world-view units. The from vector is the location
 // of the camera, the to vector is the location where it's looking, and the up
 // vector orients the camera along the viewing direction implied by from and to.
+// Most of the time, up can just be the y-axis Vec{0, 1, 0}.
 //
 // See:
 //
@@ -88,12 +86,12 @@ func Rotate(theta float64, axis Unit) *Matrix {
 //
 // We use a right-handed system, so the arguments are reversed. Other than that,
 // the PBRT and RTOW implementations are in agreement.
-func LookAt(from, to Vec, up Unit) *Matrix {
+func LookAt(from, to Vec, up Unit) *Mtx {
 	zaxis, _ := from.Minus(to).Unit()
 	xaxis, _ := up.Cross(zaxis)
 	yaxis, _ := zaxis.Cross(xaxis)
 
-	return &Matrix{
+	return &Mtx{
 		{xaxis[0], yaxis[0], zaxis[0], from[0]},
 		{xaxis[1], yaxis[1], zaxis[1], from[1]},
 		{xaxis[2], yaxis[2], zaxis[2], from[2]},

@@ -2,7 +2,7 @@ package geo
 
 import "math"
 
-var Identity = &Matrix{
+var Identity = &Mtx{
 	{1, 0, 0, 0},
 	{0, 1, 0, 0},
 	{0, 0, 1, 0},
@@ -24,11 +24,11 @@ var Identity = &Matrix{
 //
 //	var a Matrix
 //	fmt.Println("a12:", a[1][2])
-type Matrix [4][4]float64
+type Mtx [4][4]float64
 
 // Clone returns a copy of this matrix.
-func (a *Matrix) Clone() *Matrix {
-	b := &Matrix{}
+func (a *Mtx) Clone() *Mtx {
+	b := &Mtx{}
 	copy(b[0][:], a[0][:])
 	copy(b[1][:], a[1][:])
 	copy(b[2][:], a[2][:])
@@ -37,10 +37,10 @@ func (a *Matrix) Clone() *Matrix {
 }
 
 // Mult returns a new matrix that is the value of a*b.
-func (a *Matrix) Mult(b *Matrix) *Matrix {
+func (a *Mtx) Mult(b *Mtx) *Mtx {
 	// because we're row-major, this is straight from the mathematical
 	// definition
-	c := &Matrix{}
+	c := &Mtx{}
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
 			for k := 0; k < 4; k++ {
@@ -65,7 +65,7 @@ func (a *Matrix) Mult(b *Matrix) *Matrix {
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#HomogeneousCoordinates
 // https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-points-and-vectors
-func (a *Matrix) MultPoint(v Vec) Vec {
+func (a *Mtx) MultPoint(v Vec) Vec {
 	return Vec{
 		a[0][0]*v[0] + a[0][1]*v[1] + a[0][2]*v[2] + a[0][3],
 		a[1][0]*v[0] + a[1][1]*v[1] + a[1][2]*v[2] + a[1][3],
@@ -87,7 +87,7 @@ func (a *Matrix) MultPoint(v Vec) Vec {
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#HomogeneousCoordinates
 // https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-points-and-vectors
-func (a *Matrix) MultVec(v Vec) Vec {
+func (a *Mtx) MultVec(v Vec) Vec {
 	return Vec{
 		a[0][0]*v[0] + a[0][1]*v[1] + a[0][2]*v[2],
 		a[1][0]*v[0] + a[1][1]*v[1] + a[1][2]*v[2],
@@ -98,12 +98,12 @@ func (a *Matrix) MultVec(v Vec) Vec {
 // MultUnit is a convenience method. Its precisely equilent to
 //
 //	MultVec(Vec(u))
-func (a *Matrix) MultUnit(u Unit) Vec {
+func (a *Mtx) MultUnit(u Unit) Vec {
 	return a.MultVec(Vec(u))
 }
 
 // T returns a new matrix that is the transpose of this matrix.
-func (a *Matrix) T() *Matrix {
+func (a *Mtx) T() *Mtx {
 	t := a.Clone()
 	for i := 0; i < 4; i++ {
 		for j := i + 1; j < 4; j++ {
@@ -118,7 +118,7 @@ func (a *Matrix) T() *Matrix {
 // Uses simple Gauss-Jordan elimination with partial pivoting.
 // https://en.wikipedia.org/wiki/Gaussian_elimination
 // https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry
-func (a *Matrix) Inv() *Matrix {
+func (a *Mtx) Inv() *Mtx {
 	// Create augmented matrix
 	m := [4][8]float64{}
 	for i := 0; i < 4; i++ {
@@ -172,7 +172,7 @@ func (a *Matrix) Inv() *Matrix {
 		}
 	}
 
-	aInv := &Matrix{}
+	aInv := &Mtx{}
 	copy(aInv[0][:], m[0][4:])
 	copy(aInv[1][:], m[1][4:])
 	copy(aInv[2][:], m[2][4:])
