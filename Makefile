@@ -2,4 +2,5 @@
 
 clean:
 	@echo "==> cleaning"
-	@rm *.png
+	@find . -type f -name '*.png' -delete
+	@find . -type f -name '*.prof' -delete

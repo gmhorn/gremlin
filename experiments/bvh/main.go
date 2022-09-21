@@ -1,15 +1,22 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"math"
 	"math/rand"
 	"os"
+	"runtime/pprof"
+	"time"
 
 	"github.com/gmhorn/gremlin/pkg/geo"
 )
+
+// Profiling
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 // bias is minumum distance unit
 const bias = 1e-4
@@ -27,6 +34,17 @@ type Tri struct {
 }
 
 func main() {
+	// Flag parsing
+	flag.Parse()
+	if *cpuprofile != "" {
+		p, err := os.Create(*cpuprofile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(p)
+		defer pprof.StopCPUProfile()
+	}
+
 	// Image
 	img := image.NewRGBA(image.Rect(0, 0, imageWidth, imageHeight))
 
@@ -39,6 +57,7 @@ func main() {
 	// World
 	tris := InitTris(64)
 
+	start := time.Now()
 	// Render
 	for y := 0; y < imageHeight; y++ {
 		for x := 0; x < imageWidth; x++ {
@@ -67,6 +86,7 @@ func main() {
 			img.Set(x, imageHeight-y, c.ToRGBA())
 		}
 	}
+	fmt.Println("Took:", time.Since(start))
 
 	// Write out
 	file, err := os.Create(fileName)
