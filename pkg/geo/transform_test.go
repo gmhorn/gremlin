@@ -26,10 +26,10 @@ func TestLookAt(t *testing.T) {
 	to := Origin
 	m := LookAt(from, to, YAxis)
 
-	r := Ray{Origin: Origin, Dir: ZAxis}
+	r := NewRay(Origin, ZAxis)
 
 	assert.Equal(t, from, m.MultPoint(r.Origin))
 
 	c := 1.0 / math.Sqrt(3.0)
-	assertVecEqual(t, Vec{c, c, c}, m.MultUnit(r.Dir), 0.00001)
+	assertVecEqual(t, Vec{c, c, c}, m.MultVec(r.Dir), 0.00001)
 }

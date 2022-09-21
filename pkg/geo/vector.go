@@ -5,8 +5,15 @@ import (
 	"math"
 )
 
-// Origin is the unique 0-Vec representing the origin of coordinate space.
+// Origin vector.
 var Origin = Vec{0, 0, 0}
+
+// Axis vectors
+var (
+	XAxis = Vec{1, 0, 0}
+	YAxis = Vec{0, 1, 0}
+	ZAxis = Vec{0, 0, 1}
+)
 
 // Vec is "real-valued" (float64-valued) vector in R3. I went back and forth
 // between this typedef and a struct with X, Y, Z members; ultimately having
@@ -53,14 +60,20 @@ func (a Vec) Cross(b Vec) Vec {
 }
 
 // Unit normalizes this vector.
-func (a Vec) Unit() (Unit, bool) {
-	d := a.Len()
-	return Unit(a.Scale(1 / d)), d > 0
+func (a Vec) Normalize() (Vec, bool) {
+	n := 1.0 / a.Len()
+	return Vec{n * a[0], n * a[1], n * a[2]}, math.IsInf(n, 0)
 }
 
 // Len returns the length of this vector.
 func (a Vec) Len() float64 {
 	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
+}
+
+// Enters returns whether this vector is entering the plane represented by the
+// normal.
+func (v Vec) Enters(normal Vec) bool {
+	return normal.Dot(v) < 0
 }
 
 // HasNaNs returns true if any component of this vector is an IEEE 754

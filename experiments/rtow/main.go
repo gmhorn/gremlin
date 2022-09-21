@@ -28,7 +28,8 @@ func rayColor(ray *geo.Ray, world Hittable) Color {
 	}
 
 	// Else paint background
-	t := 0.5 * (ray.Dir[1] + 1.0)
+	unitDir, _ := ray.Dir.Normalize()
+	t := 0.5 * (unitDir[1] + 1.0)
 	return Blue.Lerp(White, t)
 }
 
@@ -69,9 +70,8 @@ func main() {
 			scrn := lowerLeft.Plus(horizontal.Scale(u))
 			scrn = scrn.Plus(vertical.Scale(v))
 
-			// Normalize it
-			dir, _ := scrn.Unit()
-			ray := &geo.Ray{Origin: origin, Dir: dir}
+			// Create ray
+			ray := geo.NewRay(origin, scrn)
 
 			// Calculate color
 			c := rayColor(ray, world)

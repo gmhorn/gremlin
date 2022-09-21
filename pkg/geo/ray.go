@@ -1,10 +1,8 @@
 package geo
 
-// Ray is a geometric ray, with origin given by a Vec and direction given
-// by a Unit.
+// Ray is a geometric ray.
 type Ray struct {
-	Origin Vec
-	Dir    Unit
+	Origin, Dir Vec
 }
 
 // NewRay is a convenience constructor for the Ray struct. Mostly because
@@ -14,7 +12,7 @@ type Ray struct {
 // is much more tedious than
 //
 //	r := NewRay(origin, dir)
-func NewRay(origin Vec, dir Unit) *Ray {
+func NewRay(origin, dir Vec) *Ray {
 	return &Ray{origin, dir}
 }
 
