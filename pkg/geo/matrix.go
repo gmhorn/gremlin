@@ -23,18 +23,16 @@ var Identity = &Matrix{
 // And Matrix indexing works similar:
 //
 //	var a Matrix
-//	fmt.Println("a12", a[1][2])
+//	fmt.Println("a12:", a[1][2])
 type Matrix [4][4]float64
 
 // Clone returns a copy of this matrix.
 func (a *Matrix) Clone() *Matrix {
 	b := &Matrix{}
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			b[i][j] = a[i][j]
-		}
-	}
-
+	copy(b[0][:], a[0][:])
+	copy(b[1][:], a[1][:])
+	copy(b[2][:], a[2][:])
+	copy(b[3][:], a[3][:])
 	return b
 }
 
@@ -106,10 +104,10 @@ func (a *Matrix) MultUnit(u Unit) Vec {
 
 // T returns a new matrix that is the transpose of this matrix.
 func (a *Matrix) T() *Matrix {
-	t := &Matrix{}
+	t := a.Clone()
 	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			t[i][j] = a[j][i]
+		for j := i + 1; j < 4; j++ {
+			t[i][j], t[j][i] = t[j][i], t[i][j]
 		}
 	}
 	return t
