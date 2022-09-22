@@ -65,6 +65,12 @@ func (a Vec) Normalize() (Vec, bool) {
 	return Vec{n * a[0], n * a[1], n * a[2]}, math.IsInf(n, 0)
 }
 
+// Unit return the normalized vector.
+func (a Vec) Unit() (Unit, bool) {
+	n := 1.0 / a.Len()
+	return Unit{n * a[0], n * a[1], n * a[2]}, math.IsInf(n, 0)
+}
+
 // Len returns the length of this vector.
 func (a Vec) Len() float64 {
 	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
@@ -84,8 +90,5 @@ func (a Vec) HasNaNs() bool {
 
 // String returns a string representation of this vector.
 func (a *Vec) String() string {
-	if a == nil {
-		return ""
-	}
 	return fmt.Sprintf("%g,%g,%g", a[0], a[1], a[2])
 }
