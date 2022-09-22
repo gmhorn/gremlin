@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 
+	"github.com/gmhorn/gremlin/pkg/camera"
 	"github.com/gmhorn/gremlin/pkg/geo"
 )
 
@@ -15,6 +16,7 @@ const fileName = "rtow.png"
 const imageWidth = 400
 const imageHeight = 300
 const aspectRatio = float64(imageWidth) / float64(imageHeight)
+const fov = 100.0
 
 var Red = Color{1.0, 0.0, 0.0}
 var White = Color{1.0, 1.0, 1.0}
@@ -38,16 +40,7 @@ func main() {
 	img := image.NewRGBA(image.Rect(0, 0, imageWidth, imageHeight))
 
 	// Camera
-	viewportHeight := 2.0
-	viewportWidth := aspectRatio * viewportHeight
-	focalLength := 1.0
-
-	origin := geo.Origin
-	horizontal := geo.XAxis.Scale(viewportWidth)
-	vertical := geo.YAxis.Scale(viewportHeight)
-	lowerLeft := origin.Minus(horizontal.Scale(0.5))
-	lowerLeft = lowerLeft.Minus(vertical.Scale(0.5))
-	lowerLeft = lowerLeft.Minus(geo.Vec{0, 0, focalLength})
+	cam := camera.NewPerspective(aspectRatio, fov)
 
 	//World
 	var world Aggregate
@@ -63,15 +56,11 @@ func main() {
 	// Render
 	for y := 0; y < imageHeight; y++ {
 		for x := 0; x < imageWidth; x++ {
-			u := float64(x) / (imageWidth - 1)
-			v := 1.0 - (float64(y) / (imageHeight - 1))
-
-			// calculate pixel pos in global coord space
-			scrn := lowerLeft.Plus(horizontal.Scale(u))
-			scrn = scrn.Plus(vertical.Scale(v))
+			u := (float64(x) + 0.5) / imageWidth
+			v := (float64(y) + 0.5) / imageHeight
 
 			// Create ray
-			ray := geo.NewRay(origin, scrn)
+			ray := cam.Ray(u, v)
 
 			// Calculate color
 			c := rayColor(ray, world)
