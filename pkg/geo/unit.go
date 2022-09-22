@@ -2,6 +2,13 @@ package geo
 
 import "fmt"
 
+// Axis vectors
+var (
+	XAxis = Unit{1, 0, 0}
+	YAxis = Unit{0, 1, 0}
+	ZAxis = Unit{0, 0, 1}
+)
+
 // Unit is a unit vector (vector of length 1).
 //
 // Go doesn't have method overloading, implicit type conversion, or good support
@@ -32,6 +39,12 @@ func (u Unit) Dot(v Unit) float64 {
 func (u Unit) Cross(v Unit) (Unit, bool) {
 	// Can't assume always a unit because u.Cross(u) is 0-vector.
 	return Vec(u).Cross(Vec(v)).Unit()
+}
+
+// Enters returns whether this unit vector is entering the plane represented
+// by the normal.
+func (u Unit) Enters(normal Unit) bool {
+	return normal.Dot(u) < 0
 }
 
 // String returns a string representation of this unit vector.

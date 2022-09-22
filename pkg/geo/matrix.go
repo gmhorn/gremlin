@@ -95,10 +95,11 @@ func (a *Mtx) MultVec(v Vec) Vec {
 	}
 }
 
-// MultRay does a point-like multiplcation of the ray's origin and vector-like
-// multiplication of the ray's direction.
-func (a *Mtx) MultRay(r *Ray) *Ray {
-	return NewRay(a.MultPoint(r.Origin), a.MultVec(r.Dir))
+// MultUnit is a convenience for
+//
+//	a.MultVec(Vec(u))
+func (a *Mtx) MultUnit(u Unit) Vec {
+	return a.MultVec(Vec(u))
 }
 
 // T returns a new matrix that is the transpose of this matrix.

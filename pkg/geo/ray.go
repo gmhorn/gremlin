@@ -2,7 +2,8 @@ package geo
 
 // Ray is a geometric ray.
 type Ray struct {
-	Origin, Dir Vec
+	Origin Vec
+	Dir    Unit
 }
 
 // NewRay is a convenience constructor for the Ray struct. Mostly because
@@ -12,7 +13,7 @@ type Ray struct {
 // is much more tedious than
 //
 //	r := NewRay(origin, dir)
-func NewRay(origin, dir Vec) *Ray {
+func NewRay(origin Vec, dir Unit) *Ray {
 	return &Ray{origin, dir}
 }
 

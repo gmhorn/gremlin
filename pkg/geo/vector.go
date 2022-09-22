@@ -8,13 +8,6 @@ import (
 // Origin vector.
 var Origin = Vec{0, 0, 0}
 
-// Axis vectors
-var (
-	XAxis = Vec{1, 0, 0}
-	YAxis = Vec{0, 1, 0}
-	ZAxis = Vec{0, 0, 1}
-)
-
 // Vec is "real-valued" (float64-valued) vector in R3. I went back and forth
 // between this typedef and a struct with X, Y, Z members; ultimately having
 // the array typedef allows for cleaner calling code. Specifically,
@@ -74,12 +67,6 @@ func (a Vec) Unit() (Unit, bool) {
 // Len returns the length of this vector.
 func (a Vec) Len() float64 {
 	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
-}
-
-// Enters returns whether this vector is entering the plane represented by the
-// normal.
-func (v Vec) Enters(normal Vec) bool {
-	return normal.Dot(v) < 0
 }
 
 // HasNaNs returns true if any component of this vector is an IEEE 754

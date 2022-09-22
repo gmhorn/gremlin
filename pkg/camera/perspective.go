@@ -72,7 +72,7 @@ func (c *Perspective) Ray(u, v float64) *geo.Ray {
 		(1 - 2*v) * c.tanHalfFOV,
 		-1,
 	}
-	dir, _ := c.camToWorld.MultVec(p.Minus(c.eye)).Normalize()
+	dir, _ := c.camToWorld.MultVec(p.Minus(c.eye)).Unit()
 	return geo.NewRay(c.eye, dir)
 }
 

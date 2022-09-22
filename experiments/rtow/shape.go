@@ -11,7 +11,7 @@ import (
 // inside the object.
 type Hit struct {
 	Pt       geo.Vec
-	Norm     geo.Vec
+	Norm     geo.Unit
 	T        float64
 	Interior bool
 }
@@ -46,7 +46,7 @@ type Sphere struct {
 
 func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
 	oc := r.Origin.Minus(s.Center)
-	a := r.Dir.Dot(r.Dir) // r.Dir.length_squared()
+	a := 1.0 // r.Dir.length_squared() if direction not normalized
 	halfB := oc.Dot(geo.Vec(r.Dir))
 	c := oc.Dot(oc) - s.Radius*s.Radius
 
@@ -67,7 +67,7 @@ func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
 
 	// Calculate the intersection point and outward normal.
 	point := r.At(root)
-	norm := point.Minus(s.Center)
+	norm, _ := point.Minus(s.Center).Unit()
 
 	// Determine if ray is coming from inside the sphere
 	interior := r.Dir.Enters(norm)
