@@ -5,6 +5,9 @@ import (
 	"math"
 )
 
+// Epsilon is our (generous) double-precision floating point epsilon.
+const Epsilon = 1e-8
+
 // Origin vector.
 var Origin = Vec{0, 0, 0}
 
@@ -17,6 +20,14 @@ var Origin = Vec{0, 0, 0}
 // gives an ugly warning for the struct-style. The tradeoff is slightly uglier
 // implementation code.
 type Vec [3]float64
+
+// Reflected returns a new vector that is the reflection of the incident vector
+// about the normal.
+//
+//	v - 2(v*n)*n
+func Reflected(incident Vec, normal Unit) Vec {
+	return incident.Minus(normal.Scale(2 * incident.Dot(Vec(normal))))
+}
 
 // Plus returns the vector a + b.
 func (a Vec) Plus(b Vec) Vec {
@@ -77,6 +88,11 @@ func (a Vec) LenSquared() float64 {
 // NaN.
 func (a Vec) HasNaNs() bool {
 	return math.IsNaN(a[0]) || math.IsNaN(a[1]) || math.IsNaN(a[2])
+}
+
+// NearZero returns true if a vector is "pretty close" to zero.
+func (a Vec) NearZero() bool {
+	return math.Abs(a[0]) < Epsilon && math.Abs(a[1]) < Epsilon && math.Abs(a[2]) < Epsilon
 }
 
 // String returns a string representation of this vector.
