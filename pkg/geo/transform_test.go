@@ -22,14 +22,14 @@ func TestScale(t *testing.T) {
 }
 
 func TestLookAt(t *testing.T) {
-	from := Vec{10, 10, 10}
-	to := Origin
-	m := LookAt(from, to, YAxis)
+	eye := Vec{10, 10, 10}
+	target := Origin
+	m := LookAt(eye, target, YAxis)
 
-	r := NewRay(Origin, ZAxis)
+	r := NewRay(Origin, Unit{0, 0, -1})
 
-	assert.Equal(t, from, m.MultPoint(r.Origin))
+	assert.Equal(t, eye, m.MultPoint(r.Origin))
 
 	c := 1.0 / math.Sqrt(3.0)
-	assertVecEqual(t, Vec{c, c, c}, m.MultVec(r.Dir), 0.00001)
+	assertVecEqual(t, Vec{-c, -c, -c}, m.MultUnit(r.Dir), 0.00001)
 }

@@ -8,13 +8,6 @@ import (
 // Origin vector.
 var Origin = Vec{0, 0, 0}
 
-// Axis vectors
-var (
-	XAxis = Vec{1, 0, 0}
-	YAxis = Vec{0, 1, 0}
-	ZAxis = Vec{0, 0, 1}
-)
-
 // Vec is "real-valued" (float64-valued) vector in R3. I went back and forth
 // between this typedef and a struct with X, Y, Z members; ultimately having
 // the array typedef allows for cleaner calling code. Specifically,
@@ -65,15 +58,15 @@ func (a Vec) Normalize() (Vec, bool) {
 	return Vec{n * a[0], n * a[1], n * a[2]}, math.IsInf(n, 0)
 }
 
+// Unit return the normalized vector.
+func (a Vec) Unit() (Unit, bool) {
+	n := 1.0 / a.Len()
+	return Unit{n * a[0], n * a[1], n * a[2]}, math.IsInf(n, 0)
+}
+
 // Len returns the length of this vector.
 func (a Vec) Len() float64 {
 	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
-}
-
-// Enters returns whether this vector is entering the plane represented by the
-// normal.
-func (v Vec) Enters(normal Vec) bool {
-	return normal.Dot(v) < 0
 }
 
 // HasNaNs returns true if any component of this vector is an IEEE 754
@@ -83,9 +76,6 @@ func (a Vec) HasNaNs() bool {
 }
 
 // String returns a string representation of this vector.
-func (a *Vec) String() string {
-	if a == nil {
-		return ""
-	}
-	return fmt.Sprintf("%g,%g,%g", a[0], a[1], a[2])
+func (a Vec) String() string {
+	return fmt.Sprintf("Vec(%5f, %5f, %5f)", a[0], a[1], a[2])
 }
