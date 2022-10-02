@@ -16,7 +16,7 @@ const fileName = "rtow.png"
 const imageWidth = 400
 const imageHeight = 300
 const aspectRatio = float64(imageWidth) / float64(imageHeight)
-const fov = 100.0
+const fov = 90.0
 
 var Red = Color{1.0, 0.0, 0.0}
 var White = Color{1.0, 1.0, 1.0}
@@ -40,6 +40,7 @@ func main() {
 
 	// Camera
 	cam := camera.NewPerspective(aspectRatio, fov)
+	cam.MoveTo(geo.Vec{0, 0, 100})
 
 	//World
 	var world Aggregate
