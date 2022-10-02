@@ -46,7 +46,7 @@ type Sphere struct {
 func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
 	L := r.Origin.Minus(s.Center)
 
-	a := 1.0 // a = ||r.Dir||^2 == 1
+	a := r.Dir.Dot(r.Dir)
 	b := 2 * L.Dot(geo.Vec(r.Dir))
 	c := L.Dot(L) - s.Radius*s.Radius
 
@@ -68,7 +68,8 @@ func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
 	norm, _ := point.Minus(s.Center).Unit()
 
 	// Determine if ray is coming from inside the sphere
-	interior := r.Dir.Enters(norm)
+	unitDir, _ := r.Dir.Unit()
+	interior := unitDir.Enters(norm)
 	// If it is, we need to flip the normal its towards the center of the sphere
 	if interior {
 		norm = norm.Reverse()

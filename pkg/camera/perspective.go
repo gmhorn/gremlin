@@ -82,7 +82,7 @@ func (c *Perspective) Ray(u, v float64) *geo.Ray {
 	// ...and the direction is given by (p-camera_origin) == p-{0, 0, 0} == p
 	//
 	// All that remains is to convert that direction to world space.
-	dir, _ := c.camToWorld.MultVec(p).Unit()
+	dir := c.camToWorld.MultVec(p)
 
 	return geo.NewRay(c.eye, dir)
 }
