@@ -43,9 +43,8 @@ func Scale(v Vec) *Mtx {
 //	Rotate(axis).Inv() == Rotate(axis).T()
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
-func Rotate(theta float64, axis Vec) *Mtx {
+func Rotate(theta float64, axis Unit) *Mtx {
 	mtx := Identity.Clone()
-	axis, _ = axis.Normalize()
 
 	sinTheta := math.Sin(theta)
 	cosTheta := math.Cos(theta)

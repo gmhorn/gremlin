@@ -16,7 +16,7 @@ type Sphere struct {
 func (s *Sphere) Intersect(ray *geo.Ray) float64 {
 	L := ray.Origin.Minus(s.Center)
 
-	a := ray.Dir.Dot(ray.Dir)
+	a := ray.Dir.LenSquared()
 	b := 2 * L.Dot(geo.Vec(ray.Dir))
 	c := L.Dot(L) - s.Radius*s.Radius
 

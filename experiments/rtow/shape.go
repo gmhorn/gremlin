@@ -46,7 +46,7 @@ type Sphere struct {
 func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
 	L := r.Origin.Minus(s.Center)
 
-	a := r.Dir.Dot(r.Dir)
+	a := r.Dir.LenSquared()
 	b := 2 * L.Dot(geo.Vec(r.Dir))
 	c := L.Dot(L) - s.Radius*s.Radius
 

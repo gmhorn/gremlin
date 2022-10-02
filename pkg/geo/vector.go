@@ -52,12 +52,6 @@ func (a Vec) Cross(b Vec) Vec {
 	}
 }
 
-// Unit normalizes this vector.
-func (a Vec) Normalize() (Vec, bool) {
-	n := 1.0 / a.Len()
-	return Vec{n * a[0], n * a[1], n * a[2]}, math.IsInf(n, 0)
-}
-
 // Unit return the normalized vector.
 func (a Vec) Unit() (Unit, bool) {
 	n := 1.0 / a.Len()
@@ -67,6 +61,16 @@ func (a Vec) Unit() (Unit, bool) {
 // Len returns the length of this vector.
 func (a Vec) Len() float64 {
 	return math.Sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2])
+}
+
+// LenSquared is a convenience for returning the squared-length. This is
+// identitically equivalent to dotting the vector with itself, i.e.
+//
+//	a.LenSquared() == a.Dot(a)
+//
+// But is slightly more efficient, since it avoids a copy.
+func (a Vec) LenSquared() float64 {
+	return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
 }
 
 // HasNaNs returns true if any component of this vector is an IEEE 754
