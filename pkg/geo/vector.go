@@ -76,6 +76,6 @@ func (a Vec) HasNaNs() bool {
 }
 
 // String returns a string representation of this vector.
-func (a *Vec) String() string {
-	return fmt.Sprintf("%g,%g,%g", a[0], a[1], a[2])
+func (a Vec) String() string {
+	return fmt.Sprintf("Vec(%5f, %5f, %5f)", a[0], a[1], a[2])
 }

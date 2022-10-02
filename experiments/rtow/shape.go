@@ -1,9 +1,8 @@
 package main
 
 import (
-	"math"
-
 	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/pkg/util"
 )
 
 // Record of a ray hit. Pt is the location of the intersection and Norm is the
@@ -45,21 +44,20 @@ type Sphere struct {
 }
 
 func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
-	oc := r.Origin.Minus(s.Center)
-	a := 1.0 // r.Dir.length_squared() if direction not normalized
-	halfB := oc.Dot(geo.Vec(r.Dir))
-	c := oc.Dot(oc) - s.Radius*s.Radius
+	L := r.Origin.Minus(s.Center)
 
-	disc := halfB*halfB - a*c
-	if disc < 0 {
+	a := 1.0 // a = ||r.Dir||^2 == 1
+	b := 2 * L.Dot(geo.Vec(r.Dir))
+	c := L.Dot(L) - s.Radius*s.Radius
+
+	t0, t1, found := util.SolveQuadratic(a, b, c)
+	if !found {
 		return nil, false
 	}
 
-	// Find nearest root in acceptable range
-	sqrtd := math.Sqrt(disc)
-	root := (-halfB - sqrtd) / a
+	root := t0
 	if root < tMin || root > tMax {
-		root = (-halfB + sqrtd) / a
+		root = t1
 		if root < tMin || root > tMax {
 			return nil, false
 		}

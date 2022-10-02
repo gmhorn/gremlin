@@ -13,10 +13,10 @@ import (
 
 const fileName = "rtow.png"
 
-const imageWidth = 400
+const imageWidth = 800
 const imageHeight = 300
 const aspectRatio = float64(imageWidth) / float64(imageHeight)
-const fov = 90.0
+const fov = 75.0
 
 var Red = Color{1.0, 0.0, 0.0}
 var White = Color{1.0, 1.0, 1.0}
@@ -40,12 +40,21 @@ func main() {
 
 	// Camera
 	cam := camera.NewPerspective(aspectRatio, fov)
-	cam.MoveTo(geo.Vec{0, 0, 100})
+	cam.MoveTo(geo.Vec{-3, 3, 1})
+	cam.PointAt(geo.Vec{0, 0, -1})
 
 	//World
 	var world Aggregate
 	world = append(world, &Sphere{
-		Center: geo.Vec{0, 0, -1},
+		Center: geo.Vec{-0.5, 0, -1},
+		Radius: 0.5,
+	})
+	world = append(world, &Sphere{
+		Center: geo.Vec{-0.5, 0, -2},
+		Radius: 0.5,
+	})
+	world = append(world, &Sphere{
+		Center: geo.Vec{0.5, 0, -1},
 		Radius: 0.5,
 	})
 	world = append(world, &Sphere{

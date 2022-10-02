@@ -67,12 +67,23 @@ func (c *Perspective) PointAt(location geo.Vec) *Perspective {
 //
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays
 func (c *Perspective) Ray(u, v float64) *geo.Ray {
+	// In camera space, the camera is centered a the origin and facing down
+	// the negative-z axis ("into the page"). The screen is centered one
+	// unit down the z-axis at (0, 0, -1)
+	//
+	// With this, we can construct the ray vector fairly simply. The point on
+	// the screen given by (u, v) is calculated below...
 	p := geo.Vec{
 		(2*u - 1) * c.aspectRatio * c.tanHalfFOV,
 		(1 - 2*v) * c.tanHalfFOV,
 		-1,
 	}
-	dir, _ := c.camToWorld.MultVec(p.Minus(c.eye)).Unit()
+
+	// ...and the direction is given by (p-camera_origin) == p-{0, 0, 0} == p
+	//
+	// All that remains is to convert that direction to world space.
+	dir, _ := c.camToWorld.MultVec(p).Unit()
+
 	return geo.NewRay(c.eye, dir)
 }
 
