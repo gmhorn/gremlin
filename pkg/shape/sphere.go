@@ -1,4 +1,4 @@
-package primitive
+package shape
 
 import (
 	"log"

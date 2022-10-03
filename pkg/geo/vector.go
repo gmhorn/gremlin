@@ -5,9 +5,6 @@ import (
 	"math"
 )
 
-// Epsilon is our (generous) double-precision floating point epsilon.
-const Epsilon = 1e-8
-
 // Origin vector.
 var Origin = Vec{0, 0, 0}
 
@@ -92,7 +89,7 @@ func (a Vec) HasNaNs() bool {
 
 // NearZero returns true if a vector is "pretty close" to zero.
 func (a Vec) NearZero() bool {
-	return math.Abs(a[0]) < Epsilon && math.Abs(a[1]) < Epsilon && math.Abs(a[2]) < Epsilon
+	return math.Abs(a[0]) < epsilon && math.Abs(a[1]) < epsilon && math.Abs(a[2]) < epsilon
 }
 
 // String returns a string representation of this vector.
