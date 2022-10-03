@@ -3,16 +3,18 @@ package geo
 // Ray is a geometric ray.
 //
 // Origin is a vector defining the point the ray originates from. Dir is the
-// vector (not necessarily normalized!) that defines the ray's direction. InvDir
-// is the vector formed by the component-wise reciprocals of the ray's
-// direction vector. The majority of the time, rays will be used as input to
-// Bounds.Intersect() and having these pre-computed speeds things up.
-//
-// The upshot is, hand-constucting Ray structs directly, or directly
-// manipulating its components, can lead to trouble! Make sure to either update
-// both Dir and InvDir at the same time, or just use the NewRay function.
+// vector (not necessarily normalized!) that defines the ray's direction.
+
+// Ray structs also contain non-public members that are mostly used for
+// accelerating intersection tests with Bounds struct. As result:
+// - Never construct these structs directly. Always use NewRay
+// - Never modify the public members of these structs. Consider them read-only
 type Ray struct {
-	Origin, Dir, InvDir Vec
+	Origin Vec
+	Dir    Vec
+
+	invDir Vec
+	sign   [3]int
 }
 
 // NewRay creates a new Ray at the given origin and direction
@@ -20,11 +22,23 @@ func NewRay(origin, dir Vec) *Ray {
 	if dir.NearZero() {
 		panic("Cannot create Ray with 0-direction")
 	}
-	return &Ray{
+
+	ray := &Ray{
 		Origin: origin,
 		Dir:    dir,
-		InvDir: Vec{1 / dir[0], 1 / dir[1], 1 / dir[2]},
 	}
+
+	// calculate reciprocals and signs
+	// sign = (int) (recip < 0) but since Go doesn't have casting from
+	// bool to in, have to do it in an explicit if-block
+	for i, d := range dir {
+		ray.invDir[i] = 1 / d
+		if ray.invDir[i] < 0 {
+			ray.sign[i] = 1
+		}
+	}
+
+	return ray
 }
 
 // At returns a Vec3 that gives the position along the Ray at distance t.
