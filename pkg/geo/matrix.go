@@ -102,6 +102,13 @@ func (a *Mtx) MultUnit(u Unit) Vec {
 	return a.MultVec(Vec(u))
 }
 
+// MultRay multiplies a ray by this matrix. Effectively, it does a point-like
+// multiplcation of the ray's origin, and a vector-like multiplication of the
+// ray's direction.
+func (a *Mtx) MultRay(r *Ray) *Ray {
+	return NewRay(a.MultPoint(r.Origin), a.MultVec(r.Dir))
+}
+
 // T returns a new matrix that is the transpose of this matrix.
 func (a *Mtx) T() *Mtx {
 	t := a.Clone()
