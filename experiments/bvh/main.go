@@ -109,11 +109,11 @@ func initTris(count int) []*shape.Triangle {
 	tris := make([]*shape.Triangle, 0)
 
 	for i := 0; i < count; i++ {
-		r0 := geo.Vec{rand.Float64(), rand.Float64(), rand.Float64()}
-		r1 := geo.Vec{rand.Float64(), rand.Float64(), rand.Float64()}
-		r2 := geo.Vec{rand.Float64(), rand.Float64(), rand.Float64()}
+		r0 := geo.V(rand.Float64(), rand.Float64(), rand.Float64())
+		r1 := geo.V(rand.Float64(), rand.Float64(), rand.Float64())
+		r2 := geo.V(rand.Float64(), rand.Float64(), rand.Float64())
 
-		p0 := r0.Scale(9).Minus(geo.Vec{5, 5, 5})
+		p0 := r0.Scale(9).Minus(geo.V(5, 5, 5))
 		p1 := p0.Plus(r1)
 		p2 := p0.Plus(r2)
 
