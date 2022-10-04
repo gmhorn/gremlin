@@ -50,19 +50,13 @@ func (a Vec) Reverse() Vec {
 	return Vec{-a.X, -a.Y, -a.Z}
 }
 
-var DotCount int
-
 // Dot returns the dot product of this vector with b.
 func (a Vec) Dot(b Vec) float64 {
-	DotCount++
 	return a.X*b.X + a.Y*b.Y + a.Z*b.Z
 }
 
-var CrossCount int
-
 // Cross returns the cross product of this vector with b.
 func (a Vec) Cross(b Vec) Vec {
-	CrossCount++
 	return Vec{
 		a.Y*b.Z - a.Z*b.Y,
 		a.Z*b.X - a.X*b.Z,

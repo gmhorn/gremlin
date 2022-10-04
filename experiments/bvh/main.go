@@ -89,8 +89,6 @@ func main() {
 	fmt.Printf("Rendered in %s\n", dur)
 	fmt.Printf("Total intersections:      %d\n", shape.Calls)
 	fmt.Printf("Dur: %g\n", dur.Seconds()/float64(shape.Calls))
-	fmt.Printf("Dot product calls:   %d\n", geo.DotCount)
-	fmt.Printf("Cross product calls: %d\n", geo.CrossCount)
 
 	// Write out
 	file, err := os.Create(filename)
