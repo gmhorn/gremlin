@@ -23,17 +23,17 @@ func (b *Bounds) Intersect(ray *Ray) (t0, t1 float64, found bool) {
 // return the vector that is the component-wise minimum of the two vectors
 func vecMin(a, b Vec) Vec {
 	return Vec{
-		math.Min(a[0], b[0]),
-		math.Min(a[1], b[1]),
-		math.Min(a[2], b[2]),
+		math.Min(a.X, b.X),
+		math.Min(a.Y, b.Y),
+		math.Min(a.Z, b.Z),
 	}
 }
 
 // return the vector that is the component-wise maximum of the two vectors
 func vecMax(a, b Vec) Vec {
 	return Vec{
-		math.Max(a[0], b[0]),
-		math.Max(a[1], b[1]),
-		math.Max(a[2], b[2]),
+		math.Max(a.X, b.X),
+		math.Max(a.Y, b.Y),
+		math.Max(a.Z, b.Z),
 	}
 }

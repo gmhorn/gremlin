@@ -26,16 +26,17 @@ func NewRay(origin, dir Vec) *Ray {
 	ray := &Ray{
 		Origin: origin,
 		Dir:    dir,
+		invDir: Vec{1 / dir.X, 1 / dir.Y, 1 / dir.Z},
 	}
 
-	// calculate reciprocals and signs
-	// sign = (int) (recip < 0) but since Go doesn't have casting from
-	// bool to in, have to do it in an explicit if-block
-	for i, d := range dir {
-		ray.invDir[i] = 1 / d
-		if ray.invDir[i] < 0 {
-			ray.sign[i] = 1
-		}
+	if ray.invDir.X < 0 {
+		ray.sign[0] = 1
+	}
+	if ray.invDir.Y < 0 {
+		ray.sign[1] = 1
+	}
+	if ray.invDir.Z < 0 {
+		ray.sign[2] = 1
 	}
 
 	return ray

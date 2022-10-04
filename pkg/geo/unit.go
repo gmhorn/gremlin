@@ -22,17 +22,17 @@ type Unit Vec
 
 // Scale returns this unit vector scaled by t.
 func (u Unit) Scale(t float64) Vec {
-	return Vec{t * u[0], t * u[1], t * u[2]}
+	return Vec{t * u.X, t * u.Y, t * u.Z}
 }
 
 // Reverse returns a copy of this unit vector with all components flipped.
 func (u Unit) Reverse() Unit {
-	return Unit{-u[0], -u[1], -u[2]}
+	return Unit{-u.X, -u.Y, -u.Z}
 }
 
 // Dot returns the dot product of this unit vector with v.
 func (u Unit) Dot(v Unit) float64 {
-	return u[0]*v[0] + u[1]*v[1] + u[2]*v[2]
+	return u.X*v.X + u.Y*v.Y + u.Z*v.Z
 }
 
 // Cross returns the cross product of this unit vector with v.
@@ -49,5 +49,5 @@ func (u Unit) Enters(normal Unit) bool {
 
 // String returns a string representation of this unit vector.
 func (u *Unit) String() string {
-	return fmt.Sprintf("%g,%g,%g", u[0], u[1], u[2])
+	return fmt.Sprintf("%g,%g,%g", u.X, u.Y, u.Z)
 }
