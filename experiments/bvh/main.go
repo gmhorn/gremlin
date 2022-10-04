@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"image"
 	"image/color"
@@ -9,15 +8,12 @@ import (
 	"math"
 	"math/rand"
 	"os"
-	"runtime/pprof"
 	"time"
 
 	"github.com/gmhorn/gremlin/pkg/camera"
 	"github.com/gmhorn/gremlin/pkg/geo"
 	"github.com/gmhorn/gremlin/pkg/shape"
 )
-
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 const filename = "bvh.png"
 
@@ -29,10 +25,14 @@ const fov = 45.0
 var Black = Color{0, 0, 0}
 var White = Color{1, 1, 1}
 
+var intersectionTests int
+
 func rayColor(ray *geo.Ray, tris []*shape.Triangle) Color {
 	tMin := math.Inf(1)
 
 	for _, tri := range tris {
+		intersectionTests++
+
 		if t := tri.Intersect(ray); t >= 0 {
 			tMin = math.Min(tMin, t)
 		}
@@ -45,17 +45,6 @@ func rayColor(ray *geo.Ray, tris []*shape.Triangle) Color {
 }
 
 func main() {
-	// Profiling
-	flag.Parse()
-	if *cpuprofile != "" {
-		p, err := os.Create(*cpuprofile)
-		if err != nil {
-			panic(err)
-		}
-		pprof.StartCPUProfile(p)
-		defer pprof.StopCPUProfile()
-	}
-
 	// Image
 	img := image.NewRGBA(image.Rect(0, 0, imageWidth, imageHeight))
 
@@ -86,9 +75,10 @@ func main() {
 	}
 	dur := time.Since(start)
 
-	fmt.Printf("Rendered in %s\n", dur)
-	fmt.Printf("Total intersections:      %d\n", shape.Calls)
-	fmt.Printf("Dur: %g\n", dur.Seconds()/float64(shape.Calls))
+	// Print metrics
+	fmt.Printf("Total render time:  %s\n", dur)
+	fmt.Printf("Intersection Tests: %d\n", intersectionTests)
+	fmt.Printf("Average cost:       %5f ns/test\n", float64(dur.Nanoseconds())/float64(intersectionTests))
 
 	// Write out
 	file, err := os.Create(filename)

@@ -4,8 +4,6 @@ import (
 	"github.com/gmhorn/gremlin/pkg/geo"
 )
 
-var Calls int
-
 type Triangle struct {
 	p1, p2, p3   geo.Vec
 	edge1, edge2 geo.Vec
@@ -32,8 +30,6 @@ func NewTriangle(p1, p2, p3 geo.Vec) *Triangle {
 //
 // https://jacco.ompf2.com/2022/04/13/how-to-build-a-bvh-part-1-basics/
 func (tri *Triangle) Intersect(ray *geo.Ray) float64 {
-	Calls++
-
 	h := ray.Dir.Cross(tri.edge2)
 	a := h.Dot(tri.edge1)
 	if a > -0.0001 && a < 0.0001 {
