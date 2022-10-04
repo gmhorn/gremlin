@@ -67,7 +67,7 @@ func (a Vec) Cross(b Vec) Vec {
 // Unit return the normalized vector.
 func (a Vec) Unit() (Unit, bool) {
 	n := 1.0 / a.Len()
-	return Unit{n * a.X, n * a.Y, n * a.Z}, math.IsInf(n, 0)
+	return Unit{n * a.X, n * a.Y, n * a.Z}, !math.IsInf(n, 0)
 }
 
 // Len returns the length of this vector.
@@ -89,6 +89,11 @@ func (a Vec) LenSquared() float64 {
 // NaN.
 func (a Vec) HasNaNs() bool {
 	return math.IsNaN(a.X) || math.IsNaN(a.Y) || math.IsNaN(a.Z)
+}
+
+// HasInfs
+func (a Vec) HasInfs() bool {
+	return math.IsInf(a.X, 0) || math.IsInf(a.Y, 0) || math.IsInf(a.Z, 0)
 }
 
 // NearZero returns true if a vector is "pretty close" to zero.

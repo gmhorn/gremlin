@@ -35,10 +35,10 @@ func (u Unit) Dot(v Unit) float64 {
 	return u.X*v.X + u.Y*v.Y + u.Z*v.Z
 }
 
-// Cross returns the cross product of this unit vector with v.
-func (u Unit) Cross(v Unit) (Unit, bool) {
-	// Can't assume always a unit because u.Cross(u) is 0-vector.
-	return Vec(u).Cross(Vec(v)).Unit()
+// Cross returns the cross product of this unit vector with v. Note that in
+// general this will not itself be a unit vector.
+func (u Unit) Cross(v Unit) Vec {
+	return Vec(u).Cross(Vec(v))
 }
 
 // Enters returns whether this unit vector is entering the plane represented
@@ -49,5 +49,5 @@ func (u Unit) Enters(normal Unit) bool {
 
 // String returns a string representation of this unit vector.
 func (u *Unit) String() string {
-	return fmt.Sprintf("%g,%g,%g", u.X, u.Y, u.Z)
+	return fmt.Sprintf("Unit(%5f, %5f, %5f)", u.X, u.Y, u.Z)
 }

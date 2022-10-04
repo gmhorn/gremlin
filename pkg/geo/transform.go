@@ -1,6 +1,9 @@
 package geo
 
-import "math"
+import (
+	"log"
+	"math"
+)
 
 // Shift returns a transform matrix that translates by the delta vector.
 //
@@ -87,9 +90,20 @@ func Rotate(theta float64, axis Unit) *Mtx {
 // We use a right-handed system, so the arguments are reversed. Other than that,
 // the PBRT and RTOW implementations are in agreement.
 func LookAt(from, to Vec, up Unit) *Mtx {
-	zaxis, _ := from.Minus(to).Unit()
-	xaxis, _ := up.Cross(zaxis)
-	yaxis, _ := zaxis.Cross(xaxis)
+	zaxis, ok := from.Minus(to).Unit()
+	if !ok {
+		log.Fatalln("LookAt transform cannot have identical from and to vectors:", from, to)
+	}
+
+	xaxis, ok := up.Cross(zaxis).Unit()
+	if !ok {
+		log.Fatalln("LookAt transform up vector cannot be perpendicular to from or to vectors:", from, to, up)
+	}
+
+	yaxis, ok := zaxis.Cross(xaxis).Unit()
+	if !ok {
+		log.Fatalln("LookAt transform failed to construct orthonormal basis:", from, to, up)
+	}
 
 	return &Mtx{
 		{xaxis.X, yaxis.X, zaxis.X, from.X},
