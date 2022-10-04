@@ -41,6 +41,13 @@ func (u Unit) Cross(v Unit) Vec {
 	return Vec(u).Cross(Vec(v))
 }
 
+// HasInf returns true if any of this unit vector's components are positive or
+// negative infinity. Useful if you've called Unit() on a vector you're not sure
+// is secretly a 0-vector.
+func (u Unit) HasInfs() bool {
+	return Vec(u).HasInfs()
+}
+
 // Enters returns whether this unit vector is entering the plane represented
 // by the normal.
 func (u Unit) Enters(normal Unit) bool {

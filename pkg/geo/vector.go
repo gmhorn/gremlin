@@ -64,10 +64,11 @@ func (a Vec) Cross(b Vec) Vec {
 	}
 }
 
-// Unit return the normalized vector.
-func (a Vec) Unit() (Unit, bool) {
+// Unit return the normalized vector. It won't check that you tried to normalize
+// a 0-vector; use HasInfs on the result if you need to check.
+func (a Vec) Unit() Unit {
 	n := 1.0 / a.Len()
-	return Unit{n * a.X, n * a.Y, n * a.Z}, !math.IsInf(n, 0)
+	return Unit{n * a.X, n * a.Y, n * a.Z}
 }
 
 // Len returns the length of this vector.
@@ -91,7 +92,8 @@ func (a Vec) HasNaNs() bool {
 	return math.IsNaN(a.X) || math.IsNaN(a.Y) || math.IsNaN(a.Z)
 }
 
-// HasInfs
+// HasInfs checks if any of the vector's components are positive or negative
+// infinity.
 func (a Vec) HasInfs() bool {
 	return math.IsInf(a.X, 0) || math.IsInf(a.Y, 0) || math.IsInf(a.Z, 0)
 }

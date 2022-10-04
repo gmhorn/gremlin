@@ -90,18 +90,11 @@ func Rotate(theta float64, axis Unit) *Mtx {
 // We use a right-handed system, so the arguments are reversed. Other than that,
 // the PBRT and RTOW implementations are in agreement.
 func LookAt(from, to Vec, up Unit) *Mtx {
-	zaxis, ok := from.Minus(to).Unit()
-	if !ok {
-		log.Fatalln("LookAt transform cannot have identical from and to vectors:", from, to)
-	}
+	zaxis := from.Minus(to).Unit()
+	xaxis := up.Cross(zaxis).Unit()
+	yaxis := zaxis.Cross(xaxis).Unit()
 
-	xaxis, ok := up.Cross(zaxis).Unit()
-	if !ok {
-		log.Fatalln("LookAt transform up vector cannot be perpendicular to from or to vectors:", from, to, up)
-	}
-
-	yaxis, ok := zaxis.Cross(xaxis).Unit()
-	if !ok {
+	if xaxis.HasInfs() || yaxis.HasInfs() || zaxis.HasInfs() {
 		log.Fatalln("LookAt transform failed to construct orthonormal basis:", from, to, up)
 	}
 

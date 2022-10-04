@@ -21,7 +21,8 @@ func NewTriangle(p1, p2, p3 geo.Vec) *Triangle {
 		edge1: p2.Minus(p1),
 		edge2: p3.Minus(p2),
 	}
-	tri.normal, _ = tri.edge1.Cross(tri.edge2).Unit()
+
+	tri.normal = tri.edge1.Cross(tri.edge2).Unit()
 	tri.centroid = (p1.Plus(p2).Plus(p3)).Scale(1.0 / 3.0)
 
 	return tri
