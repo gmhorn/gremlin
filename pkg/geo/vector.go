@@ -30,6 +30,26 @@ func Reflected(incident Vec, normal Unit) Vec {
 	return incident.Minus(normal.Scale(2 * incident.Dot(Vec(normal))))
 }
 
+// VecMin returns a new vector that is the component-wise minimum. Useful for
+// constructing bounding volumes.
+func VecMin(a, b Vec) Vec {
+	return Vec{
+		X: math.Min(a.X, b.X),
+		Y: math.Min(a.Y, b.Y),
+		Z: math.Min(a.Z, b.Z),
+	}
+}
+
+// VecMax returns a new vector that is the component-wise maximum. Useful for
+// constructing bounding volumes.
+func VecMax(a, b Vec) Vec {
+	return Vec{
+		X: math.Max(a.X, b.X),
+		Y: math.Max(a.Y, b.Y),
+		Z: math.Max(a.Z, b.Z),
+	}
+}
+
 // Plus returns the vector a + b.
 func (a Vec) Plus(b Vec) Vec {
 	return Vec{a.X + b.X, a.Y + b.Y, a.Z + b.Z}

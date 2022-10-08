@@ -5,7 +5,7 @@ import (
 )
 
 type Triangle struct {
-	p1, p2, p3   geo.Vec
+	P1, P2, P3   geo.Vec
 	edge1, edge2 geo.Vec
 	normal       geo.Unit
 	centroid     geo.Vec
@@ -13,9 +13,9 @@ type Triangle struct {
 
 func NewTriangle(p1, p2, p3 geo.Vec) *Triangle {
 	tri := &Triangle{
-		p1:    p1,
-		p2:    p2,
-		p3:    p3,
+		P1:    p1,
+		P2:    p2,
+		P3:    p3,
 		edge1: p2.Minus(p1),
 		edge2: p3.Minus(p2),
 	}
@@ -37,7 +37,7 @@ func (tri *Triangle) Intersect(ray *geo.Ray) float64 {
 	}
 
 	f := 1 / a
-	s := ray.Origin.Minus(tri.p1)
+	s := ray.Origin.Minus(tri.P1)
 	u := f * s.Dot(h)
 	if u < 0 || u > 1 {
 		return -1
