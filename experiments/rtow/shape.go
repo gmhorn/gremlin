@@ -65,10 +65,10 @@ func (s *Sphere) Hit(r *geo.Ray, tMin, tMax float64) (*Hit, bool) {
 
 	// Calculate the intersection point and outward normal.
 	point := r.At(root)
-	norm, _ := point.Minus(s.Center).Unit()
+	norm := point.Minus(s.Center).Unit()
 
 	// Determine if ray is coming from inside the sphere
-	unitDir, _ := r.Dir.Unit()
+	unitDir := r.Dir.Unit()
 	interior := unitDir.Enters(norm)
 	// If it is, we need to flip the normal its towards the center of the sphere
 	if interior {

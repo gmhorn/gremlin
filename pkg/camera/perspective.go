@@ -27,7 +27,7 @@ func NewPerspective(aspectRatio, fov float64) *Perspective {
 		aspectRatio: aspectRatio,
 		tanHalfFOV:  math.Tan(fov * 0.5),
 		eye:         geo.Origin,
-		target:      geo.Vec{0, 0, -1},
+		target:      geo.V(0, 0, -1),
 	}
 
 	c.recalculateLookMatrix()
@@ -74,9 +74,9 @@ func (c *Perspective) Ray(u, v float64) *geo.Ray {
 	// With this, we can construct the ray vector fairly simply. The point on
 	// the screen given by (u, v) is calculated below...
 	p := geo.Vec{
-		(2*u - 1) * c.aspectRatio * c.tanHalfFOV,
-		(1 - 2*v) * c.tanHalfFOV,
-		-1,
+		X: (2*u - 1) * c.aspectRatio * c.tanHalfFOV,
+		Y: (1 - 2*v) * c.tanHalfFOV,
+		Z: -1,
 	}
 
 	// ...and the direction is given by (p-camera_origin) == p-{0, 0, 0} == p

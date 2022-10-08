@@ -8,12 +8,57 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPlus(t *testing.T) {
+var benchResultVec Vec
+var benchResultFloat64 float64
+
+func BenchmarkV(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		benchResultVec = V(float64(i), 2, 3)
+	}
+}
+
+func TestVec_Plus(t *testing.T) {
 	a := Vec{1, 2, 3}
 	b := Vec{4, 5, 6}
 	actual := a.Plus(b)
 
 	assert.Equal(t, Vec{5, 7, 9}, actual)
+}
+
+func BenchmarkVec_Plus(b *testing.B) {
+	u := Vec{1, 2, 3}
+	for i := 0; i < b.N; i++ {
+		benchResultVec = u.Plus(Vec{1, 2, float64(i)})
+	}
+}
+
+func TestVec_Dot(t *testing.T) {
+	tests := []struct {
+		a, b     Vec
+		expected float64
+	}{{
+		a:        Vec{1, 0, 0},
+		b:        Vec{0, 1, 0},
+		expected: 0,
+	}, {
+		a:        Vec{1, 0, 0},
+		b:        Vec{2, 1, 0},
+		expected: 2,
+	}}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			actual := tt.a.Dot(tt.b)
+			assert.InDelta(t, tt.expected, actual, 0.0001)
+		})
+	}
+}
+
+func BenchmarkVec_Dot(b *testing.B) {
+	u := Vec{1, 2, 3}
+	for i := 0; i < b.N; i++ {
+		benchResultFloat64 = u.Dot(Vec{1, 2, float64(i)})
+	}
 }
 
 func TestVec_Cross(t *testing.T) {
@@ -38,6 +83,13 @@ func TestVec_Cross(t *testing.T) {
 			actual := tt.a.Cross(tt.b)
 			assertVecEqual(t, tt.expected, actual, 0.0001)
 		})
+	}
+}
+
+func BenchmarkVec_Cross(b *testing.B) {
+	u := Vec{1, 2, 3}
+	for i := 0; i < b.N; i++ {
+		benchResultVec = u.Cross(Vec{1, 2, float64(i)})
 	}
 }
 

@@ -1,13 +1,13 @@
-package primitive
+package shape
 
 import "github.com/gmhorn/gremlin/pkg/geo"
 
 type Intersection struct {
-	Primitive Primitive
-	T         float64
+	Shape Shape
+	T     float64
 }
 
-type Primitive interface {
+type Shape interface {
 
 	// Intersect returns the closest intersection of the ray with this primitive.
 	// A negative value means it does not intersect the primitive.

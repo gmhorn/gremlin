@@ -25,12 +25,12 @@ var Blue = Color{0.5, 0.7, 1.0}
 func rayColor(ray *geo.Ray, world Hittable) Color {
 	// If hit something, pain normal (ish...)
 	if hit, success := world.Hit(ray, 0, math.MaxFloat64); success {
-		c := Color{hit.Norm[0] + 1, hit.Norm[1] + 1, hit.Norm[2] + 1}
+		c := Color{hit.Norm.X + 1, hit.Norm.Y + 1, hit.Norm.Z + 1}
 		return c.Mult(0.5)
 	}
 
 	// Else paint background
-	t := 0.5 * (ray.Dir[1] + 1.0)
+	t := 0.5 * (ray.Dir.Y + 1.0)
 	return Blue.Lerp(White, t)
 }
 
@@ -40,25 +40,25 @@ func main() {
 
 	// Camera
 	cam := camera.NewPerspective(aspectRatio, fov)
-	cam.MoveTo(geo.Vec{-3, 3, 1})
-	cam.PointAt(geo.Vec{0, 0, -1})
+	cam.MoveTo(geo.V(-3, 3, 1))
+	cam.PointAt(geo.V(0, 0, -1))
 
 	//World
 	var world Aggregate
 	world = append(world, &Sphere{
-		Center: geo.Vec{-0.5, 0, -1},
+		Center: geo.V(-0.5, 0, -1),
 		Radius: 0.5,
 	})
 	world = append(world, &Sphere{
-		Center: geo.Vec{-0.5, 0, -2},
+		Center: geo.V(-0.5, 0, -2),
 		Radius: 0.5,
 	})
 	world = append(world, &Sphere{
-		Center: geo.Vec{0.5, 0, -1},
+		Center: geo.V(0.5, 0, -1),
 		Radius: 0.5,
 	})
 	world = append(world, &Sphere{
-		Center: geo.Vec{0, -100.5, -1},
+		Center: geo.V(0, -100.5, -1),
 		Radius: 100,
 	})
 

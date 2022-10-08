@@ -67,9 +67,9 @@ func (a *Mtx) Mult(b *Mtx) *Mtx {
 // https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-points-and-vectors
 func (a *Mtx) MultPoint(v Vec) Vec {
 	return Vec{
-		a[0][0]*v[0] + a[0][1]*v[1] + a[0][2]*v[2] + a[0][3],
-		a[1][0]*v[0] + a[1][1]*v[1] + a[1][2]*v[2] + a[1][3],
-		a[2][0]*v[0] + a[2][1]*v[1] + a[2][2]*v[2] + a[2][3],
+		a[0][0]*v.X + a[0][1]*v.Y + a[0][2]*v.Z + a[0][3],
+		a[1][0]*v.X + a[1][1]*v.Y + a[1][2]*v.Z + a[1][3],
+		a[2][0]*v.X + a[2][1]*v.Y + a[2][2]*v.Z + a[2][3],
 	}
 }
 
@@ -89,9 +89,9 @@ func (a *Mtx) MultPoint(v Vec) Vec {
 // https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/transforming-points-and-vectors
 func (a *Mtx) MultVec(v Vec) Vec {
 	return Vec{
-		a[0][0]*v[0] + a[0][1]*v[1] + a[0][2]*v[2],
-		a[1][0]*v[0] + a[1][1]*v[1] + a[1][2]*v[2],
-		a[2][0]*v[0] + a[2][1]*v[1] + a[2][2]*v[2],
+		a[0][0]*v.X + a[0][1]*v.Y + a[0][2]*v.Z,
+		a[1][0]*v.X + a[1][1]*v.Y + a[1][2]*v.Z,
+		a[2][0]*v.X + a[2][1]*v.Y + a[2][2]*v.Z,
 	}
 }
 
@@ -100,6 +100,13 @@ func (a *Mtx) MultVec(v Vec) Vec {
 //	a.MultVec(Vec(u))
 func (a *Mtx) MultUnit(u Unit) Vec {
 	return a.MultVec(Vec(u))
+}
+
+// MultRay multiplies a ray by this matrix. Effectively, it does a point-like
+// multiplcation of the ray's origin, and a vector-like multiplication of the
+// ray's direction.
+func (a *Mtx) MultRay(r *Ray) *Ray {
+	return NewRay(a.MultPoint(r.Origin), a.MultVec(r.Dir))
 }
 
 // T returns a new matrix that is the transpose of this matrix.

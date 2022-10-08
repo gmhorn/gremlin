@@ -1,8 +1,6 @@
-package primitive
+package shape
 
 import (
-	"log"
-
 	"github.com/gmhorn/gremlin/pkg/geo"
 	"github.com/gmhorn/gremlin/pkg/util"
 )
@@ -32,10 +30,5 @@ func (s *Sphere) Intersect(ray *geo.Ray) float64 {
 }
 
 func (s *Sphere) Normal(point geo.Vec) geo.Unit {
-	n, valid := point.Minus(s.Center).Unit()
-	if !valid {
-		log.Printf("invalid sphere normal!")
-		return geo.YAxis
-	}
-	return n
+	return point.Minus(s.Center).Unit()
 }

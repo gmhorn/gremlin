@@ -1,6 +1,9 @@
 package geo
 
-import "math"
+import (
+	"log"
+	"math"
+)
 
 // Shift returns a transform matrix that translates by the delta vector.
 //
@@ -12,9 +15,9 @@ import "math"
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations
 func Shift(delta Vec) *Mtx {
 	return &Mtx{
-		{1, 0, 0, delta[0]},
-		{0, 1, 0, delta[1]},
-		{0, 0, 1, delta[2]},
+		{1, 0, 0, delta.X},
+		{0, 1, 0, delta.Y},
+		{0, 0, 1, delta.Z},
 		{0, 0, 0, 1},
 	}
 }
@@ -24,14 +27,14 @@ func Shift(delta Vec) *Mtx {
 // Note that the inverse of Scale(v) is equal to Scale(w) where the components
 // w are the reciprocals of the components of v:
 //
-//	Scale(Vec{x, y, z}).Inv() == Scale(Vec{1.0/x, 1.0/y, 1.0/z})
+//	Scale(V(x, y, z)).Inv() == Scale(V(1.0/x, 1.0/y, 1.0/z))
 //
 // https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling
 func Scale(v Vec) *Mtx {
 	return &Mtx{
-		{v[0], 0, 0, 0},
-		{0, v[1], 0, 0},
-		{0, 0, v[2], 0},
+		{v.X, 0, 0, 0},
+		{0, v.Y, 0, 0},
+		{0, 0, v.Z, 0},
 		{0, 0, 0, 1},
 	}
 }
@@ -49,19 +52,19 @@ func Rotate(theta float64, axis Unit) *Mtx {
 	sinTheta := math.Sin(theta)
 	cosTheta := math.Cos(theta)
 	// Rotation of first basis vector
-	mtx[0][0] = axis[0]*axis[0] + (1-axis[0]*axis[0])*cosTheta
-	mtx[0][1] = axis[0]*axis[1]*(1-cosTheta) - axis[2]*sinTheta
-	mtx[0][2] = axis[0]*axis[2]*(1-cosTheta) + axis[1]*sinTheta
+	mtx[0][0] = axis.X*axis.X + (1-axis.X*axis.X)*cosTheta
+	mtx[0][1] = axis.X*axis.Y*(1-cosTheta) - axis.Z*sinTheta
+	mtx[0][2] = axis.X*axis.Z*(1-cosTheta) + axis.Y*sinTheta
 	mtx[0][3] = 0
 	// Rotation of second basis vector
-	mtx[1][0] = axis[0]*axis[1]*(1-cosTheta) + axis[2]*sinTheta
-	mtx[1][1] = axis[1]*axis[1] + (1-axis[1]*axis[1])*cosTheta
-	mtx[1][2] = axis[1]*axis[2]*(1-cosTheta) - axis[0]*sinTheta
+	mtx[1][0] = axis.Y*axis.X*(1-cosTheta) + axis.Z*sinTheta
+	mtx[1][1] = axis.Y*axis.Y + (1-axis.Y*axis.Y)*cosTheta
+	mtx[1][2] = axis.Y*axis.Z*(1-cosTheta) - axis.X*sinTheta
 	mtx[1][3] = 0
 	// Rotation of third basis vector
-	mtx[2][0] = axis[0]*axis[2]*(1-cosTheta) - axis[1]*sinTheta
-	mtx[2][1] = axis[1]*axis[2]*(1-cosTheta) + axis[0]*sinTheta
-	mtx[2][2] = axis[2]*axis[2] + (1-axis[2]*axis[2])*cosTheta
+	mtx[2][0] = axis.Z*axis.X*(1-cosTheta) - axis.Y*sinTheta
+	mtx[2][1] = axis.Z*axis.Y*(1-cosTheta) + axis.X*sinTheta
+	mtx[2][2] = axis.Z*axis.Z + (1-axis.Z*axis.Z)*cosTheta
 	mtx[2][3] = 0
 	// Final row identical to identity matrix, so we're fine
 
@@ -87,13 +90,17 @@ func Rotate(theta float64, axis Unit) *Mtx {
 // We use a right-handed system, so the arguments are reversed. Other than that,
 // the PBRT and RTOW implementations are in agreement.
 func LookAt(from, to Vec, up Unit) *Mtx {
-	zaxis, _ := from.Minus(to).Unit()
-	xaxis, _ := up.Cross(zaxis)
-	yaxis, _ := zaxis.Cross(xaxis)
+	zaxis := from.Minus(to).Unit()
+	xaxis := up.Cross(zaxis).Unit()
+	yaxis := zaxis.Cross(xaxis).Unit()
+
+	if xaxis.HasInfs() || yaxis.HasInfs() || zaxis.HasInfs() {
+		log.Fatalln("LookAt transform failed to construct orthonormal basis:", from, to, up)
+	}
 
 	return &Mtx{
-		{xaxis[0], yaxis[0], zaxis[0], from[0]},
-		{xaxis[1], yaxis[1], zaxis[1], from[1]},
-		{xaxis[2], yaxis[2], zaxis[2], from[2]},
+		{xaxis.X, yaxis.X, zaxis.X, from.X},
+		{xaxis.Y, yaxis.Y, zaxis.Y, from.Y},
+		{xaxis.Z, yaxis.Z, zaxis.Z, from.Z},
 		{0, 0, 0, 1}}
 }
