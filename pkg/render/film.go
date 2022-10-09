@@ -8,6 +8,40 @@ import (
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 )
 
+// Pixel represents a pixel in the finalized image.
+//
+// Conceptually, the job of a raytracer is to determine what color each pixel
+// should be. In turn, the color of a pixel is determined by the light arriving
+// at the film plane at the pixel's location. The camera subsystem handles
+// generating rays that pass through each pixel, and the majority of the rest of
+// the code handles evaluating the radiance along each ray and converting it to
+// a color value.
+//
+// For a given pixel, many rays will be sampled, and their contributions
+// combined in order to create a final color value.
+type Pixel struct {
+	Color   colorspace.Point
+	Samples uint64
+}
+
+// Safe to do because averaging colors is a linear color operation, and
+// reduction of spectrum to tristimulus is a linear operation, so they
+// distribute over each other
+//
+// https://computergraphics.stackexchange.com/a/11000
+func (p *Pixel) AddSample(radiance spectrum.Distribution, cs colorspace.Colorspace) {
+	c := cs.Convert(radiance)
+	p.Color[0] += c[0]
+	p.Color[1] += c[1]
+	p.Color[2] += c[2]
+	p.Samples++
+}
+
+type FilmTile struct {
+}
+
+// Film is responsible for storing pixel color values.
+//
 // Film gathers radiance samples for each pixel in the final image. In general
 // there will be many paths sampled per
 type Film struct {

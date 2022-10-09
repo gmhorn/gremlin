@@ -9,13 +9,9 @@ import (
 	"os"
 
 	"github.com/gmhorn/gremlin/pkg/colorspace"
+	"github.com/gmhorn/gremlin/pkg/spectrum"
 	"github.com/gmhorn/gremlin/pkg/util"
 )
-
-type Pixel struct {
-	Color   colorspace.Point
-	Samples uint64
-}
 
 type FrameSample struct {
 	Pixels []Pixel
@@ -54,11 +50,14 @@ func Render(width, height, binSize int) []Pixel {
 
 func renderSample(offset, size int, c chan FrameSample) {
 	fmt.Printf("Rendering sample, offset: %d, size: %d\n", offset, size)
-	randColor := colorspace.Point{
-		rand.Float64(),
-		rand.Float64(),
-		rand.Float64(),
-	}
+	randSpec := spectrum.Peak(rand.Intn(780-380) + 380)
+	randColor := colorspace.SRGB.Convert(randSpec)
+	randColor = randColor.Scale(rand.Float64())
+	// randColor := colorspace.Point{
+	// 	rand.Float64(),
+	// 	rand.Float64(),
+	// 	rand.Float64(),
+	// }
 
 	pixels := make([]Pixel, size)
 	for i := 0; i < size; i++ {
