@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCIE1931(t *testing.T) {
+func TestCIE1931_Convert(t *testing.T) {
 	tests := map[float64][3]float64{
 		2000: {0.5267, 0.4133, 0.0600},
 		2500: {0.4770, 0.4137, 0.1093},
@@ -36,5 +36,26 @@ func TestCIE1931(t *testing.T) {
 			assert.InEpsilon(t, expected[1], actual[1], 1e-3)
 			assert.InEpsilon(t, expected[2], actual[2], 1e-3)
 		})
+	}
+}
+
+var spectra = []spectrum.Distribution{
+	spectrum.Discretize(spectrum.Blackbody(2000)),
+	spectrum.Discretize(spectrum.Blackbody(2500)),
+	spectrum.Discretize(spectrum.Blackbody(3000)),
+	spectrum.Discretize(spectrum.Blackbody(3500)),
+	spectrum.Discretize(spectrum.Blackbody(4000)),
+	spectrum.Discretize(spectrum.Blackbody(4500)),
+	spectrum.Discretize(spectrum.Blackbody(5000)),
+	spectrum.Discretize(spectrum.Blackbody(5500)),
+	spectrum.Discretize(spectrum.Blackbody(6000)),
+	spectrum.Discretize(spectrum.Blackbody(6500)),
+}
+var numSpectra = len(spectra)
+var result Point
+
+func BenchmarkCIE1931_Convert(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		result = CIE1931.Convert(spectra[i%numSpectra])
 	}
 }

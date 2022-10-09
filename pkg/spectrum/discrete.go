@@ -62,7 +62,7 @@ func Discretize(dist Distribution) *Discrete {
 		return discrete
 	}
 
-	discrete := &Discrete{}
+	discrete := new(Discrete)
 	for i, wavelength := range DiscreteWavelengths {
 		discrete[i] = dist.Lookup(wavelength)
 	}

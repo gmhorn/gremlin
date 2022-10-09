@@ -40,3 +40,12 @@ func Sign(n float64) float64 {
 		return 0.0
 	}
 }
+
+// IntMin returns the minimum of two ints. Maybe its dumb and unidiomatic I need
+// to make this at all. Oh well.
+func IntMin(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
