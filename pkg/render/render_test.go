@@ -1,9 +1,13 @@
 package render
 
 import (
+	"image/png"
+	"os"
 	"testing"
 	"unsafe"
 
+	"github.com/gmhorn/gremlin/pkg/camera"
+	"github.com/gmhorn/gremlin/pkg/colorspace"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,8 +21,13 @@ func TestPixel(t *testing.T) {
 }
 
 func TestRender(t *testing.T) {
-	width, height := 64, 32
-	frame := Render(width, height, 16)
-	err := OutputImage(width, height, frame, "test.png")
+	film := camera.NewFilm(64, 32)
+	Render(film, 16)
+
+	file, err := os.Create("test.png")
+	assert.NoError(t, err)
+	defer file.Close()
+
+	err = png.Encode(file, film.Image(colorspace.SRGB))
 	assert.NoError(t, err)
 }

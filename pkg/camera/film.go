@@ -1,6 +1,11 @@
 package camera
 
-import "github.com/gmhorn/gremlin/pkg/colorspace"
+import (
+	"image"
+	"image/color"
+
+	"github.com/gmhorn/gremlin/pkg/colorspace"
+)
 
 // Pixel is an individual film pixel. Its Color field stores the running sum of
 // the spectral sample contributions to the final pixel color, and the Samples
@@ -68,4 +73,35 @@ func (f *Film) RasterCoords(pxIdx int) (x, y int) {
 func (f *Film) PixelAt(x, y int) (int, *Pixel) {
 	pxIdx := x*f.Width + y
 	return pxIdx, &f.Pixels[pxIdx]
+}
+
+// Merge merges a slice of pixels into this film's pixel buffer at the given
+// offset.
+func (f *Film) Merge(offset int, pixels []Pixel) {
+	for idx := range pixels {
+		filmIdx := offset + idx
+		f.Pixels[filmIdx].Color[0] = pixels[idx].Color[0]
+		f.Pixels[filmIdx].Color[1] = pixels[idx].Color[1]
+		f.Pixels[filmIdx].Color[2] = pixels[idx].Color[2]
+		f.Pixels[filmIdx].Samples += pixels[idx].Samples
+	}
+}
+
+func (f *Film) Image(cs colorspace.RGB) *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, f.Width, f.Height))
+	for i, px := range f.Pixels {
+		x, y := f.RasterCoords(i)
+
+		n := 1 / float64(px.Samples)
+		xyz := px.Color.Scale(n)
+
+		rgb := cs.ConvertXYZ(xyz)
+		img.Set(x, y, color.RGBA{
+			R: uint8(rgb[0] * 255),
+			G: uint8(rgb[1] * 255),
+			B: uint8(rgb[2] * 255),
+			A: 255,
+		})
+	}
+	return img
 }
