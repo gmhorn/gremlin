@@ -38,6 +38,20 @@ type Pixel struct {
 //
 // For any given Film, it's raster space runs from (0, 0) in the upper-left to
 // (W, H) in the lower right (i.e. the y-axis "points down").
+//
+// Also remember, we're keeping a slice of Pixel values, not pixel pointers.
+// Don't try to modify them in a for-range loop:
+//
+//	var film *Film
+//	var color colorspace.Point
+//	for _, px := range film.Pixels {
+//	  px.Color = color	// Change won't be reflected in slice!
+//	  px.Samples = 1	// Ditto!
+//	}
+//
+// The tradeoff here is we have to range over the index then use that to mutate
+// the underlying slice. The benefit is much better data locality and cache
+// performance.
 type Film struct {
 	Width, Height int
 	AspectRatio   float64

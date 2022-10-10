@@ -2,22 +2,13 @@ package render
 
 import (
 	"fmt"
-	"image"
-	"image/color"
-	"image/png"
 	"math/rand"
-	"os"
 
 	"github.com/gmhorn/gremlin/pkg/camera"
 	"github.com/gmhorn/gremlin/pkg/colorspace"
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 	"github.com/gmhorn/gremlin/pkg/util"
 )
-
-type FrameSample struct {
-	Pixels []Pixel
-	Offset int
-}
 
 type filmTile struct {
 	pixels []camera.Pixel
@@ -70,7 +61,7 @@ func renderTile(offset, size int) []camera.Pixel {
 	return pixels
 }
 
-func renderSample(offset, size int, c chan FrameSample) {
+func renderSample(offset, size int, c chan filmTile) {
 	fmt.Printf("Rendering sample, offset: %d, size: %d\n", offset, size)
 	randSpec := spectrum.Peak((780-380)*rand.Float64()+380.0, 1.0)
 	randColor := colorspace.SRGB.Convert(randSpec)
@@ -81,7 +72,7 @@ func renderSample(offset, size int, c chan FrameSample) {
 	// 	rand.Float64(),
 	// }
 
-	pixels := make([]Pixel, size)
+	pixels := make([]camera.Pixel, size)
 	for i := 0; i < size; i++ {
 		// TODO we'd calculate real position using offset, plus parent Width and
 		// Height here
@@ -90,29 +81,5 @@ func renderSample(offset, size int, c chan FrameSample) {
 		pixels[i].Samples = 1
 	}
 
-	c <- FrameSample{Pixels: pixels, Offset: offset}
-}
-
-func OutputImage(width, height int, pixels []Pixel, name string) error {
-	fmt.Println("Creating image")
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	for t := range pixels {
-		x := t % width
-		y := t / width
-		c := &color.RGBA{
-			R: uint8(255.999 * (pixels[t].Color[0] / float64(pixels[t].Samples))),
-			G: uint8(255.999 * (pixels[t].Color[1] / float64(pixels[t].Samples))),
-			B: uint8(255.999 * (pixels[t].Color[2] / float64(pixels[t].Samples))),
-			A: 255,
-		}
-		img.Set(x, y, c)
-	}
-
-	file, err := os.Create(name)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return png.Encode(file, img)
+	c <- filmTile{pixels, offset}
 }
