@@ -9,6 +9,7 @@ var (
 	Blue   = Sample(Peak(446, 2))
 )
 
+// ACESIllumD60 is the spectrum for the ACES D60 standard illuminant.
 var ACESIllumD60 = Sampled{
 	41.207, 43.8121, 46.4172, 59.26285, 72.1085, 76.1756, 80.2427, 81.4878,
 	82.7329, 80.13505, 77.5372, 86.5577, 95.5782, 101.72045, 107.8627,

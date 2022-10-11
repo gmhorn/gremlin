@@ -20,7 +20,7 @@ func main() {
 	pprof.StartCPUProfile(profFile)
 	defer pprof.StopCPUProfile()
 
-	film := camera.NewFilm(800, 600)
+	film := camera.NewFilm(1920, 1080)
 	cam := camera.NewPerspective(film.AspectRatio, 75.0)
 	cam.MoveTo(geo.V(-3, 3, 1)).PointAt(geo.V(0, 0, -1))
 
