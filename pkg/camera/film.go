@@ -3,6 +3,7 @@ package camera
 import (
 	"image"
 	"image/color"
+	"math/rand"
 
 	"github.com/gmhorn/gremlin/pkg/colorspace"
 )
@@ -28,6 +29,13 @@ import (
 type Pixel struct {
 	Color   colorspace.Point
 	Samples uint64
+}
+
+func (p *Pixel) AddColor(c colorspace.Point) {
+	p.Color[0] += c[0]
+	p.Color[1] += c[1]
+	p.Color[2] += c[2]
+	p.Samples++
 }
 
 // Film is a rectagular grid of pixels.
@@ -84,6 +92,13 @@ func NewFilm(width, height int) *Film {
 func (f *Film) RasterCoords(pxIdx int) (x, y int) {
 	x = pxIdx % f.Width
 	y = pxIdx / f.Width
+	return
+}
+
+func (f *Film) RandomNDC(pxIdx int, r *rand.Rand) (u, v float64) {
+	x, y := f.RasterCoords(pxIdx)
+	u = (float64(x) + r.Float64()) / float64(f.Width)
+	v = (float64(y) + r.Float64()) / float64(f.Height)
 	return
 }
 

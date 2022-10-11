@@ -1,6 +1,7 @@
 package camera
 
 import (
+	"fmt"
 	"image"
 	"testing"
 
@@ -8,6 +9,14 @@ import (
 )
 
 var img *image.RGBA
+
+func TestPixel_AddColor(t *testing.T) {
+	pixels := make([]Pixel, 1)
+	c := colorspace.Point{1, 2, 3}
+	pixels[0].AddColor(c)
+
+	fmt.Println("lol")
+}
 
 func BenchmarkFilm_Image(b *testing.B) {
 	film := NewFilm(360, 240)

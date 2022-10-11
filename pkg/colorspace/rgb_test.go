@@ -1,6 +1,7 @@
 package colorspace
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gmhorn/gremlin/pkg/spectrum"
@@ -19,4 +20,10 @@ func TestSRGB_Convert(t *testing.T) {
 		rgb := SRGB.Convert(b)
 		t.Log("Temp", temp, "sRGB", rgb)
 	}
+}
+
+func TestColors(t *testing.T) {
+	s := spectrum.Blue
+	srgb := SRGB.Convert(s)
+	fmt.Println(srgb)
 }

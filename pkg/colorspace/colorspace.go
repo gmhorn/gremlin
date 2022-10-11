@@ -23,8 +23,8 @@ type Colorspace interface {
 // function.
 type ColorspaceFunc func(spectrum.Distribution) Point
 
-func (cf ColorspaceFunc) Convert(spec spectrum.Distribution) Point {
-	return cf(spec)
+func (cf ColorspaceFunc) Convert(dist spectrum.Distribution) Point {
+	return cf(dist)
 }
 
 // Point represents a (tristimulus) point in a Colorspace.
