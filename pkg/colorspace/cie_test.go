@@ -39,17 +39,17 @@ func TestCIE1931_Convert(t *testing.T) {
 	}
 }
 
-var spectra = []spectrum.Distribution{
-	spectrum.Discretize(spectrum.Blackbody(2000)),
-	spectrum.Discretize(spectrum.Blackbody(2500)),
-	spectrum.Discretize(spectrum.Blackbody(3000)),
-	spectrum.Discretize(spectrum.Blackbody(3500)),
-	spectrum.Discretize(spectrum.Blackbody(4000)),
-	spectrum.Discretize(spectrum.Blackbody(4500)),
-	spectrum.Discretize(spectrum.Blackbody(5000)),
-	spectrum.Discretize(spectrum.Blackbody(5500)),
-	spectrum.Discretize(spectrum.Blackbody(6000)),
-	spectrum.Discretize(spectrum.Blackbody(6500)),
+var spectra = []*spectrum.Sampled{
+	spectrum.Sample(spectrum.Blackbody(2000)),
+	spectrum.Sample(spectrum.Blackbody(2500)),
+	spectrum.Sample(spectrum.Blackbody(3000)),
+	spectrum.Sample(spectrum.Blackbody(3500)),
+	spectrum.Sample(spectrum.Blackbody(4000)),
+	spectrum.Sample(spectrum.Blackbody(4500)),
+	spectrum.Sample(spectrum.Blackbody(5000)),
+	spectrum.Sample(spectrum.Blackbody(5500)),
+	spectrum.Sample(spectrum.Blackbody(6000)),
+	spectrum.Sample(spectrum.Blackbody(6500)),
 }
 var numSpectra = len(spectra)
 var result Point
