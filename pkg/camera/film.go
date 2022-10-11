@@ -58,6 +58,12 @@ type Film struct {
 	Pixels        []Pixel
 }
 
+// FilmTile is a slice of Pixels with a set Offset.
+type FilmTile struct {
+	Pixels []Pixel
+	Offset int
+}
+
 // NewFilm creates a new film with the given width and height (in pixels).
 // Panics if width or height is 0 or negative (since this is almost always
 // constructed at the beginning of a program, so might as well fail fast).
@@ -91,13 +97,13 @@ func (f *Film) PixelAt(x, y int) (int, *Pixel) {
 
 // Merge merges a slice of pixels into this film's pixel buffer at the given
 // offset.
-func (f *Film) Merge(offset int, pixels []Pixel) {
-	for idx := range pixels {
-		filmIdx := offset + idx
-		f.Pixels[filmIdx].Color[0] = pixels[idx].Color[0]
-		f.Pixels[filmIdx].Color[1] = pixels[idx].Color[1]
-		f.Pixels[filmIdx].Color[2] = pixels[idx].Color[2]
-		f.Pixels[filmIdx].Samples += pixels[idx].Samples
+func (f *Film) Merge(tile *FilmTile) {
+	for idx := range tile.Pixels {
+		filmIdx := tile.Offset + idx
+		f.Pixels[filmIdx].Color[0] = tile.Pixels[idx].Color[0]
+		f.Pixels[filmIdx].Color[1] = tile.Pixels[idx].Color[1]
+		f.Pixels[filmIdx].Color[2] = tile.Pixels[idx].Color[2]
+		f.Pixels[filmIdx].Samples += tile.Pixels[idx].Samples
 	}
 }
 

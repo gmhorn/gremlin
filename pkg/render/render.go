@@ -6,43 +6,30 @@ import (
 
 	"github.com/gmhorn/gremlin/pkg/camera"
 	"github.com/gmhorn/gremlin/pkg/colorspace"
+	"github.com/gmhorn/gremlin/pkg/shape"
 	"github.com/gmhorn/gremlin/pkg/spectrum"
 	"github.com/gmhorn/gremlin/pkg/util"
 )
 
-type filmTile struct {
-	pixels []camera.Pixel
-	offset int
-}
+const tileSize = 64
 
-func Render(film *camera.Film, binSize int) {
-	routines := 0
-	tiles := make(chan filmTile)
+func Fixed(film *camera.Film, cam *camera.Perspective, scene []shape.Shape) error {
+	// Split up film into tiles
+	tiles := util.Partition(len(film.Pixels), tileSize)
+	results := make(chan *camera.FilmTile)
 
-	fmt.Println("Starting goroutines")
-	for offset := 0; offset < len(film.Pixels); {
-		size := util.IntMin(binSize, len(film.Pixels)-offset)
-
-		go func(offset, size int) {
-			tiles <- filmTile{
-				pixels: renderTile(offset, size),
-				offset: offset,
-			}
-		}(offset, size)
-
-		routines++
-		offset += size
+	for _, tile := range tiles {
+		go renderTile(tile.Offset, tile.Size, results)
 	}
 
-	fmt.Println("Awaiting goroutines")
-	for i := 0; i < routines; i++ {
-		tile := <-tiles
-		fmt.Println("Filling pixels", tile.offset, "to", tile.offset+len(tile.pixels))
-		film.Merge(tile.offset, tile.pixels)
+	for range tiles {
+		film.Merge(<-results)
 	}
+
+	return nil
 }
 
-func renderTile(offset, size int) []camera.Pixel {
+func renderTile(offset, size int, ch chan *camera.FilmTile) {
 	fmt.Printf("Rendering tile, offset: %d, size: %d\n", offset, size)
 
 	// Just pick a random color
@@ -58,28 +45,5 @@ func renderTile(offset, size int) []camera.Pixel {
 		pixels[i].Samples++
 	}
 
-	return pixels
-}
-
-func renderSample(offset, size int, c chan filmTile) {
-	fmt.Printf("Rendering sample, offset: %d, size: %d\n", offset, size)
-	randSpec := spectrum.Peak((780-380)*rand.Float64()+380.0, 1.0)
-	randColor := colorspace.SRGB.Convert(randSpec)
-	randColor = randColor.Scale(rand.Float64())
-	// randColor := colorspace.Point{
-	// 	rand.Float64(),
-	// 	rand.Float64(),
-	// 	rand.Float64(),
-	// }
-
-	pixels := make([]camera.Pixel, size)
-	for i := 0; i < size; i++ {
-		// TODO we'd calculate real position using offset, plus parent Width and
-		// Height here
-
-		pixels[i].Color = randColor
-		pixels[i].Samples = 1
-	}
-
-	c <- filmTile{pixels, offset}
+	ch <- &camera.FilmTile{Offset: offset, Pixels: pixels}
 }
