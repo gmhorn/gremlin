@@ -2,41 +2,51 @@ package main
 
 import (
 	"image/png"
-	"log"
 	"os"
+	"runtime/pprof"
 
+	"github.com/gmhorn/gremlin/pkg/camera"
 	"github.com/gmhorn/gremlin/pkg/colorspace"
+	"github.com/gmhorn/gremlin/pkg/geo"
 	"github.com/gmhorn/gremlin/pkg/render"
-	"github.com/gmhorn/gremlin/pkg/spectrum"
+	"github.com/gmhorn/gremlin/pkg/shape"
 )
 
 func main() {
-	if err := doBlackbody("blackbody.png"); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func doBlackbody(path string) error {
-	temps := make([]float64, 0)
-	for temp := 2000; temp <= 12000; temp += 1000 {
-		temps = append(temps, float64(temp))
-	}
-
-	f := render.NewFilm(100, 100*len(temps))
-	for i, temp := range temps {
-		b := spectrum.Blackbody(temp)
-		for x := 0; x < f.Width; x++ {
-			for y := 100 * i; y < 100*(i+1); y++ {
-				f.Add(x, y, b)
-			}
-		}
-	}
-
-	file, err := os.Create(path)
+	profFile, err := os.Create("main.prof")
 	if err != nil {
-		return err
+		panic(err)
+	}
+	pprof.StartCPUProfile(profFile)
+	defer pprof.StopCPUProfile()
+
+	film := camera.NewFilm(1920, 1080)
+	cam := camera.NewPerspective(film.AspectRatio, 75.0)
+	cam.MoveTo(geo.V(-3, 3, 1)).PointAt(geo.V(0, 0, -1))
+
+	scene := []shape.Shape{
+		&shape.Sphere{
+			Center: geo.V(-0.5, 0, -1),
+			Radius: 0.5,
+		},
+		&shape.Sphere{
+			Center: geo.V(0, -100.5, -1),
+			Radius: 100,
+		},
+	}
+
+	if err := render.Fixed(film, cam, scene); err != nil {
+		panic(err)
+	}
+
+	file, err := os.Create("main.png")
+	if err != nil {
+		panic(err)
 	}
 	defer file.Close()
 
-	return png.Encode(file, f.Image(colorspace.SRGB))
+	err = png.Encode(file, film.Image(colorspace.SRGB))
+	if err != nil {
+		panic(err)
+	}
 }

@@ -26,3 +26,37 @@ func TestSolveQuadratic(t *testing.T) {
 		assert.False(t, result)
 	})
 }
+
+func TestPartition(t *testing.T) {
+	tests := []struct {
+		name        string
+		elems, size int
+		expected    []Bin
+	}{{
+		"empty case",
+		0, 16,
+		[]Bin{},
+	}, {
+		"single evenly divides",
+		4, 4,
+		[]Bin{{0, 4}},
+	}, {
+		"single does not divide",
+		3, 4,
+		[]Bin{{0, 3}},
+	}, {
+		"multiple evenly divides",
+		16, 4,
+		[]Bin{{0, 4}, {4, 4}, {8, 4}, {12, 4}},
+	}, {
+		"mutliple does not divide",
+		15, 4,
+		[]Bin{{0, 4}, {4, 4}, {8, 4}, {12, 3}},
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, Partition(tt.elems, tt.size))
+		})
+	}
+}

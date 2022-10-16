@@ -24,8 +24,8 @@ type RGB struct {
 //
 // Internally, this works by first converting the spectrum to (CIE 1931) XYZ,
 // then calling ConvertXYZ.
-func (cs *RGB) Convert(spec spectrum.Distribution) Point {
-	xyz := CIE1931.Convert(spec)
+func (cs *RGB) Convert(dist spectrum.Distribution) Point {
+	xyz := CIE1931.Convert(dist)
 	return cs.ConvertXYZ(xyz)
 }
 

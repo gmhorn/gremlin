@@ -1,97 +1,72 @@
 package render
 
 import (
-	"fmt"
-	"image"
-	"image/color"
-	"image/png"
+	"math"
 	"math/rand"
-	"os"
 
+	"github.com/gmhorn/gremlin/pkg/camera"
 	"github.com/gmhorn/gremlin/pkg/colorspace"
+	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/pkg/shape"
+	"github.com/gmhorn/gremlin/pkg/spectrum"
 	"github.com/gmhorn/gremlin/pkg/util"
 )
 
-type Pixel struct {
-	Color   colorspace.Point
-	Samples uint64
-}
+const tileSize = 64
+const samples = 32
 
-type FrameSample struct {
-	Pixels []Pixel
-	Offset int
-}
+func Fixed(film *camera.Film, cam *camera.Perspective, scene []shape.Shape) error {
+	// Split up film into tiles
+	tiles := util.Partition(len(film.Pixels), tileSize)
+	results := make(chan *camera.FilmTile)
 
-func Render(width, height, binSize int) []Pixel {
-	frame := make([]Pixel, width*height)
+	for _, tile := range tiles {
+		go func(offset, size int) {
+			pixels := make([]camera.Pixel, size)
+			rnd := rand.New(rand.NewSource(rand.Int63()))
 
-	routines := 0
-	samples := make(chan FrameSample)
+			for i := range pixels {
+				for s := 0; s < samples; s++ {
+					ray := cam.Ray(film.RandomNDC(i+offset, rnd))
+					dist := rayColor(ray, scene)
+					pixels[i].AddColor(colorspace.CIE1931.Convert(dist))
+				}
+			}
 
-	fmt.Println("Starting goroutines")
-	for offset := 0; offset < len(frame); {
-		size := util.IntMin(binSize, len(frame)-offset)
-		fmt.Println("Offset:", offset, "Size:", size)
-		go renderSample(offset, size, samples)
-		routines++
-		offset += size
+			results <- &camera.FilmTile{Pixels: pixels, Offset: offset}
+
+		}(tile.Offset, tile.Size)
 	}
 
-	fmt.Println("Awaiting goroutines")
-	for i := 0; i < routines; i++ {
-		sample := <-samples
-		fmt.Println("Filling pixels", sample.Offset, "to", sample.Offset+len(sample.Pixels))
-		for j := range sample.Pixels {
-			frame[j+sample.Offset].Color[0] += sample.Pixels[j].Color[0]
-			frame[j+sample.Offset].Color[1] += sample.Pixels[j].Color[1]
-			frame[j+sample.Offset].Color[2] += sample.Pixels[j].Color[2]
-			frame[j+sample.Offset].Samples += sample.Pixels[j].Samples
+	for range tiles {
+		film.Merge(<-results)
+	}
+
+	return nil
+}
+
+func rayColor(ray *geo.Ray, scene []shape.Shape) spectrum.Distribution {
+	var tInt = math.Inf(1)
+	var sInt shape.Shape
+
+	for _, shape := range scene {
+		t := shape.Intersect(ray)
+		if t > 0 && t < tInt {
+			tInt = t
+			sInt = shape
 		}
 	}
 
-	return frame
-}
+	if !math.IsInf(tInt, 0) {
+		pt := ray.At(tInt)
+		norm := sInt.Normal(pt)
 
-func renderSample(offset, size int, c chan FrameSample) {
-	fmt.Printf("Rendering sample, offset: %d, size: %d\n", offset, size)
-	randColor := colorspace.Point{
-		rand.Float64(),
-		rand.Float64(),
-		rand.Float64(),
+		r := spectrum.Red.Scale(norm.X + 1)
+		g := spectrum.Green.Scale(norm.Y + 1)
+		b := spectrum.Blue.Scale(norm.Z + 1)
+		return r.Plus(g.Plus(b)).Scale(0.5)
 	}
 
-	pixels := make([]Pixel, size)
-	for i := 0; i < size; i++ {
-		// TODO we'd calculate real position using offset, plus parent Width and
-		// Height here
-
-		pixels[i].Color = randColor
-		pixels[i].Samples = 1
-	}
-
-	c <- FrameSample{Pixels: pixels, Offset: offset}
-}
-
-func OutputImage(width, height int, pixels []Pixel, name string) error {
-	fmt.Println("Creating image")
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	for t := range pixels {
-		x := t % width
-		y := t / width
-		c := &color.RGBA{
-			R: uint8(255.999 * (pixels[t].Color[0] / float64(pixels[t].Samples))),
-			G: uint8(255.999 * (pixels[t].Color[1] / float64(pixels[t].Samples))),
-			B: uint8(255.999 * (pixels[t].Color[2] / float64(pixels[t].Samples))),
-			A: 255,
-		}
-		img.Set(x, y, c)
-	}
-
-	file, err := os.Create(name)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return png.Encode(file, img)
+	t := 0.5 * (ray.Dir.Unit().Y + 1.0)
+	return spectrum.Blue.Lerp(&spectrum.ACESIllumD60, t)
 }

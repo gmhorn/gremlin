@@ -49,3 +49,25 @@ func IntMin(a, b int) int {
 	}
 	return b
 }
+
+// Bin records an offset and size from a partiton operation.
+type Bin struct {
+	Offset, Size int
+}
+
+// Partition splits a list of length N into bins of size M, with a possible
+// final bin with size less than M.
+func Partition(elems, size int) []Bin {
+	bins := make([]Bin, 0)
+
+	offset := 0
+	for ; size < elems; elems, offset = elems-size, offset+size {
+		bins = append(bins, Bin{offset, size})
+	}
+
+	if elems > 0 {
+		bins = append(bins, Bin{offset, elems})
+	}
+
+	return bins
+}
