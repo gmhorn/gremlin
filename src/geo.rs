@@ -1,5 +1,5 @@
 mod point;
-mod vector;
-
 pub use self::point::*;
+
+mod vector;
 pub use self::vector::*;
