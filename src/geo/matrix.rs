@@ -15,7 +15,6 @@ impl Matrix {
             let col = idx % 4;
             data[row][col] = val;
         }
-        
 
         Matrix { data }
     }
@@ -30,14 +29,13 @@ impl Mul<&Matrix> for &Matrix {
         for i in 0..4 {
             for j in 0..4 {
                 for k in 0..4 {
-                    m[i][j] += (self.data[i][k] * rhs.data[k][j]);
+                    m[i][j] += self.data[i][k] * rhs.data[k][j];
                 }
             }
         }
 
-        Matrix{data: m}
+        Matrix { data: m }
     }
-    
 }
 
 impl Mul<Vector> for &Matrix {
@@ -46,9 +44,9 @@ impl Mul<Vector> for &Matrix {
     fn mul(self, rhs: Vector) -> Self::Output {
         let a = self.data;
         Self::Output {
-            x: a[0][0]*rhs.x + a[0][1]*rhs.y + a[0][2]*rhs.z,
-            y: a[1][0]*rhs.x + a[1][1]*rhs.y + a[1][2]*rhs.z,
-            z: a[2][0]*rhs.x + a[2][1]*rhs.y + a[2][2]*rhs.z,
+            x: a[0][0] * rhs.x + a[0][1] * rhs.y + a[0][2] * rhs.z,
+            y: a[1][0] * rhs.x + a[1][1] * rhs.y + a[1][2] * rhs.z,
+            z: a[2][0] * rhs.x + a[2][1] * rhs.y + a[2][2] * rhs.z,
         }
     }
 }
@@ -59,9 +57,9 @@ impl Mul<Point> for &Matrix {
     fn mul(self, rhs: Point) -> Self::Output {
         let a = self.data;
         Self::Output {
-            x: a[0][0]*rhs.x + a[0][1]*rhs.y + a[0][2]*rhs.z + a[0][3],
-            y: a[1][0]*rhs.x + a[1][1]*rhs.y + a[1][2]*rhs.z + a[1][3],
-            z: a[2][0]*rhs.x + a[2][1]*rhs.y + a[2][2]*rhs.z + a[2][3],
+            x: a[0][0] * rhs.x + a[0][1] * rhs.y + a[0][2] * rhs.z + a[0][3],
+            y: a[1][0] * rhs.x + a[1][1] * rhs.y + a[1][2] * rhs.z + a[1][3],
+            z: a[2][0] * rhs.x + a[2][1] * rhs.y + a[2][2] * rhs.z + a[2][3],
         }
     }
 }
