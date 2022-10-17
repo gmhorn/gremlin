@@ -18,6 +18,28 @@ impl Matrix {
 
         Matrix { data }
     }
+
+    pub fn shift(v: Vector) -> Matrix {
+        Matrix {
+            data: [
+                [1.0, 0.0, 0.0, v.x],
+                [0.0, 1.0, 0.0, v.y],
+                [0.0, 0.0, 1.0, v.z],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
+
+    pub fn scale(v: Vector) -> Matrix {
+        Matrix {
+            data: [
+                [v.x, 0.0, 0.0, 0.0],
+                [0.0, v.y, 0.0, 0.0],
+                [0.0, 0.0, v.z, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        }
+    }
 }
 
 impl Mul<&Matrix> for &Matrix {
