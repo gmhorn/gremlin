@@ -1,3 +1,6 @@
+mod matrix;
+pub use self::matrix::*;
+
 mod point;
 pub use self::point::*;
 

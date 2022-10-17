@@ -1,24 +1,24 @@
-use super::{Vec3, Point3};
+use super::{Point, Vector};
 
 pub struct Ray {
-    origin: Point3,
-    dir: Vec3,
+    origin: Point,
+    dir: Vector,
 }
 
 impl Ray {
-    pub fn new(origin: Point3, dir: Vec3) -> Self {
-        Self {origin, dir}
+    pub fn new(origin: Point, dir: Vector) -> Self {
+        Self { origin, dir }
     }
 
-    pub fn origin(&self) -> Point3 {
+    pub fn origin(&self) -> Point {
         self.origin
     }
-    
-    pub fn dir(&self) -> Vec3 {
+
+    pub fn dir(&self) -> Vector {
         self.dir
     }
 
-    pub fn at(&self, t: f64) -> Point3 {
+    pub fn at(&self, t: f64) -> Point {
         self.origin + (t * self.dir)
     }
 }
