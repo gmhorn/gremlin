@@ -7,8 +7,8 @@ import (
 	"math"
 	"os"
 
-	"github.com/gmhorn/gremlin/pkg/camera"
-	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/camera"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
 )
 
 const fileName = "rtow.png"

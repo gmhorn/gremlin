@@ -1,7 +1,7 @@
 package shape
 
 import (
-	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
 )
 
 type Triangle struct {

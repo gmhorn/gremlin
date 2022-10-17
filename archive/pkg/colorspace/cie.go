@@ -1,7 +1,7 @@
 package colorspace
 
 import (
-	"github.com/gmhorn/gremlin/pkg/spectrum"
+	"github.com/gmhorn/gremlin/archive/pkg/spectrum"
 )
 
 // CIE1931 is a Colorspace implementing the CIE 1931 colorspace and color model.

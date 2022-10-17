@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gmhorn/gremlin/pkg/spectrum"
+	"github.com/gmhorn/gremlin/archive/pkg/spectrum"
 	"github.com/stretchr/testify/assert"
 )
 

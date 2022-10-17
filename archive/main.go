@@ -5,11 +5,11 @@ import (
 	"os"
 	"runtime/pprof"
 
-	"github.com/gmhorn/gremlin/pkg/camera"
-	"github.com/gmhorn/gremlin/pkg/colorspace"
-	"github.com/gmhorn/gremlin/pkg/geo"
-	"github.com/gmhorn/gremlin/pkg/render"
-	"github.com/gmhorn/gremlin/pkg/shape"
+	"github.com/gmhorn/gremlin/archive/pkg/camera"
+	"github.com/gmhorn/gremlin/archive/pkg/colorspace"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/render"
+	"github.com/gmhorn/gremlin/archive/pkg/shape"
 )
 
 func main() {

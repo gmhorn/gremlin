@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gmhorn/gremlin/pkg/camera"
-	"github.com/gmhorn/gremlin/pkg/colorspace"
-	"github.com/gmhorn/gremlin/pkg/spectrum"
+	"github.com/gmhorn/gremlin/archive/pkg/camera"
+	"github.com/gmhorn/gremlin/archive/pkg/colorspace"
+	"github.com/gmhorn/gremlin/archive/pkg/spectrum"
 	"github.com/stretchr/testify/assert"
 )
 

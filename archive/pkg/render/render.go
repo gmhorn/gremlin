@@ -4,12 +4,12 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/gmhorn/gremlin/pkg/camera"
-	"github.com/gmhorn/gremlin/pkg/colorspace"
-	"github.com/gmhorn/gremlin/pkg/geo"
-	"github.com/gmhorn/gremlin/pkg/shape"
-	"github.com/gmhorn/gremlin/pkg/spectrum"
-	"github.com/gmhorn/gremlin/pkg/util"
+	"github.com/gmhorn/gremlin/archive/pkg/camera"
+	"github.com/gmhorn/gremlin/archive/pkg/colorspace"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/shape"
+	"github.com/gmhorn/gremlin/archive/pkg/spectrum"
+	"github.com/gmhorn/gremlin/archive/pkg/util"
 )
 
 const tileSize = 64
