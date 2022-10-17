@@ -1,8 +1,8 @@
 package shape
 
 import (
-	"github.com/gmhorn/gremlin/pkg/geo"
-	"github.com/gmhorn/gremlin/pkg/util"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/util"
 )
 
 type Sphere struct {

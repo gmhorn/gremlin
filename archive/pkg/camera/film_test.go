@@ -5,7 +5,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/gmhorn/gremlin/pkg/colorspace"
+	"github.com/gmhorn/gremlin/archive/pkg/colorspace"
 )
 
 var img *image.RGBA

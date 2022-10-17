@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/gmhorn/gremlin/pkg/geo"
-	"github.com/gmhorn/gremlin/pkg/util"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/util"
 )
 
 // Record of a ray hit. Pt is the location of the intersection and Norm is the
