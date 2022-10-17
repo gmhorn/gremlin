@@ -1,12 +1,18 @@
-#[derive(Debug)]
-pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+use num::{Num, Float};
+
+#[derive(Debug, Clone, Copy)]
+pub struct Vec3<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
 }
 
-impl Vec3 {
-    pub fn splat(n: f64) -> Vec3 {
-        Vec3{x: n, y: n, z: n}
+impl<T: Float> Vec3<T> {
+    pub fn new(x: T, y: T, z: T) -> Self {
+        Self{x, y, z}
+    }
+
+    pub fn splat(n: T) -> Self {
+        Self{x: n, y: n, z: n}
     }
 }
