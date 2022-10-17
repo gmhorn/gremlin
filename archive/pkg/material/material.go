@@ -1,6 +1,6 @@
 package material
 
-import "github.com/gmhorn/gremlin/pkg/geo"
+import "github.com/gmhorn/gremlin/archive/pkg/geo"
 
 type Material interface {
 

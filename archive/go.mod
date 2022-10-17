@@ -1,4 +1,4 @@
-module github.com/gmhorn/gremlin
+module github.com/gmhorn/gremlin/archive
 
 go 1.19
 

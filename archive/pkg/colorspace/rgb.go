@@ -3,7 +3,7 @@ package colorspace
 import (
 	"math"
 
-	"github.com/gmhorn/gremlin/pkg/spectrum"
+	"github.com/gmhorn/gremlin/archive/pkg/spectrum"
 )
 
 // RGB is Colorspace whose chromaticity values are the familiar red, green, blue

@@ -1,6 +1,6 @@
 package shape
 
-import "github.com/gmhorn/gremlin/pkg/geo"
+import "github.com/gmhorn/gremlin/archive/pkg/geo"
 
 type Intersection struct {
 	Shape Shape

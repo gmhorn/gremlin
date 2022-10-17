@@ -3,7 +3,7 @@ package camera
 import (
 	"math"
 
-	"github.com/gmhorn/gremlin/pkg/geo"
+	"github.com/gmhorn/gremlin/archive/pkg/geo"
 )
 
 // Perspective is one of the most basic camera models. It simulates a camera

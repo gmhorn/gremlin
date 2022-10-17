@@ -10,7 +10,7 @@ package colorspace
 import (
 	"math"
 
-	"github.com/gmhorn/gremlin/pkg/spectrum"
+	"github.com/gmhorn/gremlin/archive/pkg/spectrum"
 )
 
 // Colorspace converts a spectral distribution of light intensity to a

@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math/rand"
 
-	"github.com/gmhorn/gremlin/pkg/colorspace"
+	"github.com/gmhorn/gremlin/archive/pkg/colorspace"
 )
 
 // Pixel is an individual film pixel. Its Color field stores the running sum of
