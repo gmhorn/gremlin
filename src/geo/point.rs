@@ -1,26 +1,26 @@
+use super::Vector;
 use std::ops::{Add, Sub};
-use super::Vec3;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Point3 {
+pub struct Point {
     pub x: f64,
     pub y: f64,
     pub z: f64,
 }
 
-impl Point3 {
+impl Point {
     /// Creates a new point.
     pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self{x, y, z}
+        Self { x, y, z }
     }
 
     /// Creates a point with all elements set to `n`.
     pub const fn splat(n: f64) -> Self {
-        Self{x: n, y: n, z: n}
+        Self { x: n, y: n, z: n }
     }
 }
 
-impl Add for Point3 {
+impl Add for Point {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -32,10 +32,10 @@ impl Add for Point3 {
     }
 }
 
-impl Add<Vec3> for Point3 {
+impl Add<Vector> for Point {
     type Output = Self;
 
-    fn add(self, rhs: Vec3) -> Self::Output {
+    fn add(self, rhs: Vector) -> Self::Output {
         Self::Output {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -44,8 +44,8 @@ impl Add<Vec3> for Point3 {
     }
 }
 
-impl Sub for Point3 {
-    type Output = Vec3;
+impl Sub for Point {
+    type Output = Vector;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self::Output {
