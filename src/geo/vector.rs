@@ -17,17 +17,20 @@ pub struct Vector {
 
 impl Vector {
     /// Construct a new vector directly from its component values.
+    #[inline]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new vector with all components equal.
-    pub fn splat(n: f64) -> Self {
+    #[inline]
+    pub const fn splat(n: f64) -> Self {
         Self { x: n, y: n, z: n }
     }
 
     /// Construct a new vector that is the component-wise minimum of the two
     /// vectors.
+    #[inline]
     pub fn min(a: &Self, b: &Self) -> Self {
         Self {
             x: a.x.min(b.x),
@@ -38,6 +41,7 @@ impl Vector {
 
     /// Construct a new vector that is the component-wise maximum of the two
     /// vectors.
+    #[inline]
     pub fn max(a: &Self, b: &Self) -> Self {
         Self {
             x: a.x.max(b.x),
@@ -50,6 +54,7 @@ impl Vector {
 impl Add for Vector {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self::Output {
             x: self.x + rhs.x,
@@ -62,6 +67,7 @@ impl Add for Vector {
 impl Mul<f64> for Vector {
     type Output = Self;
 
+    #[inline]
     fn mul(self, rhs: f64) -> Self::Output {
         Self::Output {
             x: rhs * self.x,
@@ -74,6 +80,7 @@ impl Mul<f64> for Vector {
 impl Mul<Vector> for f64 {
     type Output = Vector;
 
+    #[inline]
     fn mul(self, rhs: Vector) -> Self::Output {
         rhs * self
     }
@@ -82,6 +89,7 @@ impl Mul<Vector> for f64 {
 impl Div<f64> for Vector {
     type Output = Self;
 
+    #[inline]
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
     }   
