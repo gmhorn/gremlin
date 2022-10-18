@@ -1,6 +1,14 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Div};
 
-#[derive(Debug, Clone, Copy)]
+/// Represents a "real-valued" (`f64`-valued) vector in R3. Vectors are
+/// interpreted as column vectors in homogeneous coordinates, with `w = 0`
+/// identically.
+/// 
+/// Standard operations of addition, subtraction, negation, and multiplication
+/// and division by a scalar are implemented. There are also functions to
+/// compute the dot- and cross- product of vectors; these use methods rather
+/// than overloading the `*` and `^` operators.
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
     pub x: f64,
     pub y: f64,
@@ -8,12 +16,34 @@ pub struct Vector {
 }
 
 impl Vector {
+    /// Construct a new vector directly from its component values.
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
 
+    /// Construct a new vector with all components equal.
     pub fn splat(n: f64) -> Self {
         Self { x: n, y: n, z: n }
+    }
+
+    /// Construct a new vector that is the component-wise minimum of the two
+    /// vectors.
+    pub fn min(a: &Self, b: &Self) -> Self {
+        Self {
+            x: a.x.min(b.x),
+            y: a.y.min(b.y), 
+            z: a.z.min(b.z),
+        }
+    }
+
+    /// Construct a new vector that is the component-wise maximum of the two
+    /// vectors.
+    pub fn max(a: &Self, b: &Self) -> Self {
+        Self {
+            x: a.x.max(b.x),
+            y: a.y.max(b.y),
+            z: a.z.max(b.z),
+        }
     }
 }
 
@@ -46,5 +76,46 @@ impl Mul<Vector> for f64 {
 
     fn mul(self, rhs: Vector) -> Self::Output {
         rhs * self
+    }
+}
+
+impl Div<f64> for Vector {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        (1.0 / rhs) * self
+    }   
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn vector_add() {
+        let a = Vector::splat(1.0);
+        let b = Vector::new(1.0, 2.0, 3.0);
+        let expect = Vector::new(2.0, 3.0, 4.0);
+
+        assert_eq!(expect, a + b);
+    }
+
+    #[test]
+    fn vector_mul() {
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let n = 2.0;
+        let expect = Vector::new(2.0, 4.0, 6.0);
+
+        assert_eq!(expect, n * v);
+        assert_eq!(expect, v * n);
+    }
+
+    #[test]
+    fn vector_div() {
+        let v = Vector::new(2.0, 4.0, 6.0);
+        let n = 2.0;
+        let expect = Vector::new(1.0, 2.0, 3.0);
+
+        assert_eq!(expect, v / n);
     }
 }

@@ -2,12 +2,19 @@ use std::ops::Mul;
 
 use super::{Point, Ray, Vector};
 
+/// A row-major, 4x4 "real-valued" (`f64`-valued) matrix.
+/// 
+/// Implicitly, all operations on points and vectors are 
 pub struct Matrix {
     data: [[f64; 4]; 4],
 }
 
 impl Matrix {
-    pub fn new(coeffs: [f64; 16]) -> Matrix {
+    pub fn new(data: [[f64; 4]; 4]) -> Matrix {
+        Matrix { data }
+    }
+
+    pub fn from_array(coeffs: [f64; 16]) -> Matrix {
         let mut data = [[0.0; 4]; 4];
 
         for (idx, &val) in coeffs.iter().enumerate() {
@@ -19,6 +26,9 @@ impl Matrix {
         Matrix { data }
     }
 
+    /// Constructs a new matrix representing a shift by the given vector.
+    /// 
+    /// 
     pub fn shift(v: Vector) -> Matrix {
         Matrix {
             data: [
