@@ -1,9 +1,11 @@
-use std::ops::{Add, Mul, Div};
+use std::ops::{Add, Div, Mul};
+
+use super::Unit;
 
 /// Represents a "real-valued" (`f64`-valued) vector in R3. Vectors are
 /// interpreted as column vectors in homogeneous coordinates, with `w = 0`
 /// identically.
-/// 
+///
 /// Standard operations of addition, subtraction, negation, and multiplication
 /// and division by a scalar are implemented. There are also functions to
 /// compute the dot- and cross- product of vectors; these use methods rather
@@ -16,9 +18,13 @@ pub struct Vector {
 }
 
 impl Vector {
+    pub const X_AXIS: Vector = Vector::new(1.0, 0.0, 0.0);
+    pub const Y_AXIS: Vector = Vector::new(0.0, 1.0, 0.0);
+    pub const Z_AXIS: Vector = Vector::new(0.0, 0.0, 1.0);
+
     /// Construct a new vector directly from its component values.
     #[inline]
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
 
@@ -31,10 +37,10 @@ impl Vector {
     /// Construct a new vector that is the component-wise minimum of the two
     /// vectors.
     #[inline]
-    pub fn min(a: &Self, b: &Self) -> Self {
+    pub fn min(a: Self, b: Self) -> Self {
         Self {
             x: a.x.min(b.x),
-            y: a.y.min(b.y), 
+            y: a.y.min(b.y),
             z: a.z.min(b.z),
         }
     }
@@ -48,6 +54,26 @@ impl Vector {
             y: a.y.max(b.y),
             z: a.z.max(b.z),
         }
+    }
+
+    #[inline]
+    pub fn dot(self, rhs: Self) -> f64 {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+    }
+
+    #[inline]
+    pub fn len_squared(self) -> f64 {
+        self.dot(self)
+    }
+
+    #[inline]
+    pub fn len(self) -> f64 {
+        self.dot(self).sqrt()
+    }
+
+    pub fn normalize(self) -> Option<Unit> {
+        // TODO implement
+        None
     }
 }
 
@@ -92,12 +118,20 @@ impl Div<f64> for Vector {
     #[inline]
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
-    }   
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn vector_min() {
+        let a = Vector::splat(1.0);
+        let b = Vector::new(-1.0, 2.0, 1.0);
+        let expect = Vector::new(-1.0, 1.0, 1.0);
+        assert_eq!(expect, Vector::min(a, b))
+    }
 
     #[test]
     fn vector_add() {
