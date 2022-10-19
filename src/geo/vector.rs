@@ -2,14 +2,13 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use super::Unit;
 
-/// Represents a "real-valued" (`f64`-valued) vector in R3. Vectors are
-/// interpreted as column vectors in homogeneous coordinates, with `w = 0`
-/// identically.
+/// Represents a vector in 3D space. Vectors are interpreted as column vectors
+/// in homogeneous coordinates, with `w = 0` identically.
 ///
-/// Standard operations of addition, subtraction, negation, and multiplication
-/// and division by a scalar are implemented. There are also functions to
-/// compute the dot- and cross- product of vectors; these use methods rather
-/// than overloading the `*` and `^` operators.
+/// Standard operations of addition, subtraction, negation, and scalar
+/// multiplication / division are implemented. There are also methods to
+/// compute the dot- and cross- product of vectors; for clarity these use
+/// regular methods rather than overloading the `*` and `^` operators.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
     pub x: f64,
@@ -62,6 +61,8 @@ impl Vector {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
+    /// Returns a vector representing the cross product of this vector with
+    /// another.
     #[inline]
     pub fn cross(self, rhs: Self) -> Self {
         Self {
@@ -84,15 +85,12 @@ impl Vector {
         self.dot(self).sqrt()
     }
 
+    /// Normalizes the vector, returning either the unit or `None`.
     #[inline]
     pub fn normalize(self) -> Option<Unit> {
         let u = self * self.len().recip();
         if u.is_finite() {
-            return Some(Unit {
-                x: u.x,
-                y: u.y,
-                z: u.z,
-            });
+            return Some(Unit::new(u.x, u.y, u.z))
         }
         None
     }
@@ -171,11 +169,7 @@ impl Div<f64> for Vector {
 impl From<Unit> for Vector {
     #[inline]
     fn from(u: Unit) -> Self {
-        Vector {
-            x: u.x,
-            y: u.y,
-            z: u.z,
-        }
+        Self::new(u.x, u.y, u.z)
     }
 }
 
