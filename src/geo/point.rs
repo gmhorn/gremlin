@@ -1,6 +1,7 @@
 use super::Vector;
 use std::ops::{Add, Sub};
 
+/// Represents a point in space.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
     pub x: f64,
@@ -9,12 +10,16 @@ pub struct Point {
 }
 
 impl Point {
+    pub const ORIGIN: Self = Self::splat(0.0);
+
     /// Creates a new point.
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    #[inline]
+    pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
 
     /// Creates a point with all elements set to `n`.
+    #[inline]
     pub const fn splat(n: f64) -> Self {
         Self { x: n, y: n, z: n }
     }

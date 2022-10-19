@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::geo::Vector;
+use gremlin::geo::{Unit, Vector};
 
 pub fn vector_min(c: &mut Criterion) {
     c.bench_function("vector min", |b| {
@@ -19,6 +19,14 @@ pub fn vector_add(c: &mut Criterion) {
         })
     });
 }
+
+// pub fn vector_unit_add(c: &mut Criterion) {
+//     c.bench_function("vector unit add", |b| {
+//         b.iter(|| {
+//             let _ = Vector::splat(black_box(1.0)) + Unit::X_AXIS;
+//         })
+//     });
+// }
 
 pub fn vector_premult_f64(c: &mut Criterion) {
     let v = Vector::splat(2.0);
@@ -54,6 +62,7 @@ criterion_group!(
     geo,
     vector_min,
     vector_add,
+    // vector_unit_add,
     vector_premult_f64,
     vector_postmult_f64,
     vector_div_f64
