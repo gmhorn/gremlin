@@ -21,6 +21,7 @@ impl Unit {
     pub const Y_AXIS: Self = Self::new(0.0, 1.0, 0.0);
     pub const Z_AXIS: Self = Self::new(0.0, 0.0, 1.0);
 
+    #[inline]
     pub(super) const fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
