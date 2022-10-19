@@ -1,4 +1,4 @@
-use std::ops::{Mul, Add};
+use std::ops::{Add, Mul};
 
 use super::{Point, Ray, Vector};
 
@@ -76,7 +76,7 @@ impl Matrix {
     }
 
     /// Returns a new matrix that is the transpose of this matrix.
-    /// 
+    ///
     /// ```
     /// use gremlin::geo::*;
     /// let m = Matrix::look_at(Point::ORIGIN, Point::new(10.0, 10.0, 10.0), Vector::Y_AXIS);
@@ -91,8 +91,91 @@ impl Matrix {
             }
         }
 
+        Self { data }
+    }
+
+    /// Returns a new matrix that is the inverse of this matrix. Uses simple
+    /// Gauss-Jordan elimination with partial pivoting.
+    /// 
+    /// See:
+    /// * https://en.wikipedia.org/wiki/Gaussian_elimination
+    /// * https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry
+    pub fn inverse(&self) -> Self {
+        // Create augmented matrix
+        let mut m = [[0.0; 8]; 4];
+        for i in 0..4 {
+            m[i][..4].copy_from_slice(&self.data[i][..]);
+            m[i][4..].copy_from_slice(&Matrix::IDENTITY.data[i][..]);
+        }
+
+        // Forward substitute
+        let mut h = 0;
+        let mut k = 0;
+        while h < 4 && k < 8 {
+            // Find k=th pivot
+            let pivot = find_pivot(h, k, &m);
+            // If no pivot in column, move to next column
+            if m[pivot][k] == 0.0 {
+                k += 1;
+                continue;
+            }
+            // If pivot row not current row, swap rows
+            if pivot != h {
+                m.swap(pivot, h);
+            }
+
+            // For all rows below the pivot...
+            for i in (h+1)..4 {
+                let f = m[i][k] / m[h][k];
+                // Fill the rest of the column below pivot with 0
+                m[i][k] = 0.0;
+                // Reduce all remaining elements in row
+                for j in (k+1)..8 {
+                    m[i][j] -= f * m[h][j];
+                }
+            }
+            // increment pivot row and column
+            h += 1;
+            k += 1;
+        }
+
+        // Back substitute
+        for i in (0..4).rev() {
+            let f = m[i][i];
+            for j in 0..8 {
+                m[i][j] /= f;
+            }
+
+            for j in 0..i {
+                let f = m[j][i];
+
+                for k in 0..8 {
+                    m[j][k] -= f * m[i][k];
+                }
+            }
+        }
+
+        // Inverse is right half of augmented matrix
+        let mut data = [[0.0; 4]; 4];
+        for i in 0..4 {
+            data[i][..].copy_from_slice(&m[i][4..]);
+        }
         Self{ data }
     }
+}
+
+fn find_pivot(h: usize, k: usize, m: &[[f64; 8]; 4]) -> usize {
+    let mut max = m[h][k].abs();
+    let mut pivot = h;
+
+    for i in (h+1)..4 {
+        if m[i][k].abs() > max {
+            max = m[i][k].abs();
+            pivot = i
+        }
+    }
+
+    pivot
 }
 
 impl From<[[f64; 4]; 4]> for Matrix {
@@ -128,10 +211,8 @@ impl Add<&Matrix> for &Matrix {
             }
         }
 
-        Self::Output{ data }
+        Self::Output { data }
     }
-
-    
 }
 
 impl Mul<&Matrix> for &Matrix {
@@ -187,5 +268,30 @@ impl Mul<&Ray> for &Matrix {
     #[inline]
     fn mul(self, rhs: &Ray) -> Self::Output {
         Ray::new(self * rhs.origin(), self * rhs.dir())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn matrix_inverse() {
+        let m = Matrix::from([
+            [3.0, 4.0, 6.0, 8.0],
+            [1.0, 2.0, 7.0, 2.0],
+            [8.0, 9.0, 1.0, 3.0],
+            [7.0, 7.0, 6.0, 2.0],
+        ]);
+        let m_inv = m.inverse();
+
+        /*
+          0.174737  -0.694737  -0.48 0.715789
+         -0.212632   0.652632   0.56 -0.642105
+         -0.0147368  0.0947368 -0.08 0.0842105
+          0.176842  -0.136842  -0.04 -0.0105263
+        */
+
+        println!("{:?}", m_inv);
     }
 }
