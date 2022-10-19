@@ -1,14 +1,34 @@
 //! # Geometry module
 //!
 //! Implements basic geometric primitives needed for ray tracing. Attempts to
-//! be simple, minimal, and fast.
+//! be simple, minimal, and fast (enough).
 //!
 //! * Uses minimal generics (`f64` is sufficient most of the time)
 //! * Directly implements operator traits rather than relying on macros
-//! * Supports the minimum subset of functionality needed by other modules
+//! * Supports the subset of functionality needed by other modules
 //!
 //! It does **not** attempt to be a fully-featured euclidean geometry library,
-//! nor a fully-featured linear algebra library.
+//! nor a fully-featured linear algebra library. There are already libraries for
+//! that, such as:
+//! * [`cgmath`](https://github.com/rustgd/cgmath) - Defines traits for general
+//! linear-algebraic structures like vector spaces, inner-product spaces, normed
+//! spaces, etc, and the implements them in generic structs.
+//! * [`glam-rs`](https://github.com/bitshifter/glam-rs) - Fast float-valued
+//! vector, matrix, quaterion and affine structures with SIMD implementations.
+//!
+//! Instead, the goal is to be mathematically correct, while speaking in the
+//! "domain language" of ray tracing. So, *e.g.* separate `Point`, `Vector` and
+//! `Unit` structs are defined, even though the inner-product space of
+//! `f64`-valued vectors would be sufficient to cover all those use-cases. And
+//! although `Point` is an inner-product space (with the standard operations of
+//! vector addition and scalar multiplication), only the subset of traits from
+//! `std::opts::*` that represent common "ray tracing operations on points" are
+//! implemented on the `Point` struct. Additionality, despite the isomorphism
+//! between the vector space of `Point`s and the vector space of `Vector`s,
+//! ray tracing tends to use "homogeneous coordinates", where there's a
+//! difference between point-like and vector-like matrix multiplication. Keeping
+//! these as separate structs allows us to naturally express those differences
+//! while still using the convenient operator overload for `*`.
 
 mod matrix;
 pub use self::matrix::*;

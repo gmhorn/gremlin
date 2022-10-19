@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul};
+use std::ops::{Add, Div, Mul, Sub};
 
 use super::Unit;
 
@@ -18,9 +18,9 @@ pub struct Vector {
 }
 
 impl Vector {
-    pub const X_AXIS: Vector = Vector::new(1.0, 0.0, 0.0);
-    pub const Y_AXIS: Vector = Vector::new(0.0, 1.0, 0.0);
-    pub const Z_AXIS: Vector = Vector::new(0.0, 0.0, 1.0);
+    pub const X_AXIS: Self = Self::new(1.0, 0.0, 0.0);
+    pub const Y_AXIS: Self = Self::new(0.0, 1.0, 0.0);
+    pub const Z_AXIS: Self = Self::new(0.0, 0.0, 1.0);
 
     /// Construct a new vector directly from its component values.
     #[inline]
@@ -56,24 +56,58 @@ impl Vector {
         }
     }
 
+    /// Computes the dot product of this vector with another.
     #[inline]
     pub fn dot(self, rhs: Self) -> f64 {
-        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+        (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
+    #[inline]
+    pub fn cross(self, rhs: Self) -> Self {
+        Self {
+            x: (self.y * rhs.z) - (self.z - rhs.y),
+            y: (self.z * rhs.x) - (self.x - rhs.z),
+            z: (self.x * rhs.y) - (self.y - rhs.x),
+        }
+    }
+
+    /// Returns the squared length of the vector. It is faster to compute than
+    /// `len()`, so use it when you can.
     #[inline]
     pub fn len_squared(self) -> f64 {
         self.dot(self)
     }
 
+    /// Returns the length of the vector.
     #[inline]
     pub fn len(self) -> f64 {
         self.dot(self).sqrt()
     }
 
+    #[inline]
     pub fn normalize(self) -> Option<Unit> {
-        // TODO implement
+        let u = self * self.len().recip();
+        if u.is_finite() {
+            return Some(Unit {
+                x: u.x,
+                y: u.y,
+                z: u.z,
+            });
+        }
         None
+    }
+
+    /// Returns `true` if all components are finite. Finite means neither `NaN`,
+    /// positive infinity, or negative infinity.
+    #[inline]
+    pub fn is_finite(self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
+    }
+
+    /// Returns `true` if any components are `NaN`
+    #[inline]
+    pub fn is_nan(self) -> bool {
+        self.x.is_nan() || self.y.is_nan() || self.z.is_nan()
     }
 }
 
@@ -86,6 +120,19 @@ impl Add for Vector {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
             z: self.z + rhs.z,
+        }
+    }
+}
+
+impl Sub for Vector {
+    type Output = Self;
+
+    #[inline]
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         }
     }
 }
@@ -118,6 +165,17 @@ impl Div<f64> for Vector {
     #[inline]
     fn div(self, rhs: f64) -> Self::Output {
         (1.0 / rhs) * self
+    }
+}
+
+impl From<Unit> for Vector {
+    #[inline]
+    fn from(u: Unit) -> Self {
+        Vector {
+            x: u.x,
+            y: u.y,
+            z: u.z,
+        }
     }
 }
 
