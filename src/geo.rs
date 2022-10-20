@@ -29,6 +29,30 @@
 //! difference between point-like and vector-like matrix multiplication. Keeping
 //! these as separate structs allows us to naturally express those differences
 //! while still using the convenient operator overload for `*`.
+//!
+//! ## Algebra
+//! 
+//! The primitives' operators obey the following algebra:
+//! 
+//! ```text
+//! Point - Point = Vector
+//! Point + Vector = Vector
+//! 
+//! Vector * Scalar = Vector
+//! Vector / Scalar = Vector
+//! Vector + Vector = Vector
+//! Vector - Vector = Vector
+//! 
+//! Matrix * Point = Point
+//! Matrix * Vector = Vector
+//! Matrix * Unit = Vector
+//! Matrix * Matrix = Matrix
+//! ```
+
+/* Modules and re-exports */
+
+mod coords;
+pub use self::coords::*;
 
 mod matrix;
 pub use self::matrix::*;
@@ -44,3 +68,23 @@ pub use self::unit::*;
 
 mod vector;
 pub use self::vector::*;
+
+/* Convenience functions */
+
+/// Constructs coordinates from the given `(x, y)` pair.
+#[inline]
+pub const fn coords<T>(x: T, y: T) -> Coords<T> {
+    Coords::new(x, y)
+}
+
+/// Creates a new point.
+#[inline]
+pub const fn point(x: f64, y: f64, z: f64) -> Point {
+    Point::new(x, y, z)
+}
+
+/// Creates a new vector
+#[inline]
+pub const fn vector(x: f64, y: f64, z: f64) -> Vector {
+    Vector::new(x, y, z)
+}
