@@ -1,13 +1,13 @@
 /// Represents a unit vector, a vector with `len() == 1`.
 ///
-/// There are no public constructors for unit vectors. The easiest way is to
-/// call the `normalize()` method on a vector instead.
+/// There are no public constructors for unit vectors. These must be constructed
+/// via the [`Vector::normalize()`] or [`Vector::try_normalize()`] methods.
 ///
 /// ```
 /// use gremlin::geo::Vector;
 ///
 /// let v = Vector::new(2.0, 3.0, 4.0);
-/// let u = v.normalize().expect("should be nonzero");
+/// let u = v.try_normalize().expect("should be nonzero");
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Unit {
