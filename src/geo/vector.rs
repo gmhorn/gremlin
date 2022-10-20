@@ -2,13 +2,8 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use super::Unit;
 
-/// Represents a vector in 3D space. Vectors are interpreted as column vectors
+/// Represents a 3-dimensional vector. Vectors are interpreted as column vectors
 /// in homogeneous coordinates, with `w = 0` identically.
-///
-/// Standard operations of addition, subtraction, negation, and scalar
-/// multiplication / division are implemented. There are also methods to
-/// compute the dot- and cross- product of vectors; for clarity these use
-/// regular methods rather than overloading the `*` and `^` operators.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
     pub x: f64,
