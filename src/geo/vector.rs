@@ -25,29 +25,21 @@ impl Vector {
     /// Construct a new vector with all components equal.
     #[inline]
     pub const fn splat(n: f64) -> Self {
-        Self { x: n, y: n, z: n }
+        Self::new(n, n, n)
     }
 
     /// Construct a new vector that is the component-wise minimum of the two
     /// vectors.
     #[inline]
     pub fn min(a: Self, b: Self) -> Self {
-        Self {
-            x: a.x.min(b.x),
-            y: a.y.min(b.y),
-            z: a.z.min(b.z),
-        }
+        Self::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z))
     }
 
     /// Construct a new vector that is the component-wise maximum of the two
     /// vectors.
     #[inline]
     pub fn max(a: &Self, b: &Self) -> Self {
-        Self {
-            x: a.x.max(b.x),
-            y: a.y.max(b.y),
-            z: a.z.max(b.z),
-        }
+        Self::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z))
     }
 
     /// Computes the dot product of this vector with another.
@@ -80,14 +72,30 @@ impl Vector {
         self.dot(self).sqrt()
     }
 
-    /// Normalizes the vector, returning either the unit or `None`.
+    /// Normalizes the vector. For valid results, must not be called when `self`
+    /// is 0 or very close to 0.
+    ///
+    /// If debug assertions are turned on, panics if the returned value is not
+    /// finite. But in release builds, will silently return a garbage value.
+    ///
+    /// See [`Self::try_normalize`] for a safer alternative.
     #[inline]
-    pub fn normalize(self) -> Option<Unit> {
-        let u = self * self.len().recip();
-        if u.is_finite() {
-            return Some(Unit::new(u.x, u.y, u.z))
+    pub fn normalize(self) -> Unit {
+        let u = self / self.len();
+        debug_assert!(u.is_finite());
+        Unit::new(u.x, u.y, u.z)
+    }
+
+    /// Returns the normalized unit vector if possible, else `None`.
+    #[inline]
+    pub fn try_normalize(self) -> Option<Unit> {
+        let recip = self.len().recip();
+        if recip.is_finite() && recip > 0.0 {
+            let u = self * recip;
+            Some(Unit::new(u.x, u.y, u.z))
+        } else {
+            None
         }
-        None
     }
 
     /// Returns `true` if all components are finite. Finite means neither `NaN`,
@@ -109,11 +117,7 @@ impl Add for Vector {
 
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
-        Self::Output {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+        Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 
@@ -122,11 +126,7 @@ impl Sub for Vector {
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
-        Self::Output {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        Self::Output::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
     }
 }
 
@@ -135,11 +135,7 @@ impl Mul<f64> for Vector {
 
     #[inline]
     fn mul(self, rhs: f64) -> Self::Output {
-        Self::Output {
-            x: rhs * self.x,
-            y: rhs * self.y,
-            z: rhs * self.z,
-        }
+        Self::Output::new(rhs * self.x, rhs * self.y, rhs * self.z)
     }
 }
 

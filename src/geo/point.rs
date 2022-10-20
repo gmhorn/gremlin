@@ -21,7 +21,7 @@ impl Point {
     /// Creates a point with all elements set to `n`.
     #[inline]
     pub const fn splat(n: f64) -> Self {
-        Self { x: n, y: n, z: n }
+        Self::new(n, n, n)
     }
 }
 
