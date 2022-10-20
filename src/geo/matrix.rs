@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul};
 
-use super::{Point, Ray, Vector};
+use super::{Point, Ray, Unit, Vector};
 
 /// A row-major, 4x4 "real-valued" (`f64`-valued) matrix.
 ///
@@ -21,6 +21,21 @@ impl Matrix {
     };
 
     /// Constructs a new matrix representing a shift by the given vector.
+    ///
+    /// Note that multiplication by a vector leaves the vector unchanged, while
+    /// multiplication by a point translates the point
+    ///
+    /// ```
+    /// use gremlin::geo::{Matrix, Point, Vector};
+    /// let mtx = Matrix::shift(Vector::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_eq!(&mtx * Vector::new(1.0, 1.0, 1.0), Vector::new(1.0, 1.0, 1.0));
+    /// assert_eq!(&mtx * Point::new(1.0, 1.0, 1.0), Point::new(2.0, 3.0, 4.0));
+    /// ```
+    /// 
+    /// Note that the inverse of `shift(v)` is `shift(-v)`.
+    /// 
+    /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations
     pub fn shift(v: Vector) -> Self {
         Self::from([
             [1.0, 0.0, 0.0, v.x],
@@ -40,6 +55,11 @@ impl Matrix {
     ///
     /// creates a matrix that scales by 1 unit in the x-direction and 2 in the
     /// y-direction.
+    ///
+    /// Note that the inverse of `scale(v)` is `scale(w)` where the components
+    /// of `w` are the reciprocals of the components of `v`.
+    ///
+    /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling
     pub fn scale(v: Vector) -> Self {
         Self::from([
             [v.x, 0.0, 0.0, 0.0],
@@ -47,6 +67,36 @@ impl Matrix {
             [0.0, 0.0, v.z, 0.0],
             [0.0, 0.0, 0.0, 1.0],
         ])
+    }
+
+    /// Constructs a new matrix representing rotation by an angle about the
+    /// given axis.
+    /// 
+    /// Note that the inverse of a rotation matrix is equal to its transpose.
+    /// 
+    /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
+    pub fn rotate(theta: f64, axis: Unit) -> Self {
+        let mut data = [[0.0; 4]; 4];
+
+        let theta = theta.to_radians();
+        let sin_theta = theta.sin();
+        let cos_theta = theta.cos();
+
+        // Rotation of first basis vector
+        data[0][0] = axis.x * axis.x + (1.0 - axis.x * axis.x) * cos_theta;
+        data[0][1] = axis.x * axis.y * (1.0 - cos_theta) - axis.z * sin_theta;
+        data[0][2] = axis.x * axis.z * (1.0 - cos_theta) + axis.y * sin_theta;
+        // Rotation of second basis vector
+        data[1][0] = axis.y * axis.x * (1.0 - cos_theta) + axis.z * sin_theta;
+        data[1][1] = axis.y * axis.y + (1.0 - axis.y * axis.y) * cos_theta;
+        data[1][2] = axis.y * axis.z * (1.0 - cos_theta) - axis.x * sin_theta;
+        // Rotation of third basis vector
+        data[2][0] = axis.z * axis.x * (1.0 - cos_theta) - axis.y * sin_theta;
+        data[2][1] = axis.z * axis.y * (1.0 - cos_theta) + axis.x * sin_theta;
+        data[2][2] = axis.z * axis.z + (1.0 - axis.z * axis.z) * cos_theta;
+        // Final row identical to identity matrix
+        data[3][3] = 1.0;
+        Self { data }
     }
 
     /// Returns a view matrix that can translate from camera space to world
@@ -58,13 +108,13 @@ impl Matrix {
         let y_axis = z_axis.cross(x_axis);
 
         let x_axis = x_axis
-            .normalize()
+            .try_normalize()
             .expect("failed to construct orthonormal basis");
         let y_axis = y_axis
-            .normalize()
+            .try_normalize()
             .expect("failed to construct orthonormal basis");
         let z_axis = z_axis
-            .normalize()
+            .try_normalize()
             .expect("failed to construct orthonormal basis");
 
         Self::from([
@@ -96,7 +146,7 @@ impl Matrix {
 
     /// Returns a new matrix that is the inverse of this matrix. Uses simple
     /// Gauss-Jordan elimination with partial pivoting.
-    /// 
+    ///
     /// See:
     /// * https://en.wikipedia.org/wiki/Gaussian_elimination
     /// * https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry
@@ -125,12 +175,12 @@ impl Matrix {
             }
 
             // For all rows below the pivot...
-            for i in (h+1)..4 {
+            for i in (h + 1)..4 {
                 let f = m[i][k] / m[h][k];
                 // Fill the rest of the column below pivot with 0
                 m[i][k] = 0.0;
                 // Reduce all remaining elements in row
-                for j in (k+1)..8 {
+                for j in (k + 1)..8 {
                     m[i][j] -= f * m[h][j];
                 }
             }
@@ -160,7 +210,7 @@ impl Matrix {
         for i in 0..4 {
             data[i][..].copy_from_slice(&m[i][4..]);
         }
-        Self{ data }
+        Self { data }
     }
 }
 
@@ -168,7 +218,7 @@ fn find_pivot(h: usize, k: usize, m: &[[f64; 8]; 4]) -> usize {
     let mut max = m[h][k].abs();
     let mut pivot = h;
 
-    for i in (h+1)..4 {
+    for i in (h + 1)..4 {
         if m[i][k].abs() > max {
             max = m[i][k].abs();
             pivot = i

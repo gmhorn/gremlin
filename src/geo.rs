@@ -31,18 +31,18 @@
 //! while still using the convenient operator overload for `*`.
 //!
 //! ## Algebra
-//! 
+//!
 //! The primitives' operators obey the following algebra:
-//! 
+//!
 //! ```text
 //! Point - Point = Vector
 //! Point + Vector = Vector
-//! 
+//!
 //! Vector * Scalar = Vector
 //! Vector / Scalar = Vector
 //! Vector + Vector = Vector
 //! Vector - Vector = Vector
-//! 
+//!
 //! Matrix * Point = Point
 //! Matrix * Vector = Vector
 //! Matrix * Unit = Vector

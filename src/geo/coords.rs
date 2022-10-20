@@ -5,12 +5,11 @@ pub struct Coords<T> {
     pub y: T,
 }
 
-
 impl<T> Coords<T> {
     /// Constructs coordinates from the given `(x, y)` pair.
     #[inline]
     pub const fn new(x: T, y: T) -> Self {
-        Self{ x, y }
+        Self { x, y }
     }
 }
 
