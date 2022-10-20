@@ -1,7 +1,7 @@
 use super::Vector;
 use std::ops::{Add, Sub};
 
-/// Represents a point in space.
+/// Represents a 3-dimensional point in space.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
     pub x: f64,
@@ -25,38 +25,20 @@ impl Point {
     }
 }
 
-impl Add for Point {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Self::Output {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
-    }
-}
-
 impl Add<Vector> for Point {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Vector) -> Self::Output {
-        Self::Output {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
+        Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 
 impl Sub for Point {
     type Output = Vector;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
-        Self::Output {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        Self::Output::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
     }
 }
