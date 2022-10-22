@@ -57,8 +57,14 @@ pub use self::coords::*;
 mod matrix;
 pub use self::matrix::*;
 
+mod mtx4;
+pub use self::mtx4::*;
+
 mod point;
 pub use self::point::*;
+
+mod point3;
+pub use self::point3::*;
 
 mod ray;
 pub use self::ray::*;
@@ -68,6 +74,12 @@ pub use self::unit::*;
 
 mod vector;
 pub use self::vector::*;
+
+mod vec3;
+pub use self::vec3::*;
+
+mod vec4;
+pub(self) use self::vec4::*;
 
 /* Convenience functions */
 

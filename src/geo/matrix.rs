@@ -32,9 +32,9 @@ impl Matrix {
     /// assert_eq!(&mtx * Vector::new(1.0, 1.0, 1.0), Vector::new(1.0, 1.0, 1.0));
     /// assert_eq!(&mtx * Point::new(1.0, 1.0, 1.0), Point::new(2.0, 3.0, 4.0));
     /// ```
-    /// 
+    ///
     /// Note that the inverse of `shift(v)` is `shift(-v)`.
-    /// 
+    ///
     /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations
     pub fn shift(v: Vector) -> Self {
         Self::from([
@@ -71,9 +71,9 @@ impl Matrix {
 
     /// Constructs a new matrix representing rotation by an angle about the
     /// given axis.
-    /// 
+    ///
     /// Note that the inverse of a rotation matrix is equal to its transpose.
-    /// 
+    ///
     /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
     pub fn rotate(theta: f64, axis: Unit) -> Self {
         let mut data = [[0.0; 4]; 4];
