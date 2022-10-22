@@ -2,7 +2,7 @@ use std::ops::Mul;
 
 use num_traits::Float;
 
-use super::{Vec3, Point3};
+use super::{Point3, Vec3};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(super) struct Vec4<F> {
