@@ -1,5 +1,6 @@
 use std::ops::{Add, Div, Mul, Sub, Neg};
 
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_traits::Float;
 
 /// A 3-dimensional vector.
@@ -12,10 +13,10 @@ use num_traits::Float;
 /// extremely cheap to copy. But if it turns out that implementing the mutator
 /// ops improve ergonomics or performance, that should be easy enough.
 /// 
-/// Vectors, like most of the other primitive in the `geo` package, are 
-/// parameterized over their field. Generally speaking, though, only `f64` and
-/// `f32` instances will be useful, since almost all useful methods and
-/// functions use [`num_traits::Float`] as their generic bound.
+/// Vectors, like most primitives in the [`geo`][crate::geo] package, are 
+/// parameterized over the underlying field. In practice, only `f64` and `f32`
+/// will be useful, since almost all functions use [`num_traits::Float`] as
+/// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3<F> {
     pub x: F,
@@ -66,13 +67,13 @@ impl<F: Float> Vec3<F> {
     }
 
     /// Compute the squared length of the vector. It is faster to compute than
-    /// [`len()`], so use it when you can.
+    /// [`Self::len()`], so use it when you can.
     #[inline]
     pub fn len_squared(self) -> F {
         self.dot(self)
     }
 
-    /// Returns the length of the vector.
+    /// Compute the length of the vector.
     #[inline]
     pub fn len(self) -> F {
         self.dot(self).sqrt()
@@ -97,6 +98,7 @@ impl<F: Float> Vec3<F> {
 impl<F: Float> Neg for Vec3<F> {
     type Output = Self;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         Self::Output::new(self.x.neg(), self.y.neg(), self.z.neg())
     }
@@ -138,10 +140,57 @@ impl<F: Float> Div<F> for Vec3<F> {
     }
 }
 
+// APPROXIMATIONS
+
+impl<F: AbsDiffEq> AbsDiffEq for Vec3<F> where
+    F::Epsilon: Copy,
+{
+    type Epsilon = F::Epsilon;
+
+    fn default_epsilon() -> Self::Epsilon {
+        F::default_epsilon()
+    }
+
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        F::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        F::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        F::abs_diff_eq(&self.z, &other.z, epsilon) 
+    }
+}
+
+impl<F: RelativeEq> RelativeEq for Vec3<F> where
+    F::Epsilon: Copy,
+{
+    fn default_max_relative() -> Self::Epsilon {
+        F::default_max_relative()
+    }
+
+    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+        F::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        F::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        F::relative_eq(&self.z, &other.z, epsilon, max_relative)
+    }
+}
+
+impl<F: UlpsEq> UlpsEq for Vec3<F> where
+    F::Epsilon: Copy,
+{
+    fn default_max_ulps() -> u32 {
+        F::default_max_ulps()
+    }
+
+    fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+        F::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        F::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        F::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+    }
+}
+
 // CONVERSIONS
 
 impl<F: Float> From<[F; 3]> for Vec3<F> {
-    fn from(_: [F; 3]) -> Self {
-        todo!()
+    #[inline]
+    fn from(arr: [F; 3]) -> Self {
+        Self::new(arr[0], arr[1], arr[2])
     }
 }

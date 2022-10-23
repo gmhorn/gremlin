@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 num-traits = "0.2.15"
+approx = "0.5.1"
 image = "0.24.4"
 
 [dev-dependencies]
