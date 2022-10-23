@@ -78,9 +78,6 @@ pub use self::vector::*;
 mod vec3;
 pub use self::vec3::*;
 
-mod vec4;
-pub(self) use self::vec4::*;
-
 /* Convenience functions */
 
 /// Constructs coordinates from the given `(x, y)` pair.

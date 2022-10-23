@@ -1,7 +1,21 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Mul, Sub, Neg};
 
 use num_traits::Float;
 
+/// A 3-dimensional vector.
+/// 
+/// Vectors are interpreted as column vectors. They implement the basic algebra
+/// of euclidean **R3** vector space. The basic operands for addition, 
+/// subtraction, negation, and scalar multiplication/division are implemented.
+/// The assignment operands (`+=`, `-=`, etc.) are not implemented. Generally
+/// speaking, these are intended to be stack-allocated, highly inline-able, and
+/// extremely cheap to copy. But if it turns out that implementing the mutator
+/// ops improve ergonomics or performance, that should be easy enough.
+/// 
+/// Vectors, like most of the other primitive in the `geo` package, are 
+/// parameterized over their field. Generally speaking, though, only `f64` and
+/// `f32` instances will be useful, since almost all useful methods and
+/// functions use [`num_traits::Float`] as their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3<F> {
     pub x: F,
@@ -79,6 +93,14 @@ impl<F: Float> Vec3<F> {
 }
 
 // OPERATORS
+
+impl<F: Float> Neg for Vec3<F> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self::Output::new(self.x.neg(), self.y.neg(), self.z.neg())
+    }
+}
 
 impl<F: Float> Add for Vec3<F> {
     type Output = Self;
