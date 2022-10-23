@@ -115,3 +115,11 @@ impl<F: Float> Div<F> for Vec3<F> {
         self * rhs.recip()
     }
 }
+
+// CONVERSIONS
+
+impl<F: Float> From<[F; 3]> for Vec3<F> {
+    fn from(_: [F; 3]) -> Self {
+        todo!()
+    }
+}
