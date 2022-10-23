@@ -1,6 +1,6 @@
-use std::ops::{Add, AddAssign, Mul, Sub, MulAssign, SubAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
-use num_traits::{Float, Num};
+use num_traits::Float;
 
 /// A 4x4 square matrix.
 ///
@@ -15,12 +15,13 @@ pub struct Mtx4<F> {
 impl<F: Float> Mtx4<F> {
     /// Construct an identity matrix (`1` along the main diagonal, `0`
     /// everywhere else).
+    #[rustfmt::skip]
     #[inline]
     pub fn identity() -> Self {
         Self::from([
-            [F::zero(), F::zero(), F::zero(), F::zero()],
-            [F::zero(), F::one(), F::zero(), F::zero()],
-            [F::zero(), F::zero(), F::one(), F::zero()],
+            [F::one(),  F::zero(), F::zero(), F::zero()],
+            [F::zero(), F::one(),  F::zero(), F::zero()],
+            [F::zero(), F::zero(), F::one(),  F::zero()],
             [F::zero(), F::zero(), F::zero(), F::one()],
         ])
     }
@@ -37,6 +38,7 @@ impl<F: Float> Mtx4<F> {
     }
 
     /// Create a matrix that is the transpose of this matrix.
+    #[rustfmt::skip]
     #[inline]
     pub fn transpose(&self) -> Self {
         Self::from([
@@ -115,7 +117,7 @@ impl<F: Float + MulAssign> Mul<F> for Mtx4<F> {
             }
         }
 
-        Self::Output{ data }
+        Self::Output { data }
     }
 }
 
@@ -151,11 +153,14 @@ mod tests {
         let m = Mtx4::scale(3.0);
         let n = Mtx4::scale(5.0);
 
-        assert_eq!(m + n, Mtx4::from([
-            [8.0, 0.0, 0.0, 0.0],
-            [0.0, 8.0, 0.0, 0.0],
-            [0.0, 0.0, 8.0, 0.0],
-            [0.0, 0.0, 0.0, 2.0],
-        ]));
+        assert_eq!(
+            m + n,
+            Mtx4::from([
+                [8.0, 0.0, 0.0, 0.0],
+                [0.0, 8.0, 0.0, 0.0],
+                [0.0, 0.0, 8.0, 0.0],
+                [0.0, 0.0, 0.0, 2.0],
+            ])
+        );
     }
 }

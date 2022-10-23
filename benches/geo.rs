@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::geo::{Matrix, Vec3, Vector, Mtx4};
+use gremlin::geo::{Matrix, Mtx4, Vec3, Vector};
 
 pub fn vector_min(c: &mut Criterion) {
     c.bench_function("vector min", |b| {
