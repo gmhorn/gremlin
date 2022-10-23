@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::geo::{Matrix, Vector};
+use gremlin::geo::{Matrix, Vec3, Vector, Mtx4};
 
 pub fn vector_min(c: &mut Criterion) {
     c.bench_function("vector min", |b| {
@@ -68,14 +68,26 @@ pub fn matrix_vector_mult(c: &mut Criterion) {
     });
 }
 
+pub fn matrix_add(c: &mut Criterion) {
+    let m = Mtx4::scale(1.0);
+    let n = Mtx4::scale(3.6);
+
+    c.bench_function("matrix add", |b| {
+        b.iter(|| {
+            let _ = black_box(m + n);
+        })
+    });
+}
+
 criterion_group!(
     geo,
-    vector_min,
-    vector_add,
+    // vector_min,
+    // vector_add,
     // vector_unit_add,
-    vector_premult_f64,
-    vector_postmult_f64,
-    vector_div_f64,
-    matrix_vector_mult
+    // vector_premult_f64,
+    // vector_postmult_f64,
+    // vector_div_f64,
+    matrix_add
+    // matrix_vector_mult
 );
 criterion_main!(geo);
