@@ -43,7 +43,7 @@ pub fn vector_postmult_f64(c: &mut Criterion) {
 
     c.bench_function("vector post-mult f64", |b| {
         b.iter(|| {
-            let _ = v * black_box(2.0);
+            let _ = black_box(v * 2.0);
         })
     });
 }
@@ -53,7 +53,7 @@ pub fn vector_div_f64(c: &mut Criterion) {
 
     c.bench_function("vector div f64", |b| {
         b.iter(|| {
-            let _ = v / black_box(2.0);
+            let _ = black_box(v / 2.0);
         })
     });
 }
