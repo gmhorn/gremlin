@@ -31,7 +31,7 @@ use super::Vec3;
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
 /// will be useful, since almost all functions use [`num_traits::Float`] as
 /// their generic bound.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Point3<F> {
     pub x: F,
     pub y: F,

@@ -137,7 +137,7 @@ impl<F: Float> Div<F> for Vec3<F> {
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
     // the reciprical once and then do multiplication" was the lowest of low-
     // hanging fruit when it comes to this stuff.
-    #[deny(clippy::suspicious_arithmetic_impl)]
+    #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
     fn div(self, rhs: F) -> Self::Output {
         self * rhs.recip()

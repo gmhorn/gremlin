@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg, DivAssign};
 
 use num_traits::Float;
 
@@ -13,6 +13,9 @@ use super::{Vec3, Point3};
 pub struct Mtx4<F> {
     data: [[F; 4]; 4],
 }
+
+// Helper typedef to make inverting somewhat more pleasant.
+type AugmentedMatrix<F> = [[F; 8]; 4];
 
 impl<F: Float> Mtx4<F> {
 
@@ -146,19 +149,59 @@ impl<F: Float> Mtx4<F> {
             [self.data[0][3], self.data[1][3], self.data[2][3], self.data[3][3]],
         ])
     }
+}
 
+impl<F> Mtx4<F> where
+    F: Float + SubAssign<F> + DivAssign<F>
+{
     /// Construct a matrix that is the inverse of this matrix.
     /// 
     /// Uses Gauss-Jordan elimination to perform the inversion. See also:
     /// * <https://en.wikipedia.org/wiki/Gaussian_elimination>
     /// * <https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry>
     pub fn inverse(&self) -> Option<Self> {
-        let mut m = self.create_augmented();
+        let mut aug = self.create_augmented();
 
-        todo!()
+        // Forward substitute
+        for c in 0..4 {
+            // Find pivot for the current column
+            let pivot = Self::find_pivot(c, &aug)?;
+            // If pivot not current row, swap row
+            if pivot != c {
+                aug.swap(pivot, c);
+            }
+            // Save off pivot value
+            let pivot_val = aug[c][c];
+
+            // For all rows below the pivot...
+            for row in aug.iter_mut().skip(c+1) {
+                let f = row[c] / pivot_val;
+                // Fill the column below pivot with 0
+                row[c] = F::zero();
+                // Reduce all remaining elements in row
+                for val in row.iter_mut().skip(c + 1) {
+                    *val -= f * pivot_val;
+                }
+            }
+        }
+
+        // Back substitute
+        for (i, row) in aug.iter_mut().enumerate().rev() {
+            let f = row[i];
+            for val in row.iter_mut() {
+                *val /= f;
+            }
+        }
+
+        let mut data = [[F::zero(); 4]; 4];
+        for (idx, row) in aug.iter().enumerate() {
+            data[idx][..].copy_from_slice(&row[4..]);
+        }
+
+        Some(Self { data })
     }
 
-    fn create_augmented(&self) -> [[F; 8]; 4] {
+    fn create_augmented(&self) -> AugmentedMatrix<F> {
         let mut augmented = [[F::zero(); 8]; 4];
 
         let ident = Self::identity();
@@ -171,6 +214,23 @@ impl<F: Float> Mtx4<F> {
         }
 
         augmented
+    }
+
+    fn find_pivot(pos: usize, mtx: &AugmentedMatrix<F>) -> Option<usize> {
+        let mut max = mtx[pos][pos].abs();
+        let mut pivot = pos;
+
+        for (i, row) in mtx.iter().enumerate().skip(pos + 1) {
+            if row[pos].abs() > max {
+                max = row[pos].abs();
+                pivot = i;
+            }
+        }
+
+        match max.abs().is_normal() {
+            true => Some(pivot),
+            false => None,
+        }
     }
 }
 
@@ -231,7 +291,7 @@ impl<F: Float + AddAssign> Mul for Mtx4<F> {
 
     // TODO: Not smart enough to figure out how to convert naive range looping
     // TODO: into iterative method. So just turn off the linter for now.
-    #[deny(clippy::needless_range_loop)]
+    #[allow(clippy::needless_range_loop)]
     fn mul(self, rhs: Self) -> Self::Output {
         let mut data = [[F::zero(); 4]; 4];
 
@@ -360,5 +420,25 @@ mod tests {
                 [0.0, 0.0, 0.0, 2.0],
             ])
         );
+    }
+
+    #[test]
+    fn matrix_inverse() {
+        let m = Mtx4::from([
+            [3.0, 4.0, 6.0, 8.0],
+            [1.0, 2.0, 7.0, 2.0],
+            [8.0, 9.0, 1.0, 3.0],
+            [7.0, 7.0, 6.0, 2.0],
+        ]);
+        let m_inv = m.inverse();
+
+        /*
+          0.174737  -0.694737  -0.48 0.715789
+         -0.212632   0.652632   0.56 -0.642105
+         -0.0147368  0.0947368 -0.08 0.0842105
+          0.176842  -0.136842  -0.04 -0.0105263
+        */
+
+        println!("{:?}", m_inv);
     }
 }
