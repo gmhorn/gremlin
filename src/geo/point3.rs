@@ -24,7 +24,7 @@ use super::Vec3;
 /// * **Subtraction**: `p1 - p2` returns the vector from `p1` to `p2`.
 /// * **Translation**: `p + v` returns another point that is the translation of
 ///   `p` by the vector `v`
-/// * Some convenience functions like [`Self::distance`], [`Self::lerp()`],
+/// * Some convenience functions like [`Self::distance()`], [`Self::lerp()`],
 ///   and [`Self::center()`].
 /// 
 /// Points, like most primitives in the [`geo`][crate::geo] package, are

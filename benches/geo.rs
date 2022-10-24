@@ -79,6 +79,16 @@ pub fn matrix_add(c: &mut Criterion) {
     });
 }
 
+pub fn matrix_scalar_mult(c: &mut Criterion) {
+    let m = Mtx4::scale_uniform(3.6);
+
+    c.bench_function("matrix scalar mult", |b| {
+        b.iter(|| {
+            let _ = black_box(m * 2.0);
+        });
+    });
+}
+
 criterion_group!(
     geo,
     // vector_min,
@@ -87,7 +97,8 @@ criterion_group!(
     // vector_premult_f64,
     // vector_postmult_f64,
     // vector_div_f64,
-    matrix_add
-    // matrix_vector_mult
+    matrix_add,
+    // matrix_scalar_mult,
+    // matrix_vector_mult,
 );
 criterion_main!(geo);

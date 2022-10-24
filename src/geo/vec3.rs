@@ -17,7 +17,7 @@ use num_traits::Float;
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
 /// will be useful, since almost all functions use [`num_traits::Float`] as
 /// their generic bound.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Vec3<F> {
     pub x: F,
     pub y: F,
@@ -134,6 +134,10 @@ impl<F: Float> Mul<F> for Vec3<F> {
 impl<F: Float> Div<F> for Vec3<F> {
     type Output = Self;
 
+    // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
+    // the reciprical once and then do multiplication" was the lowest of low-
+    // hanging fruit when it comes to this stuff.
+    #[deny(clippy::suspicious_arithmetic_impl)]
     #[inline]
     fn div(self, rhs: F) -> Self::Output {
         self * rhs.recip()

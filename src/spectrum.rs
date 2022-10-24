@@ -6,22 +6,14 @@ impl FloatSample {
         Self([n; 80])
     }
 
-    pub fn add_loop(&self, other: &Self) -> Self {
-        let mut res = [0.0; 80];
+    pub fn add_iter(&self, other: &Self) -> Self {
+        let mut data = self.0;
 
-        for i in 0..80 {
-            res[i] = self.0[i] + other.0[i];
+        for (idx, val) in data.iter_mut().enumerate() {
+            *val += other.0[idx];
         }
 
-        Self(res)
-    }
-
-    pub fn add_iter(&self, other: &Self) -> Self {
-        Self(self.0.iter().zip(other.0)
-            .map(|(a, b)| a + b)
-            .collect::<Vec<f32>>()
-            .try_into()
-            .unwrap())
+        Self(data)
     }
 }
 

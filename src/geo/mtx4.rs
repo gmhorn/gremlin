@@ -9,44 +9,84 @@ use super::{Vec3, Point3};
 /// Stored internally in row-major format. Generally speaking, these are used
 /// to encode 3-dimensional transformations. Homogeneous coordinates are
 /// assumed.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Mtx4<F> {
     data: [[F; 4]; 4],
 }
 
 impl<F: Float> Mtx4<F> {
-    /// Construct an identity matrix (`1` along the main diagonal, `0`
-    /// everywhere else).
+
+    /// Construct an identity matrix.
     #[rustfmt::skip]
     #[inline]
     pub fn identity() -> Self {
+        let one = F::one();
+        let zero = F::zero();
+
         Self::from([
-            [F::one(),  F::zero(), F::zero(), F::zero()],
-            [F::zero(), F::one(),  F::zero(), F::zero()],
-            [F::zero(), F::zero(), F::one(),  F::zero()],
-            [F::zero(), F::zero(), F::zero(), F::one()],
+            [one,  zero, zero, zero],
+            [zero, one,  zero, zero],
+            [zero, zero, one,  zero],
+            [zero, zero, zero, one],
         ])
     }
 
+    /// Construct a matrix representing translation by the given vector.
+    /// 
+    /// Acts like an identity on vectors and addition on points.
+    /// 
+    /// ```
+    /// use gremlin::geo::*;
+    /// 
+    /// let s = Vec3::new(3.0, 4.0, 5.0);
+    /// let v = Vec3::splat(1.0);
+    /// let p = Point3::splat(1.0);
+    /// 
+    /// assert_eq!(Mtx4::shift(v) * v, v);
+    /// assert_eq!(Mtx4::shift(v) * p, p + v);
+    /// ```
+    /// 
+    /// Note that for inverses, it is much faster to use the identity:
+    /// 
+    /// ```text
+    /// shift(v).inverse() == shift(-v)
+    /// ```
+    /// 
+    /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations>
     #[rustfmt::skip]
     #[inline]
     pub fn shift(v: Vec3<F>) -> Self {
+        let one = F::one();
+        let zero = F::zero();
+
         Self::from([
-            [F::one(),  F::zero(), F::zero(), v.x],
-            [F::zero(), F::one(),  F::zero(), v.y],
-            [F::zero(), F::zero(), F::one(),  v.z],
-            [F::zero(), F::zero(), F::zero(), F::one()],
+            [one,  zero, zero, v.x],
+            [zero, one,  zero, v.y],
+            [zero, zero, one,  v.z],
+            [zero, zero, zero, one],
         ])
     }
 
+    /// Construct a matrix representing uniform scaling by the given magnitude.
+    /// 
+    /// See also [`Self::scale()`].
     #[inline]
     pub fn scale_uniform(n: F) -> Self {
-        Self::scale_nonuniform(n, n, n)
+        Self::scale(n, n, n)
     }
 
+    /// Construct a matrix representing scaling by the given magnitudes.
+    /// 
+    /// Note that for inverses, it is much faster to use the identity:
+    /// 
+    /// ```text
+    /// scale(x, y, z).inverse() == scale(x.recip(), y.recip(), z.recip())
+    /// ```
+    /// 
+    /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling>
     #[rustfmt::skip]
     #[inline]
-    pub fn scale_nonuniform(x: F, y: F, z: F) -> Self {
+    pub fn scale(x: F, y: F, z: F) -> Self {
         Self::from([
             [x,         F::zero(), F::zero(), F::zero()],
             [F::zero(), y,         F::zero(), F::zero()],
@@ -55,7 +95,47 @@ impl<F: Float> Mtx4<F> {
         ])
     }
 
-    /// Create a matrix that is the transpose of this matrix.
+    /// Construct a matrix representing rotation about the given axis.
+    /// 
+    /// Assumes `theta` is given in degrees and internally converts to radians.
+    /// 
+    /// Note that for inverses, it is much faster to use the identity:
+    /// 
+    /// ```text
+    /// rotate(theta, axis).transpose() == rotate(theta, axis).inverse()
+    /// ```
+    /// 
+    /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
+    #[rustfmt::skip]
+    pub fn rotate(theta: F, axis: Vec3<F>) -> Self {
+        let theta = theta.to_radians();
+
+        let sin_theta = theta.sin();
+        let cos_theta = theta.cos();
+        let one = F::one();
+        let zero = F::zero();
+
+        let d00 = axis.x * axis.x + (one - axis.x * axis.x) * cos_theta;
+        let d01 = axis.x * axis.y * (one - cos_theta) - axis.z * sin_theta;
+        let d02 = axis.x * axis.z * (one - cos_theta) + axis.y * sin_theta;
+        // Rotation of second basis vector
+        let d10 = axis.y * axis.x * (one - cos_theta) + axis.z * sin_theta;
+        let d11 = axis.y * axis.y + (one - axis.y * axis.y) * cos_theta;
+        let d12 = axis.y * axis.z * (one - cos_theta) - axis.x * sin_theta;
+        // Rotation of third basis vector
+        let d20 = axis.z * axis.x * (one - cos_theta) - axis.y * sin_theta;
+        let d21 = axis.z * axis.y * (one - cos_theta) + axis.x * sin_theta;
+        let d22 = axis.z * axis.z + (one - axis.z * axis.z) * cos_theta;
+
+        Self::from([
+            [d00,  d01,  d02,  zero],
+            [d10,  d11,  d12,  zero],
+            [d20,  d21,  d22,  zero],
+            [zero, zero, zero, one]
+        ])
+    }
+
+    /// Construct a matrix that is the transpose of this matrix.
     #[rustfmt::skip]
     #[inline]
     pub fn transpose(&self) -> Self {
@@ -66,6 +146,32 @@ impl<F: Float> Mtx4<F> {
             [self.data[0][3], self.data[1][3], self.data[2][3], self.data[3][3]],
         ])
     }
+
+    /// Construct a matrix that is the inverse of this matrix.
+    /// 
+    /// Uses Gauss-Jordan elimination to perform the inversion. See also:
+    /// * <https://en.wikipedia.org/wiki/Gaussian_elimination>
+    /// * <https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry>
+    pub fn inverse(&self) -> Option<Self> {
+        let mut m = self.create_augmented();
+
+        todo!()
+    }
+
+    fn create_augmented(&self) -> [[F; 8]; 4] {
+        let mut augmented = [[F::zero(); 8]; 4];
+
+        let ident = Self::identity();
+        let lhs_rows = self.data.iter();
+        let rhs_rows = ident.data.iter();
+        
+        for (idx, (lhs, rhs)) in lhs_rows.zip(rhs_rows).enumerate() {
+            augmented[idx][..4].copy_from_slice(lhs);
+            augmented[idx][4..].copy_from_slice(rhs);
+        }
+
+        augmented
+    }
 }
 
 // OPERATORS
@@ -74,14 +180,14 @@ impl<F: Float> Neg for Mtx4<F> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        let mut data = self.data.clone();
+        let mut data = self.data;
 
-        for r in 0..4 {
-            for c in 0..4 {
-                data[r][c] = data[r][c].neg();
+        for row in &mut data {
+            for val in row {
+                *val = val.neg();
             }
         }
-        
+
         Self::Output{ data }
     }
 }
@@ -91,11 +197,11 @@ impl<F: Float + AddAssign> Add for Mtx4<F> {
 
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
-        let mut data = self.data.clone();
+        let mut data = self.data;
 
-        for r in 0..4 {
-            for c in 0..4 {
-                data[r][c] += rhs.data[r][c];
+        for (r, row) in data.iter_mut().enumerate() {
+            for (c, val) in row.iter_mut().enumerate() {
+                *val += rhs.data[r][c];
             }
         }
 
@@ -108,11 +214,11 @@ impl<F: Float + SubAssign> Sub for Mtx4<F> {
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
-        let mut data = self.data.clone();
+        let mut data = self.data;
 
-        for r in 0..4 {
-            for c in 0..4 {
-                data[r][c] -= rhs.data[r][c];
+        for (r, row) in data.iter_mut().enumerate() {
+            for (c, val) in row.iter_mut().enumerate() {
+                *val -= rhs.data[r][c];
             }
         }
 
@@ -123,6 +229,9 @@ impl<F: Float + SubAssign> Sub for Mtx4<F> {
 impl<F: Float + AddAssign> Mul for Mtx4<F> {
     type Output = Self;
 
+    // TODO: Not smart enough to figure out how to convert naive range looping
+    // TODO: into iterative method. So just turn off the linter for now.
+    #[deny(clippy::needless_range_loop)]
     fn mul(self, rhs: Self) -> Self::Output {
         let mut data = [[F::zero(); 4]; 4];
 
@@ -143,14 +252,14 @@ impl<F: Float + MulAssign> Mul<F> for Mtx4<F> {
 
     #[inline]
     fn mul(self, rhs: F) -> Self::Output {
-        let mut data = self.data.clone();
+        let mut data = self.data;
 
-        for r in 0..4 {
-            for c in 0..4 {
-                data[r][c] *= rhs;
+        for row in &mut data {
+            for val in row {
+                *val *= rhs;
             }
         }
-
+        
         Self::Output { data }
     }
 }
@@ -228,8 +337,8 @@ mod tests {
     }
 
     #[test]
-    fn matrix_scale_nonuniform() {
-        let m = Mtx4::scale_nonuniform(3.0, 4.0, 5.0);
+    fn matrix_scale() {
+        let m = Mtx4::scale(3.0, 4.0, 5.0);
         let v = Vec3::splat(1.0);
         let p = Point3::splat(1.0);
 
