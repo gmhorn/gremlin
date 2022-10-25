@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul};
 
-use super::{Point, Ray, Unit, Vector};
+use super::{PointOld, Ray, Unit, Vector};
 
 /// A row-major, 4x4 "real-valued" (`f64`-valued) matrix.
 ///
@@ -102,7 +102,7 @@ impl Matrix {
     /// Returns a view matrix that can translate from camera space to world
     /// space. All arguments are in world-space coordinates. `from` gives the
     /// camera location and `to` gives the
-    pub fn look_at(from: Point, to: Point, up: Vector) -> Self {
+    pub fn look_at(from: PointOld, to: PointOld, up: Vector) -> Self {
         let z_axis = from - to;
         let x_axis = up.cross(z_axis);
         let y_axis = z_axis.cross(x_axis);
@@ -298,11 +298,11 @@ impl<T: Into<Vector>> Mul<T> for &Matrix {
     }
 }
 
-impl Mul<Point> for &Matrix {
-    type Output = Point;
+impl Mul<PointOld> for &Matrix {
+    type Output = PointOld;
 
     #[inline]
-    fn mul(self, rhs: Point) -> Self::Output {
+    fn mul(self, rhs: PointOld) -> Self::Output {
         let a = self.data;
         Self::Output {
             x: a[0][0] * rhs.x + a[0][1] * rhs.y + a[0][2] * rhs.z + a[0][3],

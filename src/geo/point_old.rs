@@ -3,13 +3,13 @@ use std::ops::{Add, Sub};
 
 /// Represents a 3-dimensional point in space.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Point {
+pub struct PointOld {
     pub x: f64,
     pub y: f64,
     pub z: f64,
 }
 
-impl Point {
+impl PointOld {
     pub const ORIGIN: Self = Self::splat(0.0);
 
     /// Creates a new point.
@@ -25,7 +25,7 @@ impl Point {
     }
 }
 
-impl Add<Vector> for Point {
+impl Add<Vector> for PointOld {
     type Output = Self;
 
     #[inline]
@@ -34,7 +34,7 @@ impl Add<Vector> for Point {
     }
 }
 
-impl Sub for Point {
+impl Sub for PointOld {
     type Output = Vector;
 
     #[inline]

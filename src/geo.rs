@@ -60,8 +60,8 @@ pub use self::matrix::*;
 mod mtx4;
 pub use self::mtx4::*;
 
-mod point;
-pub use self::point::*;
+mod point_old;
+pub use self::point_old::*;
 
 mod point3;
 pub use self::point3::*;
@@ -88,8 +88,8 @@ pub const fn coords<T>(x: T, y: T) -> Coords<T> {
 
 /// Creates a new point.
 #[inline]
-pub const fn point(x: f64, y: f64, z: f64) -> Point {
-    Point::new(x, y, z)
+pub const fn point(x: f64, y: f64, z: f64) -> PointOld {
+    PointOld::new(x, y, z)
 }
 
 /// Creates a new vector
