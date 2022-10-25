@@ -113,10 +113,12 @@ impl<F: AbsDiffEq> AbsDiffEq for Point3<F> where
 {
     type Epsilon = F::Epsilon;
 
+    #[inline]
     fn default_epsilon() -> Self::Epsilon {
         F::default_epsilon()
     }
 
+    #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         F::abs_diff_eq(&self.x, &other.x, epsilon) &&
         F::abs_diff_eq(&self.y, &other.y, epsilon) &&
@@ -127,10 +129,12 @@ impl<F: AbsDiffEq> AbsDiffEq for Point3<F> where
 impl<F: RelativeEq> RelativeEq for Point3<F> where
     F::Epsilon: Copy,
 {
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         F::default_max_relative()
     }
 
+    #[inline]
     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
         F::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
         F::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
@@ -141,10 +145,12 @@ impl<F: RelativeEq> RelativeEq for Point3<F> where
 impl<F: UlpsEq> UlpsEq for Point3<F> where
     F::Epsilon: Copy,
 {
+    #[inline]
     fn default_max_ulps() -> u32 {
         F::default_max_ulps()
     }
 
+    #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         F::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
         F::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
@@ -158,6 +164,13 @@ impl<F: Float> From<[F; 3]> for Point3<F> {
     #[inline]
     fn from(arr: [F; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
+    }
+}
+
+impl<F: Float> From<Vec3<F>> for Point3<F> {
+    #[inline]
+    fn from(v: Vec3<F>) -> Self {
+        Self::new(v.x, v.y, v.z)
     }
 }
 

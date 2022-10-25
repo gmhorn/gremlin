@@ -3,6 +3,8 @@ use std::ops::{Add, Div, Mul, Sub, Neg};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_traits::Float;
 
+use super::Point3;
+
 /// A 3-dimensional vector.
 /// 
 /// Vectors are interpreted as column vectors. They implement the basic algebra
@@ -151,10 +153,12 @@ impl<F: AbsDiffEq> AbsDiffEq for Vec3<F> where
 {
     type Epsilon = F::Epsilon;
 
+    #[inline]
     fn default_epsilon() -> Self::Epsilon {
         F::default_epsilon()
     }
 
+    #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         F::abs_diff_eq(&self.x, &other.x, epsilon) &&
         F::abs_diff_eq(&self.y, &other.y, epsilon) &&
@@ -165,10 +169,12 @@ impl<F: AbsDiffEq> AbsDiffEq for Vec3<F> where
 impl<F: RelativeEq> RelativeEq for Vec3<F> where
     F::Epsilon: Copy,
 {
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         F::default_max_relative()
     }
 
+    #[inline]
     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
         F::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
         F::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
@@ -179,10 +185,12 @@ impl<F: RelativeEq> RelativeEq for Vec3<F> where
 impl<F: UlpsEq> UlpsEq for Vec3<F> where
     F::Epsilon: Copy,
 {
+    #[inline]
     fn default_max_ulps() -> u32 {
         F::default_max_ulps()
     }
 
+    #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         F::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
         F::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
@@ -196,5 +204,12 @@ impl<F: Float> From<[F; 3]> for Vec3<F> {
     #[inline]
     fn from(arr: [F; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
+    }
+}
+
+impl<F: Float> From<Point3<F>> for Vec3<F> {
+    #[inline]
+    fn from(pt: Point3<F>) -> Self {
+        Self::new(pt.x, pt.y, pt.z)
     }
 }
