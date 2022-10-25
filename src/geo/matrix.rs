@@ -3,7 +3,7 @@ use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg};
 use approx::{RelativeEq, AbsDiffEq, UlpsEq};
 use num_traits::Float;
 
-use super::{Vector, Point};
+use super::{Vector, Point, Unit};
 
 /// A 4x4 square matrix.
 ///
@@ -111,15 +111,18 @@ impl<F: Float> Matrix<F> {
     /// 
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
     #[rustfmt::skip]
-    pub fn rotate(theta: F, axis: Vector<F>) -> Self {
-        // TODO!! Normalize axis!
+    pub fn rotate(theta: F, axis: Unit<F>) -> Self {
+        // Covert angle to radians and axis to vector (so we can get components)
         let theta = theta.to_radians();
+        let axis = Vector::from(axis);
 
+        // Precompute some constants
         let sin_theta = theta.sin();
         let cos_theta = theta.cos();
         let one = F::one();
         let zero = F::zero();
 
+        // Rotation of first basis vector
         let d00 = axis.x * axis.x + (one - axis.x * axis.x) * cos_theta;
         let d01 = axis.x * axis.y * (one - cos_theta) - axis.z * sin_theta;
         let d02 = axis.x * axis.z * (one - cos_theta) + axis.y * sin_theta;
@@ -360,7 +363,7 @@ impl<F: Float> Mul<Point<F>> for Matrix<F> {
     
 }
 
-// CONVERSIONS
+// CONVERSIONS: OTHER -> MATRIX
 
 impl<F: Float> From<[F; 16]> for Matrix<F> {
     fn from(vals: [F; 16]) -> Self {

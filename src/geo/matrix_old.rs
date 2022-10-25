@@ -25,7 +25,7 @@ impl MatrixOld {
     /// Note that multiplication by a vector leaves the vector unchanged, while
     /// multiplication by a point translates the point
     ///
-    /// ```
+    /// ```text
     /// use gremlin::geo::{Matrix, Point, Vector};
     /// let mtx = Matrix::shift(Vector::new(1.0, 2.0, 3.0));
     ///
@@ -48,7 +48,7 @@ impl MatrixOld {
     /// Constructs a new matrix representing scaling by a given vector. The
     /// coordinates of the vector are the scale factor for each axis. So
     ///
-    /// ```
+    /// ```text
     /// use gremlin::geo::{Matrix, Vector};
     /// let _mtx = Matrix::scale(Vector::new(1.0, 2.0, 0.0));
     /// ```
@@ -125,13 +125,6 @@ impl MatrixOld {
         ])
     }
 
-    /// Returns a new matrix that is the transpose of this matrix.
-    ///
-    /// ```
-    /// use gremlin::geo::*;
-    /// let m = Matrix::look_at(Point::ORIGIN, Point::new(10.0, 10.0, 10.0), Vector::Y_AXIS);
-    /// assert_eq!(m, m.transpose().transpose());
-    /// ```
     pub fn transpose(&self) -> Self {
         let mut data = self.data.clone();
 

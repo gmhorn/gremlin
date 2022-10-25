@@ -72,6 +72,9 @@ pub use self::ray_old::*;
 mod unit_old;
 pub use self::unit_old::*;
 
+mod unit;
+pub use self::unit::*;
+
 mod vector_old;
 pub use self::vector_old::*;
 

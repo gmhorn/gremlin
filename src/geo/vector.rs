@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Sub, Neg};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_traits::Float;
 
-use super::Point;
+use super::{Point, Unit};
 
 /// A 3-dimensional vector.
 /// 
@@ -37,6 +37,24 @@ impl<F: Float> Vector<F> {
     #[inline]
     pub const fn splat(n: F) -> Self {
         Self::new(n, n, n)
+    }
+
+    /// Construct a new vector of length 1 along the x-axis.
+    #[inline]
+    pub fn x_axis() -> Self {
+        Unit::x_axis().into()
+    }
+
+    /// Construct a new vector of length 1 along the y-axis.
+    #[inline]
+    pub fn y_axis() -> Self {
+        Unit::y_axis().into()
+    }
+
+    /// Construct a new vector of length 1 along the z-axis.
+    #[inline]
+    pub fn z_axis() -> Self {
+        Unit::z_axis().into()
     }
 
     /// Construct a new vector that is the component-wise minimum of the two.
@@ -79,6 +97,14 @@ impl<F: Float> Vector<F> {
     #[inline]
     pub fn len(self) -> F {
         self.dot(self).sqrt()
+    }
+
+    /// Normalize the vector.
+    /// 
+    /// Panics if vector is 0-length or otherwise ill-conditioned.
+    #[inline]
+    pub fn normalize(self) -> Unit<F> {
+        Unit::try_from(self).unwrap()
     }
 
     // Returns `true` if all components are finite. Finite means neither `NaN`,
@@ -137,8 +163,8 @@ impl<F: Float> Div<F> for Vector<F> {
     type Output = Self;
 
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
-    // the reciprical once and then do multiplication" was the lowest of low-
-    // hanging fruit when it comes to this stuff.
+    // the reciprical once and then do multiplication" is the lowest of low-
+    // hanging fruit when it comes to this stuff, right?
     #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
     fn div(self, rhs: F) -> Self::Output {
@@ -198,7 +224,16 @@ impl<F: UlpsEq> UlpsEq for Vector<F> where
     }
 }
 
-// CONVERSIONS
+// CONVERSIONS: VECTOR -> OTHER
+
+impl<F: Float> From<Vector<F>> for [F; 3] {
+    #[inline]
+    fn from(v: Vector<F>) -> Self {
+        [v.x, v.y, v.z]
+    }
+}
+
+// CONVERSIONS: OTHER -> VECTOR
 
 impl<F: Float> From<[F; 3]> for Vector<F> {
     #[inline]
