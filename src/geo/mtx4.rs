@@ -1,5 +1,6 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg, DivAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg};
 
+use approx::{RelativeEq, AbsDiffEq, UlpsEq};
 use num_traits::Float;
 
 use super::{Vec3, Point3};
@@ -149,16 +150,15 @@ impl<F: Float> Mtx4<F> {
             [self.data[0][3], self.data[1][3], self.data[2][3], self.data[3][3]],
         ])
     }
-}
 
-impl<F> Mtx4<F> where
-    F: Float + SubAssign<F> + DivAssign<F>
-{
     /// Construct a matrix that is the inverse of this matrix.
     /// 
     /// Uses Gauss-Jordan elimination to perform the inversion. See also:
     /// * <https://en.wikipedia.org/wiki/Gaussian_elimination>
     /// * <https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry>
+    // TODO: Not smart enough to figure out how to convert naive range looping
+    // TODO: into iterative method. So just turn off the linter for now.
+    #[allow(clippy::needless_range_loop)]
     pub fn inverse(&self) -> Option<Self> {
         let mut aug = self.create_augmented();
 
@@ -170,29 +170,36 @@ impl<F> Mtx4<F> where
             if pivot != c {
                 aug.swap(pivot, c);
             }
-            // Save off pivot value
-            let pivot_val = aug[c][c];
 
             // For all rows below the pivot...
-            for row in aug.iter_mut().skip(c+1) {
-                let f = row[c] / pivot_val;
-                // Fill the column below pivot with 0
-                row[c] = F::zero();
+            for i in (c + 1)..4 {
+                let f = aug[i][c] / aug[c][c];
+                // Fill the rest of the column below pivot with 0
+                aug[i][c] = F::zero();
                 // Reduce all remaining elements in row
-                for val in row.iter_mut().skip(c + 1) {
-                    *val -= f * pivot_val;
+                for j in (c + 1)..8 {
+                    aug[i][j] = aug[i][j] - f * aug[c][j]
                 }
             }
         }
 
         // Back substitute
-        for (i, row) in aug.iter_mut().enumerate().rev() {
-            let f = row[i];
-            for val in row.iter_mut() {
-                *val /= f;
+        for i in (0..4).rev() {
+            let f = aug[i][i];
+            for j in 0..8 {
+                aug[i][j] = aug[i][j] / f;
+            }
+
+            for j in 0..i {
+                let f = aug[j][i];
+
+                for k in 0..8 {
+                    aug[j][k] = aug[j][k] - f * aug[i][k];
+                }
             }
         }
-
+        
+        // Inverse is right half of augmented matrix
         let mut data = [[F::zero(); 4]; 4];
         for (idx, row) in aug.iter().enumerate() {
             data[idx][..].copy_from_slice(&row[4..]);
@@ -239,6 +246,7 @@ impl<F> Mtx4<F> where
 impl<F: Float> Neg for Mtx4<F> {
     type Output = Self;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         let mut data = self.data;
 
@@ -286,7 +294,7 @@ impl<F: Float + SubAssign> Sub for Mtx4<F> {
     }
 }
 
-impl<F: Float + AddAssign> Mul for Mtx4<F> {
+impl<F: Float> Mul for Mtx4<F> {
     type Output = Self;
 
     // TODO: Not smart enough to figure out how to convert naive range looping
@@ -298,7 +306,7 @@ impl<F: Float + AddAssign> Mul for Mtx4<F> {
         for r in 0..4 {
             for c in 0..4 {
                 for k in 0..4 {
-                    data[r][c] += self.data[r][k] * rhs.data[k][c];
+                    data[r][c] = data[r][c] + self.data[r][k] * rhs.data[k][c];
                 }
             }
         }
@@ -327,6 +335,7 @@ impl<F: Float + MulAssign> Mul<F> for Mtx4<F> {
 impl<F: Float> Mul<Vec3<F>> for Mtx4<F> {
     type Output = Vec3<F>;
 
+    #[inline]
     fn mul(self, rhs: Vec3<F>) -> Self::Output {
         Self::Output {
             x: self.data[0][0] * rhs.x + self.data[0][1] * rhs.y + self.data[0][2] * rhs.z,
@@ -339,6 +348,7 @@ impl<F: Float> Mul<Vec3<F>> for Mtx4<F> {
 impl<F: Float> Mul<Point3<F>> for Mtx4<F> {
     type Output = Point3<F>;
 
+    #[inline]
     fn mul(self, rhs: Point3<F>) -> Self::Output {
         Self::Output {
             x: self.data[0][0] * rhs.x + self.data[0][1] * rhs.y + self.data[0][2] * rhs.z + self.data[0][3],
@@ -372,8 +382,68 @@ impl<F> From<[[F; 4]; 4]> for Mtx4<F> {
     }
 }
 
+// APPROXIMATIONS
+
+impl<F: AbsDiffEq> AbsDiffEq for Mtx4<F> where
+    F::Epsilon: Copy,
+{
+    type Epsilon = F::Epsilon;
+
+    #[inline]
+    fn default_epsilon() -> Self::Epsilon {
+        F::default_epsilon()
+    }
+
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        let self_vals = self.data.iter().flatten();
+        let other_vals = other.data.iter().flatten();
+
+        self_vals.zip(other_vals).all(|(a, b)| {
+            F::abs_diff_eq(a, b, epsilon)
+        })
+    }
+}
+
+impl<F: RelativeEq> RelativeEq for Mtx4<F> where
+    F::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_relative() -> Self::Epsilon {
+        F::default_max_relative()
+    }
+
+    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+        let self_vals = self.data.iter().flatten();
+        let other_vals = other.data.iter().flatten();
+
+        self_vals.zip(other_vals).all(|(a, b)| {
+            F::relative_eq(a, b, epsilon, max_relative)
+        })
+    }
+}
+
+impl<F: UlpsEq> UlpsEq for Mtx4<F> where
+    F::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        F::default_max_ulps()
+    }
+
+    fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+        let self_vals = self.data.iter().flatten();
+        let other_vals = other.data.iter().flatten();
+
+        self_vals.zip(other_vals).all(|(a, b)| {
+            F::ulps_eq(a, b, epsilon, max_ulps)
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use approx::assert_relative_eq;
+
     use super::*;
 
     #[test]
@@ -430,15 +500,13 @@ mod tests {
             [8.0, 9.0, 1.0, 3.0],
             [7.0, 7.0, 6.0, 2.0],
         ]);
-        let m_inv = m.inverse();
+        let m_inv = m.inverse().unwrap();
 
-        /*
-          0.174737  -0.694737  -0.48 0.715789
-         -0.212632   0.652632   0.56 -0.642105
-         -0.0147368  0.0947368 -0.08 0.0842105
-          0.176842  -0.136842  -0.04 -0.0105263
-        */
-
-        println!("{:?}", m_inv);
+        assert_relative_eq!(Mtx4::from([
+            [0.174737, -0.694737, -0.48, 0.715789],
+            [-0.212632, 0.652632, 0.56, -0.642105],
+            [-0.0147368, 0.0947368, -0.08, 0.0842105],
+             [0.176842, -0.136842,  -0.04, -0.0105263],
+        ]), m_inv, max_relative = 1e-5);
     }
 }
