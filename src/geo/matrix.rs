@@ -143,6 +143,36 @@ impl<F: Float> Matrix<F> {
         ])
     }
 
+    /// Construct a right-handed look-at matrix.
+    /// 
+    /// Useful for transforming from camera space to world space. All arguments
+    /// given in world-space coordinates. Conceptually, `from` is the camera's
+    /// location, `to` is the point the camera is looking at, and `up` is the
+    pub fn look_at(from: Point<F>, to: Point<F>, up: Vector<F>) -> Self {
+        // Construct orthoginal basis
+        let z_axis = from - to;
+        let x_axis = up.cross(z_axis);
+        let y_axis = z_axis.cross(x_axis);
+
+        // Convert to orthonormal basis
+        let x_axis = Unit::try_from(x_axis).expect("Failed to construct orthonormal basis");        
+        let y_axis = Unit::try_from(y_axis).expect("Failed to construct orthonormal basis");        
+        let z_axis = Unit::try_from(z_axis).expect("Failed to construct orthonormal basis");        
+
+        // Convert to array so we can grab elements
+        // TODO: this kind of sucks...
+        let x_axis: [F; 3] = x_axis.into();
+        let y_axis: [F; 3] = y_axis.into();
+        let z_axis: [F; 3] = z_axis.into();
+
+        Self::from([
+            [x_axis[0], y_axis[0], z_axis[0], from.x],
+            [x_axis[1], y_axis[1], z_axis[1], from.y],
+            [x_axis[2], y_axis[2], z_axis[2], from.z],
+            [F::zero(), F::zero(), F::zero(), F::one()],
+        ])
+    }
+
     /// Construct a matrix that is the transpose of this matrix.
     #[rustfmt::skip]
     #[inline]

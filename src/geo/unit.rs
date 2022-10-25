@@ -6,10 +6,33 @@ use super::Vector;
 
 /// A 3-dimensional unit vector.
 /// 
-/// We enforce a separate type because it is usually significant in rendering
-/// whether or not a vector is normalized. For similar reasons, there are no
-/// public constructors for this type. Conversions such as [`Vector::normalize`]
-/// and the [`TryFrom`] trait are the only way to construct these types.
+/// We enforce a separate type because whether or not a vector is normalized may
+/// be significant in some rendering operations. For similar reasons, there is
+/// no public constructor that takes arbitrary component values. A fixed set of
+/// known-valid constructors, and conversions such as [`Vector::normalize`] and
+/// the [`TryFrom`] trait are the only way to construct these types.
+/// 
+/// Very few operators and methods are implemented on [`Unit`]. That's because,
+/// generally speaking, operations such as:
+/// 
+/// * Multiplying or dividing by a scalar
+/// * Adding or subtracting by another [`Unit`] or [`Vector`]
+/// * Transforming by a [`Matrix`][super::Matrix]
+/// 
+/// are not length-preserving. Similarly, the `(x, y, z)` fields are private,
+/// since exposing them would allow code to violate the unit-length invariant.
+/// Consequently, [`Vector`]s are much easier to work with in practice.
+/// 
+/// Its tempting to minimize the number of APIs that take [`Unit`] arguments. 
+/// The trade-off with taking [`Vector`] arguments everywhere and internally
+/// converting is:
+/// * There is a cost to the conversion, so it matters if the API is expected to
+///   be used on hot code paths.
+/// * Conversion may fail for arbitrary [`Vector`]s. So APIs need to either
+///   expose that possibility in their signatures, or panic.
+/// 
+/// Panicing may be especially annoying if conversion fails many minutes in to a
+/// long render. So like everything, it's a trade-off.
 pub struct Unit<F> {
     x: F,
     y: F,
