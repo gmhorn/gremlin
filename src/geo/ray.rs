@@ -1,13 +1,13 @@
-use super::{PointOld, Vector};
+use super::{PointOld, VectorOld};
 
 pub struct Ray {
     origin: PointOld,
-    dir: Vector,
+    dir: VectorOld,
 }
 
 impl Ray {
     #[inline]
-    pub fn new(origin: PointOld, dir: Vector) -> Self {
+    pub fn new(origin: PointOld, dir: VectorOld) -> Self {
         Self { origin, dir }
     }
 
@@ -17,7 +17,7 @@ impl Ray {
     }
 
     #[inline]
-    pub fn dir(&self) -> Vector {
+    pub fn dir(&self) -> VectorOld {
         self.dir
     }
 

@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul};
 
-use super::{PointOld, Ray, Unit, Vector};
+use super::{PointOld, Ray, Unit, VectorOld};
 
 /// A row-major, 4x4 "real-valued" (`f64`-valued) matrix.
 ///
@@ -36,7 +36,7 @@ impl Matrix {
     /// Note that the inverse of `shift(v)` is `shift(-v)`.
     ///
     /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations
-    pub fn shift(v: Vector) -> Self {
+    pub fn shift(v: VectorOld) -> Self {
         Self::from([
             [1.0, 0.0, 0.0, v.x],
             [0.0, 1.0, 0.0, v.y],
@@ -60,7 +60,7 @@ impl Matrix {
     /// of `w` are the reciprocals of the components of `v`.
     ///
     /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling
-    pub fn scale(v: Vector) -> Self {
+    pub fn scale(v: VectorOld) -> Self {
         Self::from([
             [v.x, 0.0, 0.0, 0.0],
             [0.0, v.y, 0.0, 0.0],
@@ -102,7 +102,7 @@ impl Matrix {
     /// Returns a view matrix that can translate from camera space to world
     /// space. All arguments are in world-space coordinates. `from` gives the
     /// camera location and `to` gives the
-    pub fn look_at(from: PointOld, to: PointOld, up: Vector) -> Self {
+    pub fn look_at(from: PointOld, to: PointOld, up: VectorOld) -> Self {
         let z_axis = from - to;
         let x_axis = up.cross(z_axis);
         let y_axis = z_axis.cross(x_axis);
@@ -283,8 +283,8 @@ impl Mul<&Matrix> for &Matrix {
     }
 }
 
-impl<T: Into<Vector>> Mul<T> for &Matrix {
-    type Output = Vector;
+impl<T: Into<VectorOld>> Mul<T> for &Matrix {
+    type Output = VectorOld;
 
     #[inline]
     fn mul(self, rhs: T) -> Self::Output {

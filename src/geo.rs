@@ -94,6 +94,6 @@ pub const fn point(x: f64, y: f64, z: f64) -> PointOld {
 
 /// Creates a new vector
 #[inline]
-pub const fn vector(x: f64, y: f64, z: f64) -> Vector {
-    Vector::new(x, y, z)
+pub const fn vector(x: f64, y: f64, z: f64) -> VectorOld {
+    VectorOld::new(x, y, z)
 }

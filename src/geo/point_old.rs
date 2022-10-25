@@ -1,4 +1,4 @@
-use super::Vector;
+use super::VectorOld;
 use std::ops::{Add, Sub};
 
 /// Represents a 3-dimensional point in space.
@@ -25,17 +25,17 @@ impl PointOld {
     }
 }
 
-impl Add<Vector> for PointOld {
+impl Add<VectorOld> for PointOld {
     type Output = Self;
 
     #[inline]
-    fn add(self, rhs: Vector) -> Self::Output {
+    fn add(self, rhs: VectorOld) -> Self::Output {
         Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 
 impl Sub for PointOld {
-    type Output = Vector;
+    type Output = VectorOld;
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {

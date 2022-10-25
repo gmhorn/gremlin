@@ -5,13 +5,13 @@ use super::Unit;
 /// Represents a 3-dimensional vector. Vectors are interpreted as column vectors
 /// in homogeneous coordinates, with `w = 0` identically.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Vector {
+pub struct VectorOld {
     pub x: f64,
     pub y: f64,
     pub z: f64,
 }
 
-impl Vector {
+impl VectorOld {
     pub const X_AXIS: Self = Self::new(1.0, 0.0, 0.0);
     pub const Y_AXIS: Self = Self::new(0.0, 1.0, 0.0);
     pub const Z_AXIS: Self = Self::new(0.0, 0.0, 1.0);
@@ -112,7 +112,7 @@ impl Vector {
     }
 }
 
-impl Add for Vector {
+impl Add for VectorOld {
     type Output = Self;
 
     #[inline]
@@ -121,7 +121,7 @@ impl Add for Vector {
     }
 }
 
-impl Sub for Vector {
+impl Sub for VectorOld {
     type Output = Self;
 
     #[inline]
@@ -130,7 +130,7 @@ impl Sub for Vector {
     }
 }
 
-impl Mul<f64> for Vector {
+impl Mul<f64> for VectorOld {
     type Output = Self;
 
     #[inline]
@@ -139,16 +139,16 @@ impl Mul<f64> for Vector {
     }
 }
 
-impl Mul<Vector> for f64 {
-    type Output = Vector;
+impl Mul<VectorOld> for f64 {
+    type Output = VectorOld;
 
     #[inline]
-    fn mul(self, rhs: Vector) -> Self::Output {
+    fn mul(self, rhs: VectorOld) -> Self::Output {
         rhs * self
     }
 }
 
-impl Div<f64> for Vector {
+impl Div<f64> for VectorOld {
     type Output = Self;
 
     #[inline]
@@ -157,7 +157,7 @@ impl Div<f64> for Vector {
     }
 }
 
-impl From<Unit> for Vector {
+impl From<Unit> for VectorOld {
     #[inline]
     fn from(u: Unit) -> Self {
         Self::new(u.x, u.y, u.z)
@@ -170,26 +170,26 @@ mod tests {
 
     #[test]
     fn vector_min() {
-        let a = Vector::splat(1.0);
-        let b = Vector::new(-1.0, 2.0, 1.0);
-        let expect = Vector::new(-1.0, 1.0, 1.0);
-        assert_eq!(expect, Vector::min(a, b))
+        let a = VectorOld::splat(1.0);
+        let b = VectorOld::new(-1.0, 2.0, 1.0);
+        let expect = VectorOld::new(-1.0, 1.0, 1.0);
+        assert_eq!(expect, VectorOld::min(a, b))
     }
 
     #[test]
     fn vector_add() {
-        let a = Vector::splat(1.0);
-        let b = Vector::new(1.0, 2.0, 3.0);
-        let expect = Vector::new(2.0, 3.0, 4.0);
+        let a = VectorOld::splat(1.0);
+        let b = VectorOld::new(1.0, 2.0, 3.0);
+        let expect = VectorOld::new(2.0, 3.0, 4.0);
 
         assert_eq!(expect, a + b);
     }
 
     #[test]
     fn vector_mul() {
-        let v = Vector::new(1.0, 2.0, 3.0);
+        let v = VectorOld::new(1.0, 2.0, 3.0);
         let n = 2.0;
-        let expect = Vector::new(2.0, 4.0, 6.0);
+        let expect = VectorOld::new(2.0, 4.0, 6.0);
 
         assert_eq!(expect, n * v);
         assert_eq!(expect, v * n);
@@ -197,9 +197,9 @@ mod tests {
 
     #[test]
     fn vector_div() {
-        let v = Vector::new(2.0, 4.0, 6.0);
+        let v = VectorOld::new(2.0, 4.0, 6.0);
         let n = 2.0;
-        let expect = Vector::new(1.0, 2.0, 3.0);
+        let expect = VectorOld::new(1.0, 2.0, 3.0);
 
         assert_eq!(expect, v / n);
     }
