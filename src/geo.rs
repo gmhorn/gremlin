@@ -75,8 +75,8 @@ pub use self::unit_old::*;
 mod vector_old;
 pub use self::vector_old::*;
 
-mod vec3;
-pub use self::vec3::*;
+mod vector;
+pub use self::vector::*;
 
 /* Convenience functions */
 

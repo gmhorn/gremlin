@@ -3,7 +3,7 @@ use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg};
 use approx::{RelativeEq, AbsDiffEq, UlpsEq};
 use num_traits::Float;
 
-use super::{Vec3, Point};
+use super::{Vector, Point};
 
 /// A 4x4 square matrix.
 ///
@@ -42,8 +42,8 @@ impl<F: Float> Mtx4<F> {
     /// ```
     /// use gremlin::geo::*;
     /// 
-    /// let s = Vec3::new(3.0, 4.0, 5.0);
-    /// let v = Vec3::splat(1.0);
+    /// let s = Vector::new(3.0, 4.0, 5.0);
+    /// let v = Vector::splat(1.0);
     /// let p = Point::splat(1.0);
     /// 
     /// assert_eq!(Mtx4::shift(v) * v, v);
@@ -59,7 +59,7 @@ impl<F: Float> Mtx4<F> {
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations>
     #[rustfmt::skip]
     #[inline]
-    pub fn shift(v: Vec3<F>) -> Self {
+    pub fn shift(v: Vector<F>) -> Self {
         let one = F::one();
         let zero = F::zero();
 
@@ -111,7 +111,7 @@ impl<F: Float> Mtx4<F> {
     /// 
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
     #[rustfmt::skip]
-    pub fn rotate(theta: F, axis: Vec3<F>) -> Self {
+    pub fn rotate(theta: F, axis: Vector<F>) -> Self {
         // TODO!! Normalize axis!
         let theta = theta.to_radians();
 
@@ -333,11 +333,11 @@ impl<F: Float + MulAssign> Mul<F> for Mtx4<F> {
     }
 }
 
-impl<F: Float> Mul<Vec3<F>> for Mtx4<F> {
-    type Output = Vec3<F>;
+impl<F: Float> Mul<Vector<F>> for Mtx4<F> {
+    type Output = Vector<F>;
 
     #[inline]
-    fn mul(self, rhs: Vec3<F>) -> Self::Output {
+    fn mul(self, rhs: Vector<F>) -> Self::Output {
         Self::Output {
             x: self.data[0][0] * rhs.x + self.data[0][1] * rhs.y + self.data[0][2] * rhs.z,
             y: self.data[1][0] * rhs.x + self.data[1][1] * rhs.y + self.data[1][2] * rhs.z,
@@ -453,7 +453,7 @@ mod tests {
     #[test]
     fn matrix_identity() {
         let m = Mtx4::identity();
-        let v = Vec3::new(1.0, 2.0, 3.0);
+        let v = Vector::new(1.0, 2.0, 3.0);
         let p = Point::new(6.0, 7.0, 8.0);
 
         assert_eq!(m * v, v);
@@ -462,8 +462,8 @@ mod tests {
 
     #[test]
     fn matrix_shift() {
-        let m = Mtx4::shift(Vec3::new(3.0, 4.0, 5.0));
-        let v = Vec3::splat(1.0);
+        let m = Mtx4::shift(Vector::new(3.0, 4.0, 5.0));
+        let v = Vector::splat(1.0);
         let p = Point::splat(1.0);
 
         assert_eq!(m * v, v);
@@ -473,10 +473,10 @@ mod tests {
     #[test]
     fn matrix_scale() {
         let m = Mtx4::scale(3.0, 4.0, 5.0);
-        let v = Vec3::splat(1.0);
+        let v = Vector::splat(1.0);
         let p = Point::splat(1.0);
 
-        assert_eq!(m * v, Vec3::new(3.0, 4.0, 5.0));
+        assert_eq!(m * v, Vector::new(3.0, 4.0, 5.0));
         assert_eq!(m * p, Point::new(3.0, 4.0, 5.0));
     }
 

@@ -3,7 +3,7 @@ use std::ops::{Neg, Add, Sub};
 use approx::{UlpsEq, AbsDiffEq, RelativeEq};
 use num_traits::Float;
 
-use super::Vec3;
+use super::Vector;
 
 /// A 3-dimensional point in euclidean space.
 /// 
@@ -88,17 +88,17 @@ impl<F: Float> Neg for Point<F> {
     }
 }
 
-impl<F: Float> Add<Vec3<F>> for Point<F> {
+impl<F: Float> Add<Vector<F>> for Point<F> {
     type Output = Self;
 
     #[inline]
-    fn add(self, rhs: Vec3<F>) -> Self::Output {
+    fn add(self, rhs: Vector<F>) -> Self::Output {
         Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 
 impl<F: Float> Sub for Point<F> {
-    type Output = Vec3<F>;
+    type Output = Vector<F>;
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
@@ -167,9 +167,9 @@ impl<F: Float> From<[F; 3]> for Point<F> {
     }
 }
 
-impl<F: Float> From<Vec3<F>> for Point<F> {
+impl<F: Float> From<Vector<F>> for Point<F> {
     #[inline]
-    fn from(v: Vec3<F>) -> Self {
+    fn from(v: Vector<F>) -> Self {
         Self::new(v.x, v.y, v.z)
     }
 }

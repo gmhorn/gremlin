@@ -20,13 +20,13 @@ use super::Point;
 /// will be useful, since almost all functions use [`num_traits::Float`] as
 /// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Vec3<F> {
+pub struct Vector<F> {
     pub x: F,
     pub y: F,
     pub z: F,
 }
 
-impl<F: Float> Vec3<F> {
+impl<F: Float> Vector<F> {
     /// Construct a new vector with the given components.
     #[inline]
     pub const fn new(x: F, y: F, z: F) -> Self {
@@ -97,7 +97,7 @@ impl<F: Float> Vec3<F> {
 
 // OPERATORS
 
-impl<F: Float> Neg for Vec3<F> {
+impl<F: Float> Neg for Vector<F> {
     type Output = Self;
 
     #[inline]
@@ -106,7 +106,7 @@ impl<F: Float> Neg for Vec3<F> {
     }
 }
 
-impl<F: Float> Add for Vec3<F> {
+impl<F: Float> Add for Vector<F> {
     type Output = Self;
 
     #[inline]
@@ -115,7 +115,7 @@ impl<F: Float> Add for Vec3<F> {
     }
 }
 
-impl<F: Float> Sub for Vec3<F> {
+impl<F: Float> Sub for Vector<F> {
     type Output = Self;
 
     #[inline]
@@ -124,7 +124,7 @@ impl<F: Float> Sub for Vec3<F> {
     }
 }
 
-impl<F: Float> Mul<F> for Vec3<F> {
+impl<F: Float> Mul<F> for Vector<F> {
     type Output = Self;
 
     #[inline]
@@ -133,7 +133,7 @@ impl<F: Float> Mul<F> for Vec3<F> {
     }
 }
 
-impl<F: Float> Div<F> for Vec3<F> {
+impl<F: Float> Div<F> for Vector<F> {
     type Output = Self;
 
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
@@ -148,7 +148,7 @@ impl<F: Float> Div<F> for Vec3<F> {
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Vec3<F> where
+impl<F: AbsDiffEq> AbsDiffEq for Vector<F> where
     F::Epsilon: Copy,
 {
     type Epsilon = F::Epsilon;
@@ -166,7 +166,7 @@ impl<F: AbsDiffEq> AbsDiffEq for Vec3<F> where
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Vec3<F> where
+impl<F: RelativeEq> RelativeEq for Vector<F> where
     F::Epsilon: Copy,
 {
     #[inline]
@@ -182,7 +182,7 @@ impl<F: RelativeEq> RelativeEq for Vec3<F> where
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Vec3<F> where
+impl<F: UlpsEq> UlpsEq for Vector<F> where
     F::Epsilon: Copy,
 {
     #[inline]
@@ -200,14 +200,14 @@ impl<F: UlpsEq> UlpsEq for Vec3<F> where
 
 // CONVERSIONS
 
-impl<F: Float> From<[F; 3]> for Vec3<F> {
+impl<F: Float> From<[F; 3]> for Vector<F> {
     #[inline]
     fn from(arr: [F; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }
 
-impl<F: Float> From<Point<F>> for Vec3<F> {
+impl<F: Float> From<Point<F>> for Vector<F> {
     #[inline]
     fn from(pt: Point<F>) -> Self {
         Self::new(pt.x, pt.y, pt.z)
