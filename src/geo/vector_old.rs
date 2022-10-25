@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use super::Unit;
+use super::UnitOld;
 
 /// Represents a 3-dimensional vector. Vectors are interpreted as column vectors
 /// in homogeneous coordinates, with `w = 0` identically.
@@ -80,19 +80,19 @@ impl VectorOld {
     ///
     /// See [`Self::try_normalize`] for a safer alternative.
     #[inline]
-    pub fn normalize(self) -> Unit {
+    pub fn normalize(self) -> UnitOld {
         let u = self / self.len();
         debug_assert!(u.is_finite());
-        Unit::new(u.x, u.y, u.z)
+        UnitOld::new(u.x, u.y, u.z)
     }
 
     /// Returns the normalized unit vector if possible, else `None`.
     #[inline]
-    pub fn try_normalize(self) -> Option<Unit> {
+    pub fn try_normalize(self) -> Option<UnitOld> {
         let recip = self.len().recip();
         if recip.is_finite() && recip > 0.0 {
             let u = self * recip;
-            Some(Unit::new(u.x, u.y, u.z))
+            Some(UnitOld::new(u.x, u.y, u.z))
         } else {
             None
         }
@@ -157,9 +157,9 @@ impl Div<f64> for VectorOld {
     }
 }
 
-impl From<Unit> for VectorOld {
+impl From<UnitOld> for VectorOld {
     #[inline]
-    fn from(u: Unit) -> Self {
+    fn from(u: UnitOld) -> Self {
         Self::new(u.x, u.y, u.z)
     }
 }

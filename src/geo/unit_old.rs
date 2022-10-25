@@ -10,13 +10,13 @@
 /// let u = v.try_normalize().expect("should be nonzero");
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Unit {
+pub struct UnitOld {
     pub(super) x: f64,
     pub(super) y: f64,
     pub(super) z: f64,
 }
 
-impl Unit {
+impl UnitOld {
     pub const X_AXIS: Self = Self::new(1.0, 0.0, 0.0);
     pub const Y_AXIS: Self = Self::new(0.0, 1.0, 0.0);
     pub const Z_AXIS: Self = Self::new(0.0, 0.0, 1.0);

@@ -1,11 +1,11 @@
 use super::{PointOld, VectorOld};
 
-pub struct Ray {
+pub struct RayOld {
     origin: PointOld,
     dir: VectorOld,
 }
 
-impl Ray {
+impl RayOld {
     #[inline]
     pub fn new(origin: PointOld, dir: VectorOld) -> Self {
         Self { origin, dir }

@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul};
 
-use super::{PointOld, Ray, Unit, VectorOld};
+use super::{PointOld, RayOld, UnitOld, VectorOld};
 
 /// A row-major, 4x4 "real-valued" (`f64`-valued) matrix.
 ///
@@ -75,7 +75,7 @@ impl Matrix {
     /// Note that the inverse of a rotation matrix is equal to its transpose.
     ///
     /// See: https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis
-    pub fn rotate(theta: f64, axis: Unit) -> Self {
+    pub fn rotate(theta: f64, axis: UnitOld) -> Self {
         let mut data = [[0.0; 4]; 4];
 
         let theta = theta.to_radians();
@@ -312,12 +312,12 @@ impl Mul<PointOld> for &Matrix {
     }
 }
 
-impl Mul<&Ray> for &Matrix {
-    type Output = Ray;
+impl Mul<&RayOld> for &Matrix {
+    type Output = RayOld;
 
     #[inline]
-    fn mul(self, rhs: &Ray) -> Self::Output {
-        Ray::new(self * rhs.origin(), self * rhs.dir())
+    fn mul(self, rhs: &RayOld) -> Self::Output {
+        RayOld::new(self * rhs.origin(), self * rhs.dir())
     }
 }
 
