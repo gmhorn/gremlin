@@ -145,9 +145,16 @@ impl<F: Float> Matrix<F> {
 
     /// Construct a right-handed look-at matrix.
     /// 
-    /// Useful for transforming from camera space to world space. All arguments
-    /// given in world-space coordinates. Conceptually, `from` is the camera's
-    /// location, `to` is the point the camera is looking at, and `up` is the
+    /// Useful for transforming camera space to world space. Conceptually:
+    /// * `from` is the camera's location (world-space)
+    /// * `to` is the point the camera's looking at (world space)
+    /// * `up` is the vertical direction "according to the camera" (camera space)
+    /// 
+    /// Using [`Vector::y_axis()`] will give a camera that's "pointing-up".
+    /// 
+    /// See:
+    /// * <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#TheLook-AtTransformation>
+    /// * <https://raytracing.github.io/books/RayTracingInOneWeekend.html#positionablecamera>
     pub fn look_at(from: Point<F>, to: Point<F>, up: Vector<F>) -> Self {
         // Construct orthoginal basis
         let z_axis = from - to;
