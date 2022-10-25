@@ -54,8 +54,8 @@
 mod coords;
 pub use self::coords::*;
 
-mod matrix;
-pub use self::matrix::*;
+mod matrix_old;
+pub use self::matrix_old::*;
 
 mod mtx4;
 pub use self::mtx4::*;

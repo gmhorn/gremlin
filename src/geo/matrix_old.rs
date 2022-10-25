@@ -6,11 +6,11 @@ use super::{PointOld, RayOld, UnitOld, VectorOld};
 ///
 /// Implicitly, all operations on points and vectors are
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Matrix {
+pub struct MatrixOld {
     data: [[f64; 4]; 4],
 }
 
-impl Matrix {
+impl MatrixOld {
     pub const IDENTITY: Self = Self {
         data: [
             [1.0, 0.0, 0.0, 0.0],
@@ -155,7 +155,7 @@ impl Matrix {
         let mut m = [[0.0; 8]; 4];
         for i in 0..4 {
             m[i][..4].copy_from_slice(&self.data[i][..]);
-            m[i][4..].copy_from_slice(&Matrix::IDENTITY.data[i][..]);
+            m[i][4..].copy_from_slice(&MatrixOld::IDENTITY.data[i][..]);
         }
 
         // Forward substitute
@@ -228,14 +228,14 @@ fn find_pivot(h: usize, k: usize, m: &[[f64; 8]; 4]) -> usize {
     pivot
 }
 
-impl From<[[f64; 4]; 4]> for Matrix {
+impl From<[[f64; 4]; 4]> for MatrixOld {
     #[inline]
     fn from(data: [[f64; 4]; 4]) -> Self {
         Self { data }
     }
 }
 
-impl From<[f64; 16]> for Matrix {
+impl From<[f64; 16]> for MatrixOld {
     fn from(coeffs: [f64; 16]) -> Self {
         let mut data = [[0.0; 4]; 4];
 
@@ -249,10 +249,10 @@ impl From<[f64; 16]> for Matrix {
     }
 }
 
-impl Add<&Matrix> for &Matrix {
-    type Output = Matrix;
+impl Add<&MatrixOld> for &MatrixOld {
+    type Output = MatrixOld;
 
-    fn add(self, rhs: &Matrix) -> Self::Output {
+    fn add(self, rhs: &MatrixOld) -> Self::Output {
         let mut data = [[0.0; 4]; 4];
 
         for i in 0..4 {
@@ -265,10 +265,10 @@ impl Add<&Matrix> for &Matrix {
     }
 }
 
-impl Mul<&Matrix> for &Matrix {
-    type Output = Matrix;
+impl Mul<&MatrixOld> for &MatrixOld {
+    type Output = MatrixOld;
 
-    fn mul(self, rhs: &Matrix) -> Self::Output {
+    fn mul(self, rhs: &MatrixOld) -> Self::Output {
         let mut data = [[0.0; 4]; 4];
 
         for i in 0..4 {
@@ -279,11 +279,11 @@ impl Mul<&Matrix> for &Matrix {
             }
         }
 
-        Matrix { data }
+        Self::Output { data }
     }
 }
 
-impl<T: Into<VectorOld>> Mul<T> for &Matrix {
+impl<T: Into<VectorOld>> Mul<T> for &MatrixOld {
     type Output = VectorOld;
 
     #[inline]
@@ -298,7 +298,7 @@ impl<T: Into<VectorOld>> Mul<T> for &Matrix {
     }
 }
 
-impl Mul<PointOld> for &Matrix {
+impl Mul<PointOld> for &MatrixOld {
     type Output = PointOld;
 
     #[inline]
@@ -312,7 +312,7 @@ impl Mul<PointOld> for &Matrix {
     }
 }
 
-impl Mul<&RayOld> for &Matrix {
+impl Mul<&RayOld> for &MatrixOld {
     type Output = RayOld;
 
     #[inline]
@@ -327,7 +327,7 @@ mod tests {
 
     #[test]
     fn matrix_inverse() {
-        let m = Matrix::from([
+        let m = MatrixOld::from([
             [3.0, 4.0, 6.0, 8.0],
             [1.0, 2.0, 7.0, 2.0],
             [8.0, 9.0, 1.0, 3.0],
