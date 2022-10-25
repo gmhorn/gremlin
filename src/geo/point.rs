@@ -32,13 +32,13 @@ use super::Vec3;
 /// will be useful, since almost all functions use [`num_traits::Float`] as
 /// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Point3<F> {
+pub struct Point<F> {
     pub x: F,
     pub y: F,
     pub z: F,
 }
 
-impl<F: Float> Point3<F> {
+impl<F: Float> Point<F> {
     /// Construct a new point with all components `0`.
     #[inline]
     pub fn origin() -> Self {
@@ -79,7 +79,7 @@ impl<F: Float> Point3<F> {
 
 // OPERATORS
 
-impl<F: Float> Neg for Point3<F> {
+impl<F: Float> Neg for Point<F> {
     type Output = Self;
     
     #[inline]
@@ -88,7 +88,7 @@ impl<F: Float> Neg for Point3<F> {
     }
 }
 
-impl<F: Float> Add<Vec3<F>> for Point3<F> {
+impl<F: Float> Add<Vec3<F>> for Point<F> {
     type Output = Self;
 
     #[inline]
@@ -97,7 +97,7 @@ impl<F: Float> Add<Vec3<F>> for Point3<F> {
     }
 }
 
-impl<F: Float> Sub for Point3<F> {
+impl<F: Float> Sub for Point<F> {
     type Output = Vec3<F>;
 
     #[inline]
@@ -108,7 +108,7 @@ impl<F: Float> Sub for Point3<F> {
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Point3<F> where
+impl<F: AbsDiffEq> AbsDiffEq for Point<F> where
     F::Epsilon: Copy,
 {
     type Epsilon = F::Epsilon;
@@ -126,7 +126,7 @@ impl<F: AbsDiffEq> AbsDiffEq for Point3<F> where
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Point3<F> where
+impl<F: RelativeEq> RelativeEq for Point<F> where
     F::Epsilon: Copy,
 {
     #[inline]
@@ -142,7 +142,7 @@ impl<F: RelativeEq> RelativeEq for Point3<F> where
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Point3<F> where
+impl<F: UlpsEq> UlpsEq for Point<F> where
     F::Epsilon: Copy,
 {
     #[inline]
@@ -160,14 +160,14 @@ impl<F: UlpsEq> UlpsEq for Point3<F> where
 
 // CONVERSIONS
 
-impl<F: Float> From<[F; 3]> for Point3<F> {
+impl<F: Float> From<[F; 3]> for Point<F> {
     #[inline]
     fn from(arr: [F; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }
 
-impl<F: Float> From<Vec3<F>> for Point3<F> {
+impl<F: Float> From<Vec3<F>> for Point<F> {
     #[inline]
     fn from(v: Vec3<F>) -> Self {
         Self::new(v.x, v.y, v.z)
@@ -181,24 +181,24 @@ mod tests {
 
     #[test]
     fn distance() {
-        let p1 = Point3::origin();
-        let p2 = Point3::new(3.0, 4.0, 5.0);
+        let p1 = Point::origin();
+        let p2 = Point::new(3.0, 4.0, 5.0);
         assert_relative_eq!(7.0710678, p1.distance(p2), max_relative = 1e-6);
     }
 
     #[test]
     fn lerp_and_center() {
-        let p1 = Point3::origin();
-        let p2 = Point3::splat(2.0);
+        let p1 = Point::origin();
+        let p2 = Point::splat(2.0);
 
         assert_eq!(p1, p1.lerp(p2, 0.0));
         assert_eq!(p2, p1.lerp(p2, 1.0));
-        assert_eq!(Point3::splat(1.0), p1.lerp(p2, 0.5));
-        assert_eq!(Point3::splat(1.0), p1.center(p2));
+        assert_eq!(Point::splat(1.0), p1.lerp(p2, 0.5));
+        assert_eq!(Point::splat(1.0), p1.center(p2));
     }
 
     #[test]
     fn negation() {
-        assert_eq!(Point3::splat(-1.0), -Point3::splat(1.0));
+        assert_eq!(Point::splat(-1.0), -Point::splat(1.0));
     }
 }

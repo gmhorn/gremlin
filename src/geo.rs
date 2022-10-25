@@ -63,8 +63,8 @@ pub use self::mtx4::*;
 mod point_old;
 pub use self::point_old::*;
 
-mod point3;
-pub use self::point3::*;
+mod point;
+pub use self::point::*;
 
 mod ray;
 pub use self::ray::*;

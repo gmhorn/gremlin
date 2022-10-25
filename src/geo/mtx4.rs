@@ -3,7 +3,7 @@ use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg};
 use approx::{RelativeEq, AbsDiffEq, UlpsEq};
 use num_traits::Float;
 
-use super::{Vec3, Point3};
+use super::{Vec3, Point};
 
 /// A 4x4 square matrix.
 ///
@@ -44,7 +44,7 @@ impl<F: Float> Mtx4<F> {
     /// 
     /// let s = Vec3::new(3.0, 4.0, 5.0);
     /// let v = Vec3::splat(1.0);
-    /// let p = Point3::splat(1.0);
+    /// let p = Point::splat(1.0);
     /// 
     /// assert_eq!(Mtx4::shift(v) * v, v);
     /// assert_eq!(Mtx4::shift(v) * p, p + v);
@@ -112,6 +112,7 @@ impl<F: Float> Mtx4<F> {
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
     #[rustfmt::skip]
     pub fn rotate(theta: F, axis: Vec3<F>) -> Self {
+        // TODO!! Normalize axis!
         let theta = theta.to_radians();
 
         let sin_theta = theta.sin();
@@ -345,11 +346,11 @@ impl<F: Float> Mul<Vec3<F>> for Mtx4<F> {
     }
 }
 
-impl<F: Float> Mul<Point3<F>> for Mtx4<F> {
-    type Output = Point3<F>;
+impl<F: Float> Mul<Point<F>> for Mtx4<F> {
+    type Output = Point<F>;
 
     #[inline]
-    fn mul(self, rhs: Point3<F>) -> Self::Output {
+    fn mul(self, rhs: Point<F>) -> Self::Output {
         Self::Output {
             x: self.data[0][0] * rhs.x + self.data[0][1] * rhs.y + self.data[0][2] * rhs.z + self.data[0][3],
             y: self.data[1][0] * rhs.x + self.data[1][1] * rhs.y + self.data[1][2] * rhs.z + self.data[1][3],
@@ -394,6 +395,7 @@ impl<F: AbsDiffEq> AbsDiffEq for Mtx4<F> where
         F::default_epsilon()
     }
 
+    #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         let self_vals = self.data.iter().flatten();
         let other_vals = other.data.iter().flatten();
@@ -412,6 +414,7 @@ impl<F: RelativeEq> RelativeEq for Mtx4<F> where
         F::default_max_relative()
     }
 
+    #[inline]
     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
         let self_vals = self.data.iter().flatten();
         let other_vals = other.data.iter().flatten();
@@ -430,6 +433,7 @@ impl<F: UlpsEq> UlpsEq for Mtx4<F> where
         F::default_max_ulps()
     }
 
+    #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         let self_vals = self.data.iter().flatten();
         let other_vals = other.data.iter().flatten();
@@ -450,7 +454,7 @@ mod tests {
     fn matrix_identity() {
         let m = Mtx4::identity();
         let v = Vec3::new(1.0, 2.0, 3.0);
-        let p = Point3::new(6.0, 7.0, 8.0);
+        let p = Point::new(6.0, 7.0, 8.0);
 
         assert_eq!(m * v, v);
         assert_eq!(m * p, p);
@@ -460,20 +464,20 @@ mod tests {
     fn matrix_shift() {
         let m = Mtx4::shift(Vec3::new(3.0, 4.0, 5.0));
         let v = Vec3::splat(1.0);
-        let p = Point3::splat(1.0);
+        let p = Point::splat(1.0);
 
         assert_eq!(m * v, v);
-        assert_eq!(m * p, Point3::new(4.0, 5.0, 6.0));
+        assert_eq!(m * p, Point::new(4.0, 5.0, 6.0));
     }
 
     #[test]
     fn matrix_scale() {
         let m = Mtx4::scale(3.0, 4.0, 5.0);
         let v = Vec3::splat(1.0);
-        let p = Point3::splat(1.0);
+        let p = Point::splat(1.0);
 
         assert_eq!(m * v, Vec3::new(3.0, 4.0, 5.0));
-        assert_eq!(m * p, Point3::new(3.0, 4.0, 5.0));
+        assert_eq!(m * p, Point::new(3.0, 4.0, 5.0));
     }
 
     #[test]

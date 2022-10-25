@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Sub, Neg};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_traits::Float;
 
-use super::Point3;
+use super::Point;
 
 /// A 3-dimensional vector.
 /// 
@@ -207,9 +207,9 @@ impl<F: Float> From<[F; 3]> for Vec3<F> {
     }
 }
 
-impl<F: Float> From<Point3<F>> for Vec3<F> {
+impl<F: Float> From<Point<F>> for Vec3<F> {
     #[inline]
-    fn from(pt: Point3<F>) -> Self {
+    fn from(pt: Point<F>) -> Self {
         Self::new(pt.x, pt.y, pt.z)
     }
 }
