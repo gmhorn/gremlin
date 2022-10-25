@@ -11,14 +11,14 @@ use super::{Vector, Point};
 /// to encode 3-dimensional transformations. Homogeneous coordinates are
 /// assumed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Mtx4<F> {
+pub struct Matrix<F> {
     data: [[F; 4]; 4],
 }
 
 // Helper typedef to make inverting somewhat more pleasant.
 type AugmentedMatrix<F> = [[F; 8]; 4];
 
-impl<F: Float> Mtx4<F> {
+impl<F: Float> Matrix<F> {
 
     /// Construct an identity matrix.
     #[rustfmt::skip]
@@ -46,8 +46,8 @@ impl<F: Float> Mtx4<F> {
     /// let v = Vector::splat(1.0);
     /// let p = Point::splat(1.0);
     /// 
-    /// assert_eq!(Mtx4::shift(v) * v, v);
-    /// assert_eq!(Mtx4::shift(v) * p, p + v);
+    /// assert_eq!(Matrix::shift(v) * v, v);
+    /// assert_eq!(Matrix::shift(v) * p, p + v);
     /// ```
     /// 
     /// Note that for inverses, it is much faster to use the identity:
@@ -244,7 +244,7 @@ impl<F: Float> Mtx4<F> {
 
 // OPERATORS
 
-impl<F: Float> Neg for Mtx4<F> {
+impl<F: Float> Neg for Matrix<F> {
     type Output = Self;
 
     #[inline]
@@ -261,7 +261,7 @@ impl<F: Float> Neg for Mtx4<F> {
     }
 }
 
-impl<F: Float + AddAssign> Add for Mtx4<F> {
+impl<F: Float + AddAssign> Add for Matrix<F> {
     type Output = Self;
 
     #[inline]
@@ -278,7 +278,7 @@ impl<F: Float + AddAssign> Add for Mtx4<F> {
     }
 }
 
-impl<F: Float + SubAssign> Sub for Mtx4<F> {
+impl<F: Float + SubAssign> Sub for Matrix<F> {
     type Output = Self;
 
     #[inline]
@@ -295,7 +295,7 @@ impl<F: Float + SubAssign> Sub for Mtx4<F> {
     }
 }
 
-impl<F: Float> Mul for Mtx4<F> {
+impl<F: Float> Mul for Matrix<F> {
     type Output = Self;
 
     // TODO: Not smart enough to figure out how to convert naive range looping
@@ -316,7 +316,7 @@ impl<F: Float> Mul for Mtx4<F> {
     }
 }
 
-impl<F: Float + MulAssign> Mul<F> for Mtx4<F> {
+impl<F: Float + MulAssign> Mul<F> for Matrix<F> {
     type Output = Self;
 
     #[inline]
@@ -333,7 +333,7 @@ impl<F: Float + MulAssign> Mul<F> for Mtx4<F> {
     }
 }
 
-impl<F: Float> Mul<Vector<F>> for Mtx4<F> {
+impl<F: Float> Mul<Vector<F>> for Matrix<F> {
     type Output = Vector<F>;
 
     #[inline]
@@ -346,7 +346,7 @@ impl<F: Float> Mul<Vector<F>> for Mtx4<F> {
     }
 }
 
-impl<F: Float> Mul<Point<F>> for Mtx4<F> {
+impl<F: Float> Mul<Point<F>> for Matrix<F> {
     type Output = Point<F>;
 
     #[inline]
@@ -362,7 +362,7 @@ impl<F: Float> Mul<Point<F>> for Mtx4<F> {
 
 // CONVERSIONS
 
-impl<F: Float> From<[F; 16]> for Mtx4<F> {
+impl<F: Float> From<[F; 16]> for Matrix<F> {
     fn from(vals: [F; 16]) -> Self {
         let mut data = [[F::zero(); 4]; 4];
 
@@ -376,7 +376,7 @@ impl<F: Float> From<[F; 16]> for Mtx4<F> {
     }
 }
 
-impl<F> From<[[F; 4]; 4]> for Mtx4<F> {
+impl<F> From<[[F; 4]; 4]> for Matrix<F> {
     #[inline]
     fn from(data: [[F; 4]; 4]) -> Self {
         Self { data }
@@ -385,7 +385,7 @@ impl<F> From<[[F; 4]; 4]> for Mtx4<F> {
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Mtx4<F> where
+impl<F: AbsDiffEq> AbsDiffEq for Matrix<F> where
     F::Epsilon: Copy,
 {
     type Epsilon = F::Epsilon;
@@ -406,7 +406,7 @@ impl<F: AbsDiffEq> AbsDiffEq for Mtx4<F> where
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Mtx4<F> where
+impl<F: RelativeEq> RelativeEq for Matrix<F> where
     F::Epsilon: Copy,
 {
     #[inline]
@@ -425,7 +425,7 @@ impl<F: RelativeEq> RelativeEq for Mtx4<F> where
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Mtx4<F> where
+impl<F: UlpsEq> UlpsEq for Matrix<F> where
     F::Epsilon: Copy,
 {
     #[inline]
@@ -452,7 +452,7 @@ mod tests {
 
     #[test]
     fn matrix_identity() {
-        let m = Mtx4::identity();
+        let m = Matrix::identity();
         let v = Vector::new(1.0, 2.0, 3.0);
         let p = Point::new(6.0, 7.0, 8.0);
 
@@ -462,7 +462,7 @@ mod tests {
 
     #[test]
     fn matrix_shift() {
-        let m = Mtx4::shift(Vector::new(3.0, 4.0, 5.0));
+        let m = Matrix::shift(Vector::new(3.0, 4.0, 5.0));
         let v = Vector::splat(1.0);
         let p = Point::splat(1.0);
 
@@ -472,7 +472,7 @@ mod tests {
 
     #[test]
     fn matrix_scale() {
-        let m = Mtx4::scale(3.0, 4.0, 5.0);
+        let m = Matrix::scale(3.0, 4.0, 5.0);
         let v = Vector::splat(1.0);
         let p = Point::splat(1.0);
 
@@ -482,12 +482,12 @@ mod tests {
 
     #[test]
     fn matrix_add() {
-        let m = Mtx4::scale_uniform(3.0);
-        let n = Mtx4::scale_uniform(5.0);
+        let m = Matrix::scale_uniform(3.0);
+        let n = Matrix::scale_uniform(5.0);
 
         assert_eq!(
             m + n,
-            Mtx4::from([
+            Matrix::from([
                 [8.0, 0.0, 0.0, 0.0],
                 [0.0, 8.0, 0.0, 0.0],
                 [0.0, 0.0, 8.0, 0.0],
@@ -498,7 +498,7 @@ mod tests {
 
     #[test]
     fn matrix_inverse() {
-        let m = Mtx4::from([
+        let m = Matrix::from([
             [3.0, 4.0, 6.0, 8.0],
             [1.0, 2.0, 7.0, 2.0],
             [8.0, 9.0, 1.0, 3.0],
@@ -506,7 +506,7 @@ mod tests {
         ]);
         let m_inv = m.inverse().unwrap();
 
-        assert_relative_eq!(Mtx4::from([
+        assert_relative_eq!(Matrix::from([
             [0.174737, -0.694737, -0.48, 0.715789],
             [-0.212632, 0.652632, 0.56, -0.642105],
             [-0.0147368, 0.0947368, -0.08, 0.0842105],
