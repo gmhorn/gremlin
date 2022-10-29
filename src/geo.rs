@@ -69,6 +69,9 @@ pub use self::point::*;
 mod ray_old;
 pub use self::ray_old::*;
 
+mod ray;
+pub use self::ray::*;
+
 mod unit_old;
 pub use self::unit_old::*;
 
