@@ -2,20 +2,23 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use gremlin::geo::{Matrix, Vector};
 
 pub fn vector_min(c: &mut Criterion) {
+    let u = Vector::splat(1.0);
+    let v = Vector::new(1.0, 2.0, 3.0);
+
     c.bench_function("vector min", |b| {
         b.iter(|| {
-            let _ = Vector::min(
-                Vector::splat(black_box(1.0)),
-                Vector::new(black_box(-1.0), black_box(2.0), black_box(1.0)),
-            );
+            let _ = black_box(Vector::min(u, v));
         })
     });
 }
 
 pub fn vector_add(c: &mut Criterion) {
+    let u = Vector::splat(1.0);
+    let v = Vector::new(1.0, 2.0, 3.0);
+
     c.bench_function("vector add", |b| {
         b.iter(|| {
-            let _ = Vector::splat(black_box(1.0)) + Vector::splat(black_box(2.0));
+            let _ = black_box(u + v);
         })
     });
 }
@@ -23,7 +26,7 @@ pub fn vector_add(c: &mut Criterion) {
 pub fn vector_scalar_mult(c: &mut Criterion) {
     let v = Vector::splat(2.0);
 
-    c.bench_function("vector post-mult f64", |b| {
+    c.bench_function("vector scalar mult", |b| {
         b.iter(|| {
             let _ = black_box(v * 2.0);
         })
@@ -33,20 +36,10 @@ pub fn vector_scalar_mult(c: &mut Criterion) {
 pub fn vector_scalar_div(c: &mut Criterion) {
     let v = Vector::splat(2.345);
 
-    c.bench_function("vector div f64", |b| {
+    c.bench_function("vector scalar div", |b| {
         b.iter(|| {
             let _ = black_box(v / 2.0);
         })
-    });
-}
-
-pub fn matrix_vector_mult(c: &mut Criterion) {
-    let m = Matrix::rotate(50.0, Vector::new(1.0, 2.0, 3.0).normalize());
-
-    c.bench_function("matrix vector mult", |b| {
-        b.iter(|| {
-            let _ = m * Vector::new(black_box(1.0), black_box(2.0), black_box(3.0));
-        });
     });
 }
 
@@ -71,16 +64,26 @@ pub fn matrix_scalar_mult(c: &mut Criterion) {
     });
 }
 
+pub fn matrix_vector_mult(c: &mut Criterion) {
+    let m = Matrix::rotate(50.0, Vector::new(1.0, 2.0, 3.0).normalize());
+    let v = Vector::new(1.0, 2.0, 3.0);
+
+    c.bench_function("matrix vector mult", |b| {
+        b.iter(|| {
+            let _ = black_box(m * v);
+        });
+    });
+}
+
+
 criterion_group!(
     geo,
-    // vector_min,
-    // vector_add,
-    // vector_unit_add,
-    // vector_premult_f64,
-    // vector_postmult_f64,
-    // vector_div_f64,
+    vector_min,
+    vector_add,
+    vector_scalar_mult,
+    vector_scalar_div,
     matrix_add,
-    // matrix_scalar_mult,
-    // matrix_vector_mult,
+    matrix_scalar_mult,
+    matrix_vector_mult,
 );
 criterion_main!(geo);

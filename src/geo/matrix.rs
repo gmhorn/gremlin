@@ -46,8 +46,8 @@ impl<F: Float> Matrix<F> {
     /// let v = Vector::splat(1.0);
     /// let p = Point::splat(1.0);
     /// 
-    /// assert_eq!(Matrix::shift(v) * v, v);
-    /// assert_eq!(Matrix::shift(v) * p, p + v);
+    /// assert_eq!(Matrix::shift(s) * v, v);
+    /// assert_eq!(Matrix::shift(s) * p, p + s);
     /// ```
     /// 
     /// Note that for inverses, it is much faster to use the identity:
