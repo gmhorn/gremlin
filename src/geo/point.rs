@@ -57,6 +57,18 @@ impl<F: Float> Point<F> {
         Self::new(n, n, n)
     }
 
+    /// Construct a new point that is the component-wise minimum of the two.
+    #[inline]
+    pub fn min(a: Self, b: Self) -> Self {
+        Self::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z))
+    }
+
+    /// Construct a new point that is the component-wise maximum of the two.
+    #[inline]
+    pub fn max(a: Self, b: Self) -> Self {
+        Self::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z))
+    }
+
     /// Compute the distance between two points.
     #[inline]
     pub fn distance(self, other: Self) -> F {
@@ -180,21 +192,37 @@ mod tests {
     use super::*;
 
     #[test]
+    fn min() {
+        let p = Point::splat(1.0);
+        let q = Point::new(-1.0, 2.0, 1.0);
+
+        assert_eq!(Point::new(-1.0, 1.0, 1.0), Point::min(p, q));
+    }
+
+    #[test]
+    fn max() {
+        let p = Point::splat(1.0);
+        let q = Point::new(-1.0, 2.0, 1.0);
+
+        assert_eq!(Point::new(1.0, 2.0, 1.0), Point::max(p, q));
+    }
+
+    #[test]
     fn distance() {
-        let p1 = Point::origin();
-        let p2 = Point::new(3.0, 4.0, 5.0);
-        assert_relative_eq!(7.0710678, p1.distance(p2), max_relative = 1e-6);
+        let p = Point::origin();
+        let q = Point::new(3.0, 4.0, 5.0);
+        assert_relative_eq!(7.0710678, p.distance(q), max_relative = 1e-6);
     }
 
     #[test]
     fn lerp_and_center() {
-        let p1 = Point::origin();
-        let p2 = Point::splat(2.0);
+        let p = Point::origin();
+        let q = Point::splat(2.0);
 
-        assert_eq!(p1, p1.lerp(p2, 0.0));
-        assert_eq!(p2, p1.lerp(p2, 1.0));
-        assert_eq!(Point::splat(1.0), p1.lerp(p2, 0.5));
-        assert_eq!(Point::splat(1.0), p1.center(p2));
+        assert_eq!(p, p.lerp(q, 0.0));
+        assert_eq!(q, p.lerp(q, 1.0));
+        assert_eq!(Point::splat(1.0), p.lerp(q, 0.5));
+        assert_eq!(Point::splat(1.0), p.center(q));
     }
 
     #[test]

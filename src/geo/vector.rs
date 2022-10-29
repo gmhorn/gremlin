@@ -80,9 +80,9 @@ impl<F: Float> Vector<F> {
     #[inline]
     pub fn cross(self, rhs: Self) -> Self {
         Self {
-            x: (self.y * rhs.z) - (self.z - rhs.y),
-            y: (self.z * rhs.x) - (self.x - rhs.z),
-            z: (self.x * rhs.y) - (self.y - rhs.x),
+            x: (self.y * rhs.z) - (self.z * rhs.y),
+            y: (self.z * rhs.x) - (self.x * rhs.z),
+            z: (self.x * rhs.y) - (self.y * rhs.x),
         }
     }
 
@@ -246,5 +246,61 @@ impl<F: Float> From<Point<F>> for Vector<F> {
     #[inline]
     fn from(pt: Point<F>) -> Self {
         Self::new(pt.x, pt.y, pt.z)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn min() {
+        let u = Vector::splat(1.0);
+        let v = Vector::new(-1.0, 2.0, 1.0);
+
+        assert_eq!(Vector::new(-1.0, 1.0, 1.0), Vector::min(u, v));
+    }
+
+    #[test]
+    fn max() {
+        let u = Vector::splat(1.0);
+        let v = Vector::new(-1.0, 2.0, 1.0);
+
+        assert_eq!(Vector::new(1.0, 2.0, 1.0), Vector::max(u, v));
+    }
+
+    #[test]
+    fn dot() {
+        let u = Vector::x_axis();
+        let v = Vector::new(2.0, 1.0, 0.0);
+
+        assert_eq!(2.0, u.dot(v));
+    }
+
+    #[test]
+    fn cross() {
+        assert_eq!(Vector::<f64>::z_axis(), Vector::x_axis().cross(Vector::y_axis()));
+        assert_eq!(Vector::<f64>::x_axis(), Vector::y_axis().cross(Vector::z_axis()));
+        assert_eq!(Vector::<f64>::y_axis(), Vector::z_axis().cross(Vector::x_axis()));
+    }
+
+    #[test]
+    fn neg() {
+        assert_eq!(Vector::splat(-1.0), -Vector::splat(1.0));
+    }
+
+    #[test]
+    fn add() {
+        assert_eq!(Vector::splat(3.0), Vector::splat(2.0) + Vector::splat(1.0));
+    }
+
+    #[test]
+    fn mult() {
+        assert_eq!(Vector::splat(1.5), Vector::splat(1.0) * 1.5);
+    }
+
+    #[test]
+    fn div() {
+        assert_eq!(Vector::splat(2.0), Vector::splat(8.0) / 4.0);
     }
 }
