@@ -3,7 +3,7 @@
 //! Implements basic geometric primitives needed for ray tracing. Attempts to
 //! be simple, minimal, and fast (enough).
 //!
-//! * Uses minimal generics (`f64` is sufficient most of the time)
+//! * Uses minimal generics (most things parameterized over [`num_traits::Float`])
 //! * Directly implements operator traits rather than relying on macros
 //! * Supports the subset of functionality needed by other modules
 //!
@@ -68,23 +68,3 @@ pub use self::unit::*;
 
 mod vector;
 pub use self::vector::*;
-
-/* Convenience functions */
-
-/// Constructs coordinates from the given `(x, y)` pair.
-#[inline]
-pub const fn coords<T>(x: T, y: T) -> Coords<T> {
-    Coords::new(x, y)
-}
-
-/// Creates a new point.
-#[inline]
-pub const fn point(x: f64, y: f64, z: f64) -> Point {
-    Point::new(x, y, z)
-}
-
-/// Creates a new vector
-#[inline]
-pub const fn vector(x: f64, y: f64, z: f64) -> Vector {
-    Vector::new(x, y, z)
-}
