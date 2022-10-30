@@ -1,6 +1,19 @@
+use num_traits::Float;
+
+pub struct Wavelengths<F> {
+    min: F,
+    max: F,
+    step: F,
+}
+
+impl<F: Float> Wavelengths<F> {
+    pub const fn new(min: F, max: F, step: F) -> Self {
+        Self{ min, max, step }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct FloatSample([f32; 80]);
-
 impl FloatSample {
     pub const fn splat(n: f32) -> Self {
         Self([n; 80])
@@ -23,6 +36,8 @@ mod tests {
 
     #[test]
     fn test_foo() {
+        let foo = [0.0; 80];
+
         let _s = FloatSample::splat(1.0);
     }
 }
