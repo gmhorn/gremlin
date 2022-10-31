@@ -49,7 +49,7 @@
 //! Matrix * Matrix = Matrix
 //! ```
 
-/* Modules and re-exports */
+// MODULES AND RE-EXPORTS
 
 mod coords;
 pub use self::coords::*;
@@ -68,3 +68,20 @@ pub use self::unit::*;
 
 mod vector;
 pub use self::vector::*;
+
+// TYPE DEFINITIONS
+
+pub type Mat32 = Matrix<f32>;
+pub type Mat64 = Matrix<f64>;
+
+pub type Pt32 = Point<f32>;
+pub type Pt64 = Point<f64>;
+
+pub type Ray32 = Ray<f32>;
+pub type Ray64 = Ray<f64>;
+
+pub type Unit32 = Unit<f32>;
+pub type Unit64 = Unit<f64>;
+
+pub type Vec32 = Vector<f32>;
+pub type Vec64 = Vector<f64>;
