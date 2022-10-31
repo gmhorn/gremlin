@@ -1,8 +1,6 @@
 use std::ops::{Neg, Add, Sub};
-
 use approx::{UlpsEq, AbsDiffEq, RelativeEq};
-use num_traits::Float;
-
+use crate::Real;
 use super::Vector;
 
 /// A 3-dimensional point in euclidean space.
@@ -32,28 +30,28 @@ use super::Vector;
 /// will be useful, since almost all functions use [`num_traits::Float`] as
 /// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Point<F> {
-    pub x: F,
-    pub y: F,
-    pub z: F,
+pub struct Point<R> {
+    pub x: R,
+    pub y: R,
+    pub z: R,
 }
 
-impl<F: Float> Point<F> {
+impl<R: Real> Point<R> {
     /// Construct a new point with all components `0`.
     #[inline]
     pub fn origin() -> Self {
-        Self::splat(F::zero())
+        Self::splat(R::zero())
     }
 
     /// Construct a new point with the given components.
     #[inline]
-    pub const fn new(x: F, y: F, z: F) -> Self {
+    pub const fn new(x: R, y: R, z: R) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new point with all components equal.
     #[inline]
-    pub const fn splat(n: F) -> Self {
+    pub const fn splat(n: R) -> Self {
         Self::new(n, n, n)
     }
 
@@ -71,27 +69,26 @@ impl<F: Float> Point<F> {
 
     /// Compute the distance between two points.
     #[inline]
-    pub fn distance(self, other: Self) -> F {
+    pub fn distance(self, other: Self) -> R {
         (other - self).len()
     }
 
     /// Linearly interpolate between two points.
     #[inline]
-    pub fn lerp(self, other: Self, t: F) -> Self {
+    pub fn lerp(self, other: Self, t: R) -> Self {
         self + (other - self)*t
     }
 
     /// Compute the point midway between two points.
     #[inline]
     pub fn center(self, other: Self) -> Self {
-        // TODO: is this the best way to get 1/2??
-        self.lerp(other, (F::one() + F::one()).recip())
+        self.lerp(other, 0.5_f32.into())
     }
 }
 
 // OPERATORS
 
-impl<F: Float> Neg for Point<F> {
+impl<R: Real> Neg for Point<R> {
     type Output = Self;
     
     #[inline]
@@ -100,17 +97,17 @@ impl<F: Float> Neg for Point<F> {
     }
 }
 
-impl<F: Float> Add<Vector<F>> for Point<F> {
+impl<R: Real> Add<Vector<R>> for Point<R> {
     type Output = Self;
 
     #[inline]
-    fn add(self, rhs: Vector<F>) -> Self::Output {
+    fn add(self, rhs: Vector<R>) -> Self::Output {
         Self::Output::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
 }
 
-impl<F: Float> Sub for Point<F> {
-    type Output = Vector<F>;
+impl<R: Real> Sub for Point<R> {
+    type Output = Vector<R>;
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
@@ -120,68 +117,68 @@ impl<F: Float> Sub for Point<F> {
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Point<F> where
-    F::Epsilon: Copy,
+impl<R: AbsDiffEq> AbsDiffEq for Point<R> where
+    R::Epsilon: Copy,
 {
-    type Epsilon = F::Epsilon;
+    type Epsilon = R::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        F::default_epsilon()
+        R::default_epsilon()
     }
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        F::abs_diff_eq(&self.x, &other.x, epsilon) &&
-        F::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        F::abs_diff_eq(&self.z, &other.z, epsilon) 
+        R::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        R::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        R::abs_diff_eq(&self.z, &other.z, epsilon) 
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Point<F> where
-    F::Epsilon: Copy,
+impl<R: RelativeEq> RelativeEq for Point<R> where
+    R::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        F::default_max_relative()
+        R::default_max_relative()
     }
 
     #[inline]
     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        F::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
-        F::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
-        F::relative_eq(&self.z, &other.z, epsilon, max_relative)
+        R::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        R::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        R::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Point<F> where
-    F::Epsilon: Copy,
+impl<R: UlpsEq> UlpsEq for Point<R> where
+    R::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        F::default_max_ulps()
+        R::default_max_ulps()
     }
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        F::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
-        F::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
-        F::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+        R::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        R::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        R::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
     }
 }
 
 // CONVERSIONS
 
-impl<F: Float> From<[F; 3]> for Point<F> {
+impl<R: Real> From<[R; 3]> for Point<R> {
     #[inline]
-    fn from(arr: [F; 3]) -> Self {
+    fn from(arr: [R; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }
 
-impl<F: Float> From<Vector<F>> for Point<F> {
+impl<R: Real> From<Vector<R>> for Point<R> {
     #[inline]
-    fn from(v: Vector<F>) -> Self {
+    fn from(v: Vector<R>) -> Self {
         Self::new(v.x, v.y, v.z)
     }
 }

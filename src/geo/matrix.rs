@@ -1,8 +1,6 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Neg};
-
+use std::ops::{Add, Mul, Sub, Neg};
 use approx::{RelativeEq, AbsDiffEq, UlpsEq};
-use num_traits::Float;
-
+use crate::Real;
 use super::{Vector, Point, Unit};
 
 /// A 4x4 square matrix.
@@ -11,21 +9,21 @@ use super::{Vector, Point, Unit};
 /// to encode 3-dimensional transformations. Homogeneous coordinates are
 /// assumed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Matrix<F> {
-    data: [[F; 4]; 4],
+pub struct Matrix<R> {
+    data: [[R; 4]; 4],
 }
 
 // Helper typedef to make inverting somewhat more pleasant.
-type AugmentedMatrix<F> = [[F; 8]; 4];
+type AugmentedMatrix<R> = [[R; 8]; 4];
 
-impl<F: Float> Matrix<F> {
+impl<R: Real> Matrix<R> {
 
     /// Construct an identity matrix.
     #[rustfmt::skip]
     #[inline]
     pub fn identity() -> Self {
-        let one = F::one();
-        let zero = F::zero();
+        let one = R::one();
+        let zero = R::zero();
 
         Self::from([
             [one,  zero, zero, zero],
@@ -59,9 +57,9 @@ impl<F: Float> Matrix<F> {
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations>
     #[rustfmt::skip]
     #[inline]
-    pub fn shift(v: Vector<F>) -> Self {
-        let one = F::one();
-        let zero = F::zero();
+    pub fn shift(v: Vector<R>) -> Self {
+        let one = R::one();
+        let zero = R::zero();
 
         Self::from([
             [one,  zero, zero, v.x],
@@ -75,7 +73,7 @@ impl<F: Float> Matrix<F> {
     /// 
     /// See also [`Self::scale()`].
     #[inline]
-    pub fn scale_uniform(n: F) -> Self {
+    pub fn scale_uniform(n: R) -> Self {
         Self::scale(n, n, n)
     }
 
@@ -90,12 +88,12 @@ impl<F: Float> Matrix<F> {
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling>
     #[rustfmt::skip]
     #[inline]
-    pub fn scale(x: F, y: F, z: F) -> Self {
+    pub fn scale(x: R, y: R, z: R) -> Self {
         Self::from([
-            [x,         F::zero(), F::zero(), F::zero()],
-            [F::zero(), y,         F::zero(), F::zero()],
-            [F::zero(), F::zero(), z,         F::zero()],
-            [F::zero(), F::zero(), F::zero(), F::one()],
+            [x,         R::zero(), R::zero(), R::zero()],
+            [R::zero(), y,         R::zero(), R::zero()],
+            [R::zero(), R::zero(), z,         R::zero()],
+            [R::zero(), R::zero(), R::zero(), R::one()],
         ])
     }
 
@@ -111,7 +109,7 @@ impl<F: Float> Matrix<F> {
     /// 
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
     #[rustfmt::skip]
-    pub fn rotate(theta: F, axis: Unit<F>) -> Self {
+    pub fn rotate(theta: R, axis: Unit<R>) -> Self {
         // Covert angle to radians and axis to vector (so we can get components)
         let theta = theta.to_radians();
         let axis = Vector::from(axis);
@@ -119,8 +117,8 @@ impl<F: Float> Matrix<F> {
         // Precompute some constants
         let sin_theta = theta.sin();
         let cos_theta = theta.cos();
-        let one = F::one();
-        let zero = F::zero();
+        let one = R::one();
+        let zero = R::zero();
 
         // Rotation of first basis vector
         let d00 = axis.x * axis.x + (one - axis.x * axis.x) * cos_theta;
@@ -155,7 +153,7 @@ impl<F: Float> Matrix<F> {
     /// See:
     /// * <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#TheLook-AtTransformation>
     /// * <https://raytracing.github.io/books/RayTracingInOneWeekend.html#positionablecamera>
-    pub fn look_at(from: Point<F>, to: Point<F>, up: Vector<F>) -> Self {
+    pub fn look_at(from: Point<R>, to: Point<R>, up: Vector<R>) -> Self {
         // Construct orthoginal basis
         let z_axis = from - to;
         let x_axis = up.cross(z_axis);
@@ -168,15 +166,15 @@ impl<F: Float> Matrix<F> {
 
         // Convert to array so we can grab elements
         // TODO: this kind of sucks...
-        let x_axis: [F; 3] = x_axis.into();
-        let y_axis: [F; 3] = y_axis.into();
-        let z_axis: [F; 3] = z_axis.into();
+        let x_axis: [R; 3] = x_axis.into();
+        let y_axis: [R; 3] = y_axis.into();
+        let z_axis: [R; 3] = z_axis.into();
 
         Self::from([
             [x_axis[0], y_axis[0], z_axis[0], from.x],
             [x_axis[1], y_axis[1], z_axis[1], from.y],
             [x_axis[2], y_axis[2], z_axis[2], from.z],
-            [F::zero(), F::zero(), F::zero(), F::one()],
+            [R::zero(), R::zero(), R::zero(), R::one()],
         ])
     }
 
@@ -216,7 +214,7 @@ impl<F: Float> Matrix<F> {
             for i in (c + 1)..4 {
                 let f = aug[i][c] / aug[c][c];
                 // Fill the rest of the column below pivot with 0
-                aug[i][c] = F::zero();
+                aug[i][c] = R::zero();
                 // Reduce all remaining elements in row
                 for j in (c + 1)..8 {
                     aug[i][j] = aug[i][j] - f * aug[c][j]
@@ -241,7 +239,7 @@ impl<F: Float> Matrix<F> {
         }
         
         // Inverse is right half of augmented matrix
-        let mut data = [[F::zero(); 4]; 4];
+        let mut data = [[R::zero(); 4]; 4];
         for (idx, row) in aug.iter().enumerate() {
             data[idx][..].copy_from_slice(&row[4..]);
         }
@@ -249,8 +247,8 @@ impl<F: Float> Matrix<F> {
         Some(Self { data })
     }
 
-    fn create_augmented(&self) -> AugmentedMatrix<F> {
-        let mut augmented = [[F::zero(); 8]; 4];
+    fn create_augmented(&self) -> AugmentedMatrix<R> {
+        let mut augmented = [[R::zero(); 8]; 4];
 
         let ident = Self::identity();
         let lhs_rows = self.data.iter();
@@ -264,7 +262,7 @@ impl<F: Float> Matrix<F> {
         augmented
     }
 
-    fn find_pivot(pos: usize, mtx: &AugmentedMatrix<F>) -> Option<usize> {
+    fn find_pivot(pos: usize, mtx: &AugmentedMatrix<R>) -> Option<usize> {
         let mut max = mtx[pos][pos].abs();
         let mut pivot = pos;
 
@@ -284,7 +282,7 @@ impl<F: Float> Matrix<F> {
 
 // OPERATORS
 
-impl<F: Float> Neg for Matrix<F> {
+impl<R: Real> Neg for Matrix<R> {
     type Output = Self;
 
     #[inline]
@@ -301,7 +299,7 @@ impl<F: Float> Neg for Matrix<F> {
     }
 }
 
-impl<F: Float + AddAssign> Add for Matrix<F> {
+impl<R: Real> Add for Matrix<R> {
     type Output = Self;
 
     #[inline]
@@ -318,7 +316,7 @@ impl<F: Float + AddAssign> Add for Matrix<F> {
     }
 }
 
-impl<F: Float + SubAssign> Sub for Matrix<F> {
+impl<R: Real> Sub for Matrix<R> {
     type Output = Self;
 
     #[inline]
@@ -335,14 +333,14 @@ impl<F: Float + SubAssign> Sub for Matrix<F> {
     }
 }
 
-impl<F: Float> Mul for Matrix<F> {
+impl<R: Real> Mul for Matrix<R> {
     type Output = Self;
 
     // TODO: Not smart enough to figure out how to convert naive range looping
     // TODO: into iterative method. So just turn off the linter for now.
     #[allow(clippy::needless_range_loop)]
     fn mul(self, rhs: Self) -> Self::Output {
-        let mut data = [[F::zero(); 4]; 4];
+        let mut data = [[R::zero(); 4]; 4];
 
         for r in 0..4 {
             for c in 0..4 {
@@ -356,11 +354,11 @@ impl<F: Float> Mul for Matrix<F> {
     }
 }
 
-impl<F: Float + MulAssign> Mul<F> for Matrix<F> {
+impl<R: Real> Mul<R> for Matrix<R> {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: F) -> Self::Output {
+    fn mul(self, rhs: R) -> Self::Output {
         let mut data = self.data;
 
         for row in &mut data {
@@ -373,11 +371,11 @@ impl<F: Float + MulAssign> Mul<F> for Matrix<F> {
     }
 }
 
-impl<F: Float> Mul<Vector<F>> for Matrix<F> {
-    type Output = Vector<F>;
+impl<R: Real> Mul<Vector<R>> for Matrix<R> {
+    type Output = Vector<R>;
 
     #[inline]
-    fn mul(self, rhs: Vector<F>) -> Self::Output {
+    fn mul(self, rhs: Vector<R>) -> Self::Output {
         Self::Output {
             x: self.data[0][0] * rhs.x + self.data[0][1] * rhs.y + self.data[0][2] * rhs.z,
             y: self.data[1][0] * rhs.x + self.data[1][1] * rhs.y + self.data[1][2] * rhs.z,
@@ -386,11 +384,11 @@ impl<F: Float> Mul<Vector<F>> for Matrix<F> {
     }
 }
 
-impl<F: Float> Mul<Point<F>> for Matrix<F> {
-    type Output = Point<F>;
+impl<R: Real> Mul<Point<R>> for Matrix<R> {
+    type Output = Point<R>;
 
     #[inline]
-    fn mul(self, rhs: Point<F>) -> Self::Output {
+    fn mul(self, rhs: Point<R>) -> Self::Output {
         Self::Output {
             x: self.data[0][0] * rhs.x + self.data[0][1] * rhs.y + self.data[0][2] * rhs.z + self.data[0][3],
             y: self.data[1][0] * rhs.x + self.data[1][1] * rhs.y + self.data[1][2] * rhs.z + self.data[1][3],
@@ -402,9 +400,9 @@ impl<F: Float> Mul<Point<F>> for Matrix<F> {
 
 // CONVERSIONS: OTHER -> MATRIX
 
-impl<F: Float> From<[F; 16]> for Matrix<F> {
-    fn from(vals: [F; 16]) -> Self {
-        let mut data = [[F::zero(); 4]; 4];
+impl<R: Real> From<[R; 16]> for Matrix<R> {
+    fn from(vals: [R; 16]) -> Self {
+        let mut data = [[R::zero(); 4]; 4];
 
         for (idx, &val) in vals.iter().enumerate() {
             let row = idx / 4;
@@ -416,23 +414,23 @@ impl<F: Float> From<[F; 16]> for Matrix<F> {
     }
 }
 
-impl<F> From<[[F; 4]; 4]> for Matrix<F> {
+impl<R> From<[[R; 4]; 4]> for Matrix<R> {
     #[inline]
-    fn from(data: [[F; 4]; 4]) -> Self {
+    fn from(data: [[R; 4]; 4]) -> Self {
         Self { data }
     }
 }
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Matrix<F> where
-    F::Epsilon: Copy,
+impl<R: AbsDiffEq> AbsDiffEq for Matrix<R> where
+    R::Epsilon: Copy,
 {
-    type Epsilon = F::Epsilon;
+    type Epsilon = R::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        F::default_epsilon()
+        R::default_epsilon()
     }
 
     #[inline]
@@ -441,17 +439,17 @@ impl<F: AbsDiffEq> AbsDiffEq for Matrix<F> where
         let other_vals = other.data.iter().flatten();
 
         self_vals.zip(other_vals).all(|(a, b)| {
-            F::abs_diff_eq(a, b, epsilon)
+            R::abs_diff_eq(a, b, epsilon)
         })
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Matrix<F> where
-    F::Epsilon: Copy,
+impl<R: RelativeEq> RelativeEq for Matrix<R> where
+    R::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        F::default_max_relative()
+        R::default_max_relative()
     }
 
     #[inline]
@@ -460,17 +458,17 @@ impl<F: RelativeEq> RelativeEq for Matrix<F> where
         let other_vals = other.data.iter().flatten();
 
         self_vals.zip(other_vals).all(|(a, b)| {
-            F::relative_eq(a, b, epsilon, max_relative)
+            R::relative_eq(a, b, epsilon, max_relative)
         })
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Matrix<F> where
-    F::Epsilon: Copy,
+impl<R: UlpsEq> UlpsEq for Matrix<R> where
+    R::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        F::default_max_ulps()
+        R::default_max_ulps()
     }
 
     #[inline]
@@ -479,7 +477,7 @@ impl<F: UlpsEq> UlpsEq for Matrix<F> where
         let other_vals = other.data.iter().flatten();
 
         self_vals.zip(other_vals).all(|(a, b)| {
-            F::ulps_eq(a, b, epsilon, max_ulps)
+            R::ulps_eq(a, b, epsilon, max_ulps)
         })
     }
 }

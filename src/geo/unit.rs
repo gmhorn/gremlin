@@ -1,7 +1,5 @@
 use std::ops::Neg;
-
-use num_traits::Float;
-
+use crate::Real;
 use super::Vector;
 
 /// A 3-dimensional unit vector.
@@ -33,41 +31,41 @@ use super::Vector;
 /// 
 /// Panicing may be especially annoying if conversion fails many minutes in to a
 /// long render. So like everything, it's a trade-off.
-pub struct Unit<F> {
-    x: F,
-    y: F,
-    z: F,
+pub struct Unit<R> {
+    x: R,
+    y: R,
+    z: R,
 }
 
-impl<F: Float> Unit<F> {
+impl<R: Real> Unit<R> {
 
     #[inline]
-    const fn new(x: F, y: F, z: F) -> Self {
+    const fn new(x: R, y: R, z: R) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new unit vector along the x-axis.
     #[inline]
     pub fn x_axis() -> Self {
-        Self::new(F::one(), F::zero(), F::zero())
+        Self::new(R::one(), R::zero(), R::zero())
     }
 
     /// Construct a new unit vector along the y-axis
     #[inline]
     pub fn y_axis() -> Self {
-        Self::new(F::zero(), F::one(), F::zero())
+        Self::new(R::zero(), R::one(), R::zero())
     }
 
     /// Construct a new unit vector along the z-axis
     #[inline]
     pub fn z_axis() -> Self {
-        Self::new(F::zero(), F::zero(), F::one())
+        Self::new(R::zero(), R::zero(), R::one())
     }
 }
 
 // OPERATORS
 
-impl<F: Float> Neg for Unit<F> {
+impl<R: Real> Neg for Unit<R> {
     type Output = Self;
 
     #[inline]
@@ -78,27 +76,27 @@ impl<F: Float> Neg for Unit<F> {
 
 // CONVERSIONS: UNIT -> OTHER
 
-impl<F: Float> From<Unit<F>> for [F; 3] {
+impl<R: Real> From<Unit<R>> for [R; 3] {
     #[inline]
-    fn from(u: Unit<F>) -> Self {
+    fn from(u: Unit<R>) -> Self {
         [u.x, u.y, u.z]
     }
 }
 
-impl<F: Float> From<Unit<F>> for Vector<F> {
+impl<R: Real> From<Unit<R>> for Vector<R> {
     #[inline]
-    fn from(u: Unit<F>) -> Self {
+    fn from(u: Unit<R>) -> Self {
         Self::new(u.x, u.y, u.z)
     }
 }
 
 // CONVERSIONS: OTHER -> UNIT
 
-impl<F: Float> TryFrom<Vector<F>> for Unit<F> {
+impl<R: Real> TryFrom<Vector<R>> for Unit<R> {
     type Error = &'static str;
 
     #[inline]
-    fn try_from(v: Vector<F>) -> Result<Self, Self::Error> {
+    fn try_from(v: Vector<R>) -> Result<Self, Self::Error> {
         let recip = v.len().recip();
         match recip.is_normal() {
             true => Ok(Self::new(v.x * recip, v.y * recip, v.z * recip )),

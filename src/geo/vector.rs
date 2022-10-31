@@ -1,7 +1,6 @@
 use std::ops::{Add, Div, Mul, Sub, Neg};
-
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num_traits::Float;
+use crate::Real;
 
 use super::{Point, Unit};
 
@@ -17,25 +16,25 @@ use super::{Point, Unit};
 /// 
 /// Vectors, like most primitives in the [`geo`][crate::geo] package, are 
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
-/// will be useful, since almost all functions use [`num_traits::Float`] as
+/// will be useful, since almost all functions use [`crate::Real`] as
 /// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Vector<F> {
-    pub x: F,
-    pub y: F,
-    pub z: F,
+pub struct Vector<R> {
+    pub x: R,
+    pub y: R,
+    pub z: R,
 }
 
-impl<F: Float> Vector<F> {
+impl<R: Real> Vector<R> {
     /// Construct a new vector with the given components.
     #[inline]
-    pub const fn new(x: F, y: F, z: F) -> Self {
+    pub const fn new(x: R, y: R, z: R) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new vector with all components equal.
     #[inline]
-    pub const fn splat(n: F) -> Self {
+    pub const fn splat(n: R) -> Self {
         Self::new(n, n, n)
     }
 
@@ -71,7 +70,7 @@ impl<F: Float> Vector<F> {
 
     /// Compute the dot product of this vector with another.
     #[inline]
-    pub fn dot(self, rhs: Self) -> F {
+    pub fn dot(self, rhs: Self) -> R {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
@@ -89,13 +88,13 @@ impl<F: Float> Vector<F> {
     /// Compute the squared length of the vector. It is faster to compute than
     /// [`Self::len()`], so use it when you can.
     #[inline]
-    pub fn len_squared(self) -> F {
+    pub fn len_squared(self) -> R {
         self.dot(self)
     }
 
     /// Compute the length of the vector.
     #[inline]
-    pub fn len(self) -> F {
+    pub fn len(self) -> R {
         self.dot(self).sqrt()
     }
 
@@ -103,7 +102,7 @@ impl<F: Float> Vector<F> {
     /// 
     /// Panics if vector is 0-length or otherwise ill-conditioned.
     #[inline]
-    pub fn normalize(self) -> Unit<F> {
+    pub fn normalize(self) -> Unit<R> {
         Unit::try_from(self).unwrap()
     }
 
@@ -123,7 +122,7 @@ impl<F: Float> Vector<F> {
 
 // OPERATORS
 
-impl<F: Float> Neg for Vector<F> {
+impl<R: Real> Neg for Vector<R> {
     type Output = Self;
 
     #[inline]
@@ -132,7 +131,7 @@ impl<F: Float> Neg for Vector<F> {
     }
 }
 
-impl<F: Float> Add for Vector<F> {
+impl<R: Real> Add for Vector<R> {
     type Output = Self;
 
     #[inline]
@@ -141,7 +140,7 @@ impl<F: Float> Add for Vector<F> {
     }
 }
 
-impl<F: Float> Sub for Vector<F> {
+impl<R: Real> Sub for Vector<R> {
     type Output = Self;
 
     #[inline]
@@ -150,16 +149,16 @@ impl<F: Float> Sub for Vector<F> {
     }
 }
 
-impl<F: Float> Mul<F> for Vector<F> {
+impl<R: Real> Mul<R> for Vector<R> {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: F) -> Self::Output {
+    fn mul(self, rhs: R) -> Self::Output {
         Self::Output::new(rhs * self.x, rhs * self.y, rhs * self.z)
     }
 }
 
-impl<F: Float> Div<F> for Vector<F> {
+impl<R: Real> Div<R> for Vector<R> {
     type Output = Self;
 
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
@@ -167,84 +166,84 @@ impl<F: Float> Div<F> for Vector<F> {
     // hanging fruit when it comes to this stuff, right?
     #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
-    fn div(self, rhs: F) -> Self::Output {
+    fn div(self, rhs: R) -> Self::Output {
         self * rhs.recip()
     }
 }
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Vector<F> where
-    F::Epsilon: Copy,
+impl<R: AbsDiffEq> AbsDiffEq for Vector<R> where
+    R::Epsilon: Copy,
 {
-    type Epsilon = F::Epsilon;
+    type Epsilon = R::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        F::default_epsilon()
+        R::default_epsilon()
     }
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        F::abs_diff_eq(&self.x, &other.x, epsilon) &&
-        F::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        F::abs_diff_eq(&self.z, &other.z, epsilon) 
+        R::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        R::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        R::abs_diff_eq(&self.z, &other.z, epsilon) 
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Vector<F> where
-    F::Epsilon: Copy,
+impl<R: RelativeEq> RelativeEq for Vector<R> where
+    R::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        F::default_max_relative()
+        R::default_max_relative()
     }
 
     #[inline]
     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        F::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
-        F::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
-        F::relative_eq(&self.z, &other.z, epsilon, max_relative)
+        R::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        R::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        R::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Vector<F> where
-    F::Epsilon: Copy,
+impl<R: UlpsEq> UlpsEq for Vector<R> where
+    R::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        F::default_max_ulps()
+        R::default_max_ulps()
     }
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        F::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
-        F::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
-        F::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+        R::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        R::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        R::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
     }
 }
 
 // CONVERSIONS: VECTOR -> OTHER
 
-impl<F: Float> From<Vector<F>> for [F; 3] {
+impl<R: Real> From<Vector<R>> for [R; 3] {
     #[inline]
-    fn from(v: Vector<F>) -> Self {
+    fn from(v: Vector<R>) -> Self {
         [v.x, v.y, v.z]
     }
 }
 
 // CONVERSIONS: OTHER -> VECTOR
 
-impl<F: Float> From<[F; 3]> for Vector<F> {
+impl<R: Real> From<[R; 3]> for Vector<R> {
     #[inline]
-    fn from(arr: [F; 3]) -> Self {
+    fn from(arr: [R; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }
 
-impl<F: Float> From<Point<F>> for Vector<F> {
+impl<R: Real> From<Point<R>> for Vector<R> {
     #[inline]
-    fn from(pt: Point<F>) -> Self {
+    fn from(pt: Point<R>) -> Self {
         Self::new(pt.x, pt.y, pt.z)
     }
 }

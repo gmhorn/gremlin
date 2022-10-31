@@ -2,7 +2,7 @@
 //!
 //! Gremlin is a ray tracer
 
-use std::ops::AddAssign;
+use std::ops::{AddAssign, SubAssign, MulAssign};
 
 use num_traits::{Float};
 
@@ -16,6 +16,8 @@ pub mod spectrum;
 pub trait Real:
     Float + 
     AddAssign +
+    SubAssign +
+    MulAssign +
     From<f32>
 {}
 
