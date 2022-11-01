@@ -57,7 +57,7 @@ impl<R: Real> Sampled<R> {
     #[inline]
     pub fn from_continuous<C>(c: &C) -> Self
     where
-        C: Continuous<R>
+        C: Continuous<R>,
     {
         Self::from_fn(|w| c.evaluate(w))
     }

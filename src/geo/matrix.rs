@@ -232,7 +232,7 @@ impl<R: Real> Matrix<R> {
                 let f = aug[j][i];
 
                 for k in 0..8 {
-                    aug[j][k] -=  f * aug[i][k];
+                    aug[j][k] -= f * aug[i][k];
                 }
             }
         }

@@ -12,8 +12,5 @@ pub fn spectrum_add_iter(c: &mut Criterion) {
     });
 }
 
-criterion_group!(
-    spectrum,
-    spectrum_add_iter,
-);
+criterion_group!(spectrum, spectrum_add_iter,);
 criterion_main!(spectrum);
