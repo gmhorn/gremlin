@@ -4,7 +4,7 @@
 
 use std::ops::{AddAssign, MulAssign, SubAssign};
 
-use num_traits::{Float, FromPrimitive};
+use num_traits::Float;
 
 pub mod film;
 pub mod geo;

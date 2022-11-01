@@ -216,7 +216,7 @@ impl<R: Real> Matrix<R> {
                 aug[i][c] = R::zero();
                 // Reduce all remaining elements in row
                 for j in (c + 1)..8 {
-                    aug[i][j] = aug[i][j] - f * aug[c][j]
+                    aug[i][j] -= f * aug[c][j]
                 }
             }
         }
@@ -232,7 +232,7 @@ impl<R: Real> Matrix<R> {
                 let f = aug[j][i];
 
                 for k in 0..8 {
-                    aug[j][k] = aug[j][k] - f * aug[i][k];
+                    aug[j][k] -=  f * aug[i][k];
                 }
             }
         }
@@ -344,7 +344,7 @@ impl<R: Real> Mul for Matrix<R> {
         for r in 0..4 {
             for c in 0..4 {
                 for k in 0..4 {
-                    data[r][c] = data[r][c] + self.data[r][k] * rhs.data[k][c];
+                    data[r][c] += self.data[r][k] * rhs.data[k][c];
                 }
             }
         }

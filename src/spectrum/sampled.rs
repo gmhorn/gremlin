@@ -1,5 +1,7 @@
 use crate::Real;
 
+use super::Continuous;
+
 // CONSTANTS
 
 mod consts {
@@ -48,6 +50,16 @@ impl<R: Real> Sampled<R> {
             *val = f(wavelength)
         }
         spec
+    }
+
+    /// Creates a new sampled spectrum by repeated evaluation of the given
+    /// continuous spectrum.
+    #[inline]
+    pub fn from_continuous<C>(c: &C) -> Self
+    where
+        C: Continuous<R>
+    {
+        Self::from_fn(|w| c.evaluate(w))
     }
 
     /// Enumerates over the sampled spectrum.
