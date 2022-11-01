@@ -5,13 +5,13 @@ use super::Pixel;
 /// Film is a rectangular grid of [`Pixel`]s.
 ///
 /// It supports various
-pub struct Film {
+pub struct Buffer {
     width: u32,
     height: u32,
     pixels: Vec<Pixel>,
 }
 
-impl Film {
+impl Buffer {
     /// Create a new Film with the given width and height
     #[inline]
     pub fn new(width: u32, height: u32) -> Self {
@@ -73,7 +73,7 @@ impl Film {
 
 // DEREFS
 
-impl Deref for Film {
+impl Deref for Buffer {
     type Target = [Pixel];
 
     #[inline]
@@ -82,7 +82,7 @@ impl Deref for Film {
     }
 }
 
-impl DerefMut for Film {
+impl DerefMut for Buffer {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.pixels
@@ -91,7 +91,7 @@ impl DerefMut for Film {
 
 // ITERATORS
 
-impl IntoIterator for Film {
+impl IntoIterator for Buffer {
     type Item = Pixel;
     type IntoIter = std::vec::IntoIter<Pixel>;
 
