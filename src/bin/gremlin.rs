@@ -1,6 +1,5 @@
 use gremlin::geo::{Point, Vector};
 
-
 fn main() {
     println!("Hello from gremlin!");
 

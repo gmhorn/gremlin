@@ -4,9 +4,8 @@ use super::Sampled;
 
 /// Trait for spectra that are continuous.
 pub trait Continuous<R: Real> {
-
     /// Returns the value of the spectrum at the given wavelength.
-    /// 
+    ///
     /// Wavelength units are in nanometers (*e.g.* `750.0` instead of `7.5e-7`).
     fn evaluate(&self, wavelength: R) -> R;
 
@@ -21,12 +20,11 @@ pub trait Continuous<R: Real> {
 pub struct Blackbody<R>(R);
 
 impl<R: Real> Blackbody<R> {
-
     /// Creates a new blackbody spectrum for the given temperature (in Kelvin).
-    /// 
+    ///
     /// Units are spectral radiant existance (power per unit area per unit
     /// wavelength).
-    /// 
+    ///
     /// See also: <https://en.wikipedia.org/wiki/Planckian_locus>
     #[inline]
     pub const fn new(temp: R) -> Self {
@@ -59,7 +57,7 @@ impl<R: Real> Peak<R> {
     /// Creates a new peak distribution with the given center and variance.
     #[inline]
     pub fn new(center: R, variance: R) -> Self {
-        Self{ center, variance }
+        Self { center, variance }
     }
 }
 
@@ -81,12 +79,11 @@ impl<R: Real> Continuous<R> for Sellmeier<R> {
         let wavelength = wavelength * R::from_f32(1e-3);
         // Precompute square
         let w_square = wavelength.powi(2);
-        
-        self.b_coeffs.iter()
+
+        self.b_coeffs
+            .iter()
             .zip(self.c_coeffs.iter())
-            .fold(R::one(), |n, (&b, &c)| {
-                n + (b * w_square) / (w_square - c)
-            })
+            .fold(R::one(), |n, (&b, &c)| n + (b * w_square) / (w_square - c))
     }
 }
 

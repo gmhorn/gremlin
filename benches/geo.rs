@@ -75,7 +75,6 @@ pub fn matrix_vector_mult(c: &mut Criterion) {
     });
 }
 
-
 criterion_group!(
     geo,
     vector_min,

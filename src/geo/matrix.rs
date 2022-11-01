@@ -1,7 +1,7 @@
-use std::ops::{Add, Mul, Sub, Neg};
-use approx::{RelativeEq, AbsDiffEq, UlpsEq};
+use super::{Point, Unit, Vector};
 use crate::Real;
-use super::{Vector, Point, Unit};
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use std::ops::{Add, Mul, Neg, Sub};
 
 /// A 4x4 square matrix.
 ///
@@ -17,7 +17,6 @@ pub struct Matrix<R> {
 type AugmentedMatrix<R> = [[R; 8]; 4];
 
 impl<R: Real> Matrix<R> {
-
     /// Construct an identity matrix.
     #[rustfmt::skip]
     #[inline]
@@ -34,26 +33,26 @@ impl<R: Real> Matrix<R> {
     }
 
     /// Construct a matrix representing translation by the given vector.
-    /// 
+    ///
     /// Acts like an identity on vectors and addition on points.
-    /// 
+    ///
     /// ```
     /// use gremlin::geo::*;
-    /// 
+    ///
     /// let s = Vector::new(3.0, 4.0, 5.0);
     /// let v = Vector::splat(1.0);
     /// let p = Point::splat(1.0);
-    /// 
+    ///
     /// assert_eq!(Matrix::shift(s) * v, v);
     /// assert_eq!(Matrix::shift(s) * p, p + s);
     /// ```
-    /// 
+    ///
     /// Note that for inverses, it is much faster to use the identity:
-    /// 
+    ///
     /// ```text
     /// shift(v).inverse() == shift(-v)
     /// ```
-    /// 
+    ///
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Translations>
     #[rustfmt::skip]
     #[inline]
@@ -70,7 +69,7 @@ impl<R: Real> Matrix<R> {
     }
 
     /// Construct a matrix representing uniform scaling by the given magnitude.
-    /// 
+    ///
     /// See also [`Self::scale()`].
     #[inline]
     pub fn scale_uniform(n: R) -> Self {
@@ -78,13 +77,13 @@ impl<R: Real> Matrix<R> {
     }
 
     /// Construct a matrix representing scaling by the given magnitudes.
-    /// 
+    ///
     /// Note that for inverses, it is much faster to use the identity:
-    /// 
+    ///
     /// ```text
     /// scale(x, y, z).inverse() == scale(x.recip(), y.recip(), z.recip())
     /// ```
-    /// 
+    ///
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling>
     #[rustfmt::skip]
     #[inline]
@@ -98,15 +97,15 @@ impl<R: Real> Matrix<R> {
     }
 
     /// Construct a matrix representing rotation about the given axis.
-    /// 
+    ///
     /// Assumes `theta` is given in degrees and internally converts to radians.
-    /// 
+    ///
     /// Note that for inverses, it is much faster to use the identity:
-    /// 
+    ///
     /// ```text
     /// rotate(theta, axis).transpose() == rotate(theta, axis).inverse()
     /// ```
-    /// 
+    ///
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
     #[rustfmt::skip]
     pub fn rotate(theta: R, axis: Unit<R>) -> Self {
@@ -142,14 +141,14 @@ impl<R: Real> Matrix<R> {
     }
 
     /// Construct a right-handed look-at matrix.
-    /// 
+    ///
     /// Useful for transforming camera space to world space. Conceptually:
     /// * `from` is the camera's location (world-space)
     /// * `to` is the point the camera's looking at (world space)
     /// * `up` is the vertical direction "according to the camera" (camera space)
-    /// 
+    ///
     /// Using [`Vector::y_axis()`] will give a camera that's "pointing-up".
-    /// 
+    ///
     /// See:
     /// * <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#TheLook-AtTransformation>
     /// * <https://raytracing.github.io/books/RayTracingInOneWeekend.html#positionablecamera>
@@ -160,9 +159,9 @@ impl<R: Real> Matrix<R> {
         let y_axis = z_axis.cross(x_axis);
 
         // Convert to orthonormal basis
-        let x_axis = Unit::try_from(x_axis).expect("Failed to construct orthonormal basis");        
-        let y_axis = Unit::try_from(y_axis).expect("Failed to construct orthonormal basis");        
-        let z_axis = Unit::try_from(z_axis).expect("Failed to construct orthonormal basis");        
+        let x_axis = Unit::try_from(x_axis).expect("Failed to construct orthonormal basis");
+        let y_axis = Unit::try_from(y_axis).expect("Failed to construct orthonormal basis");
+        let z_axis = Unit::try_from(z_axis).expect("Failed to construct orthonormal basis");
 
         // Convert to array so we can grab elements
         // TODO: this kind of sucks...
@@ -191,7 +190,7 @@ impl<R: Real> Matrix<R> {
     }
 
     /// Construct a matrix that is the inverse of this matrix.
-    /// 
+    ///
     /// Uses Gauss-Jordan elimination to perform the inversion. See also:
     /// * <https://en.wikipedia.org/wiki/Gaussian_elimination>
     /// * <https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry>
@@ -237,7 +236,7 @@ impl<R: Real> Matrix<R> {
                 }
             }
         }
-        
+
         // Inverse is right half of augmented matrix
         let mut data = [[R::zero(); 4]; 4];
         for (idx, row) in aug.iter().enumerate() {
@@ -253,7 +252,7 @@ impl<R: Real> Matrix<R> {
         let ident = Self::identity();
         let lhs_rows = self.data.iter();
         let rhs_rows = ident.data.iter();
-        
+
         for (idx, (lhs, rhs)) in lhs_rows.zip(rhs_rows).enumerate() {
             augmented[idx][..4].copy_from_slice(lhs);
             augmented[idx][4..].copy_from_slice(rhs);
@@ -295,7 +294,7 @@ impl<R: Real> Neg for Matrix<R> {
             }
         }
 
-        Self::Output{ data }
+        Self::Output { data }
     }
 }
 
@@ -366,7 +365,7 @@ impl<R: Real> Mul<R> for Matrix<R> {
                 *val *= rhs;
             }
         }
-        
+
         Self::Output { data }
     }
 }
@@ -387,6 +386,7 @@ impl<R: Real> Mul<Vector<R>> for Matrix<R> {
 impl<R: Real> Mul<Point<R>> for Matrix<R> {
     type Output = Point<R>;
 
+    #[rustfmt::skip]
     #[inline]
     fn mul(self, rhs: Point<R>) -> Self::Output {
         Self::Output {
@@ -395,7 +395,6 @@ impl<R: Real> Mul<Point<R>> for Matrix<R> {
             z: self.data[2][0] * rhs.x + self.data[2][1] * rhs.y + self.data[2][2] * rhs.z + self.data[2][3],
         }
     }
-    
 }
 
 // CONVERSIONS: OTHER -> MATRIX
@@ -423,7 +422,8 @@ impl<R> From<[[R; 4]; 4]> for Matrix<R> {
 
 // APPROXIMATIONS
 
-impl<R: AbsDiffEq> AbsDiffEq for Matrix<R> where
+impl<R: AbsDiffEq> AbsDiffEq for Matrix<R>
+where
     R::Epsilon: Copy,
 {
     type Epsilon = R::Epsilon;
@@ -438,13 +438,14 @@ impl<R: AbsDiffEq> AbsDiffEq for Matrix<R> where
         let self_vals = self.data.iter().flatten();
         let other_vals = other.data.iter().flatten();
 
-        self_vals.zip(other_vals).all(|(a, b)| {
-            R::abs_diff_eq(a, b, epsilon)
-        })
+        self_vals
+            .zip(other_vals)
+            .all(|(a, b)| R::abs_diff_eq(a, b, epsilon))
     }
 }
 
-impl<R: RelativeEq> RelativeEq for Matrix<R> where
+impl<R: RelativeEq> RelativeEq for Matrix<R>
+where
     R::Epsilon: Copy,
 {
     #[inline]
@@ -453,17 +454,23 @@ impl<R: RelativeEq> RelativeEq for Matrix<R> where
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
         let self_vals = self.data.iter().flatten();
         let other_vals = other.data.iter().flatten();
 
-        self_vals.zip(other_vals).all(|(a, b)| {
-            R::relative_eq(a, b, epsilon, max_relative)
-        })
+        self_vals
+            .zip(other_vals)
+            .all(|(a, b)| R::relative_eq(a, b, epsilon, max_relative))
     }
 }
 
-impl<R: UlpsEq> UlpsEq for Matrix<R> where
+impl<R: UlpsEq> UlpsEq for Matrix<R>
+where
     R::Epsilon: Copy,
 {
     #[inline]
@@ -476,9 +483,9 @@ impl<R: UlpsEq> UlpsEq for Matrix<R> where
         let self_vals = self.data.iter().flatten();
         let other_vals = other.data.iter().flatten();
 
-        self_vals.zip(other_vals).all(|(a, b)| {
-            R::ulps_eq(a, b, epsilon, max_ulps)
-        })
+        self_vals
+            .zip(other_vals)
+            .all(|(a, b)| R::ulps_eq(a, b, epsilon, max_ulps))
     }
 }
 
@@ -544,11 +551,15 @@ mod tests {
         ]);
         let m_inv = m.inverse().unwrap();
 
-        assert_relative_eq!(Matrix::from([
-            [0.174737, -0.694737, -0.48, 0.715789],
-            [-0.212632, 0.652632, 0.56, -0.642105],
-            [-0.0147368, 0.0947368, -0.08, 0.0842105],
-             [0.176842, -0.136842,  -0.04, -0.0105263],
-        ]), m_inv, max_relative = 1e-5);
+        assert_relative_eq!(
+            Matrix::from([
+                [0.174737, -0.694737, -0.48, 0.715789],
+                [-0.212632, 0.652632, 0.56, -0.642105],
+                [-0.0147368, 0.0947368, -0.08, 0.0842105],
+                [0.176842, -0.136842, -0.04, -0.0105263],
+            ]),
+            m_inv,
+            max_relative = 1e-5
+        );
     }
 }

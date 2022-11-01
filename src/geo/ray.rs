@@ -1,8 +1,8 @@
-use crate::Real;
 use super::{Point, Vector};
+use crate::Real;
 
 /// A geometric ray.
-/// 
+///
 /// Rays have an origin and a direction (not necessarily normalized). They
 /// [`Point`]s along the ray may be obtained by calling [`at()`][Self::at].
 #[derive(Debug)]

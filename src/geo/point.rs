@@ -1,30 +1,30 @@
-use std::ops::{Neg, Add, Sub};
-use approx::{UlpsEq, AbsDiffEq, RelativeEq};
-use crate::Real;
 use super::Vector;
+use crate::Real;
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use std::ops::{Add, Neg, Sub};
 
 /// A 3-dimensional point in euclidean space.
-/// 
+///
 /// Although points and vectors are both elements of **R3** euclidean space,
 /// points support far fewer operations. The reason there are separate types at
 /// all is mostly for API clarity:
-/// 
+///
 /// * Allowing the other packages to use both points and vectors often makes it
 ///   clearer what something's intended purpose and behavior is.
 /// * Points and vectors transform differently in homogeneous coordinates, which
 ///   is easier to enforce with them being separate types.
-/// 
+///
 /// Conceptually, points are "just" elements of **R3** while vectors are
 /// elements of the underlying vector space. So the only operations points
 /// support are:
-/// 
+///
 /// * **Negation**: Flips the point about the origin.
 /// * **Subtraction**: `p1 - p2` returns the vector from `p1` to `p2`.
 /// * **Translation**: `p + v` returns another point that is the translation of
 ///   `p` by the vector `v`
 /// * Some convenience functions like [`Self::distance()`], [`Self::lerp()`],
 ///   and [`Self::center()`].
-/// 
+///
 /// Points, like most primitives in the [`geo`][crate::geo] package, are
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
 /// will be useful, since almost all functions use [`num_traits::Float`] as
@@ -76,7 +76,7 @@ impl<R: Real> Point<R> {
     /// Linearly interpolate between two points.
     #[inline]
     pub fn lerp(self, other: Self, t: R) -> Self {
-        self + (other - self)*t
+        self + (other - self) * t
     }
 
     /// Compute the point midway between two points.
@@ -90,7 +90,7 @@ impl<R: Real> Point<R> {
 
 impl<R: Real> Neg for Point<R> {
     type Output = Self;
-    
+
     #[inline]
     fn neg(self) -> Self::Output {
         Self::Output::new(self.x.neg(), self.y.neg(), self.z.neg())
@@ -117,7 +117,8 @@ impl<R: Real> Sub for Point<R> {
 
 // APPROXIMATIONS
 
-impl<R: AbsDiffEq> AbsDiffEq for Point<R> where
+impl<R: AbsDiffEq> AbsDiffEq for Point<R>
+where
     R::Epsilon: Copy,
 {
     type Epsilon = R::Epsilon;
@@ -127,6 +128,7 @@ impl<R: AbsDiffEq> AbsDiffEq for Point<R> where
         R::default_epsilon()
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         R::abs_diff_eq(&self.x, &other.x, epsilon) &&
@@ -135,7 +137,8 @@ impl<R: AbsDiffEq> AbsDiffEq for Point<R> where
     }
 }
 
-impl<R: RelativeEq> RelativeEq for Point<R> where
+impl<R: RelativeEq> RelativeEq for Point<R>
+where
     R::Epsilon: Copy,
 {
     #[inline]
@@ -143,15 +146,22 @@ impl<R: RelativeEq> RelativeEq for Point<R> where
         R::default_max_relative()
     }
 
+    #[rustfmt::skip]
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
         R::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
         R::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
         R::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
-impl<R: UlpsEq> UlpsEq for Point<R> where
+impl<R: UlpsEq> UlpsEq for Point<R>
+where
     R::Epsilon: Copy,
 {
     #[inline]
@@ -159,6 +169,7 @@ impl<R: UlpsEq> UlpsEq for Point<R> where
         R::default_max_ulps()
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         R::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
@@ -185,8 +196,8 @@ impl<R: Real> From<Vector<R>> for Point<R> {
 
 #[cfg(test)]
 mod tests {
-    use approx::*;
     use super::*;
+    use approx::*;
 
     #[test]
     fn min() {

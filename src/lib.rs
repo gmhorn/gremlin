@@ -2,7 +2,7 @@
 //!
 //! Gremlin is a ray tracer
 
-use std::ops::{AddAssign, SubAssign, MulAssign};
+use std::ops::{AddAssign, MulAssign, SubAssign};
 
 use num_traits::{Float, FromPrimitive};
 
@@ -11,7 +11,7 @@ pub mod geo;
 pub mod spectrum;
 
 /// Trait defining "real-valued" numbers.
-/// 
+///
 /// Allows us to be generic over both `f32` and `f64` primitive types.
 pub trait Real:
     Float + 

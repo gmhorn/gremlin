@@ -6,7 +6,7 @@ mod consts {
     pub const MIN: f32 = 380.0;
     pub const MAX: f32 = 780.0;
     pub const STEP: f32 = 5.0;
-    pub const COUNT: usize = ((MAX - MIN)/STEP) as usize;
+    pub const COUNT: usize = ((MAX - MIN) / STEP) as usize;
 }
 
 // TYPE DEFINITIONS
@@ -35,14 +35,13 @@ impl<R: Real> Sampled<R> {
         Self([value; consts::COUNT])
     }
 
-
     /// Creates a new sampled spectrum by repeated application of the given
     /// function.
-    /// 
+    ///
     /// The argument to the function is the wavelength.
     pub fn from_fn<F>(mut f: F) -> Self
     where
-        F: FnMut(R) -> R
+        F: FnMut(R) -> R,
     {
         let mut spec = Self::zero();
         for (wavelength, val) in spec.enumerate_values_mut() {
@@ -52,7 +51,7 @@ impl<R: Real> Sampled<R> {
     }
 
     /// Enumerates over the sampled spectrum.
-    /// 
+    ///
     /// Yields pairs `(wavelength, &value)`.
     #[inline]
     pub fn enumerate_values(&self) -> EnumerateValues<R> {
@@ -64,7 +63,7 @@ impl<R: Real> Sampled<R> {
     }
 
     /// Enumerates over the sampled spectrum.
-    /// 
+    ///
     /// Yields pairs `(wavelength, &mut value)`.
     #[inline]
     pub fn enumerate_values_mut(&mut self) -> EnumerateValuesMut<R> {

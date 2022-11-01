@@ -1,20 +1,20 @@
-use std::ops::{Add, Div, Mul, Sub, Neg};
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use crate::Real;
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use super::{Point, Unit};
 
 /// A 3-dimensional vector.
-/// 
+///
 /// Vectors are interpreted as column vectors. They implement the basic algebra
-/// of euclidean **R3** vector space. The basic operands for addition, 
+/// of euclidean **R3** vector space. The basic operands for addition,
 /// subtraction, negation, and scalar multiplication/division are implemented.
 /// The assignment operands (`+=`, `-=`, etc.) are not implemented. Generally
 /// speaking, these are intended to be stack-allocated, highly inline-able, and
 /// extremely cheap to copy. But if it turns out that implementing the mutator
 /// ops improve ergonomics or performance, that should be easy enough.
-/// 
-/// Vectors, like most primitives in the [`geo`][crate::geo] package, are 
+///
+/// Vectors, like most primitives in the [`geo`][crate::geo] package, are
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
 /// will be useful, since almost all functions use [`crate::Real`] as
 /// their generic bound.
@@ -99,7 +99,7 @@ impl<R: Real> Vector<R> {
     }
 
     /// Normalize the vector.
-    /// 
+    ///
     /// Panics if vector is 0-length or otherwise ill-conditioned.
     #[inline]
     pub fn normalize(self) -> Unit<R> {
@@ -173,7 +173,8 @@ impl<R: Real> Div<R> for Vector<R> {
 
 // APPROXIMATIONS
 
-impl<R: AbsDiffEq> AbsDiffEq for Vector<R> where
+impl<R: AbsDiffEq> AbsDiffEq for Vector<R>
+where
     R::Epsilon: Copy,
 {
     type Epsilon = R::Epsilon;
@@ -183,6 +184,7 @@ impl<R: AbsDiffEq> AbsDiffEq for Vector<R> where
         R::default_epsilon()
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         R::abs_diff_eq(&self.x, &other.x, epsilon) &&
@@ -191,7 +193,8 @@ impl<R: AbsDiffEq> AbsDiffEq for Vector<R> where
     }
 }
 
-impl<R: RelativeEq> RelativeEq for Vector<R> where
+impl<R: RelativeEq> RelativeEq for Vector<R>
+where
     R::Epsilon: Copy,
 {
     #[inline]
@@ -199,15 +202,22 @@ impl<R: RelativeEq> RelativeEq for Vector<R> where
         R::default_max_relative()
     }
 
+    #[rustfmt::skip]
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
         R::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
         R::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
         R::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
-impl<R: UlpsEq> UlpsEq for Vector<R> where
+impl<R: UlpsEq> UlpsEq for Vector<R>
+where
     R::Epsilon: Copy,
 {
     #[inline]
@@ -215,6 +225,7 @@ impl<R: UlpsEq> UlpsEq for Vector<R> where
         R::default_max_ulps()
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         R::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
@@ -276,6 +287,7 @@ mod tests {
         assert_eq!(2.0, u.dot(v));
     }
 
+    #[rustfmt::skip]
     #[test]
     fn cross() {
         assert_eq!(Vector::<f64>::z_axis(), Vector::x_axis().cross(Vector::y_axis()));

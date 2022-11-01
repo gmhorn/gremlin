@@ -1,9 +1,9 @@
-use std::ops::{DerefMut, Deref};
+use std::ops::{Deref, DerefMut};
 
 use super::Pixel;
 
 /// Film is a rectangular grid of [`Pixel`]s.
-/// 
+///
 /// It supports various
 pub struct Film {
     width: u32,
@@ -18,7 +18,7 @@ impl Film {
         Self {
             width: width,
             height: height,
-            pixels: vec![Pixel::new(); (width * height) as usize]
+            pixels: vec![Pixel::new(); (width * height) as usize],
         }
     }
 
@@ -47,20 +47,20 @@ impl Film {
     }
 
     /// Enumerates over the pixels of the image.
-    /// 
+    ///
     /// Yields the raster-space coordinates of each pixel and a reference to the
     /// pixel itself. Iteration order is left-to-right, top-to-bottom.
     #[inline]
     pub fn enumerate_pixels(&self) -> EnumeratePixels {
-        EnumeratePixels{
+        EnumeratePixels {
             pixels: self.pixels.iter(),
             width: self.width,
-            current: 0, 
+            current: 0,
         }
     }
 
     /// Enumerates over the pixels of the image.
-    /// 
+    ///
     /// Yields the raster-space coordinates of each pixel and a mutable
     /// reference to the pixel itself. Iteration order is left-to-right,
     /// top-to-bottom.
