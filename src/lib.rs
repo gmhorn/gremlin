@@ -4,7 +4,7 @@
 
 use std::ops::{AddAssign, SubAssign, MulAssign};
 
-use num_traits::{Float};
+use num_traits::{Float, FromPrimitive};
 
 pub mod film;
 pub mod geo;
@@ -19,7 +19,12 @@ pub trait Real:
     SubAssign +
     MulAssign +
     From<f32>
-{}
+{
+    #[inline(always)]
+    fn from_f32(val: f32) -> Self {
+        val.into()
+    }
+}
 
 impl Real for f32 {}
 impl Real for f64 {}

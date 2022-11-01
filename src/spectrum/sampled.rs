@@ -23,11 +23,37 @@ pub type Sampled64 = Sampled<f64>;
 pub struct Sampled<R>([R; consts::COUNT]);
 
 impl<R: Real> Sampled<R> {
+    /// Creates a new sampled spectrum with all values zero.
     #[inline]
     pub fn zero() -> Self {
-        Self([R::zero(); consts::COUNT])
+        Self::splat(R::zero())
     }
 
+    /// Creates a new sampled spectrum with all values equal.
+    #[inline]
+    pub const fn splat(value: R) -> Self {
+        Self([value; consts::COUNT])
+    }
+
+
+    /// Creates a new sampled spectrum by repeated application of the given
+    /// function.
+    /// 
+    /// The argument to the function is the wavelength.
+    pub fn from_fn<F>(mut f: F) -> Self
+    where
+        F: FnMut(R) -> R
+    {
+        let mut spec = Self::zero();
+        for (wavelength, val) in spec.enumerate_values_mut() {
+            *val = f(wavelength)
+        }
+        spec
+    }
+
+    /// Enumerates over the sampled spectrum.
+    /// 
+    /// Yields pairs `(wavelength, &value)`.
     #[inline]
     pub fn enumerate_values(&self) -> EnumerateValues<R> {
         EnumerateValues {
@@ -37,6 +63,9 @@ impl<R: Real> Sampled<R> {
         }
     }
 
+    /// Enumerates over the sampled spectrum.
+    /// 
+    /// Yields pairs `(wavelength, &mut value)`.
     #[inline]
     pub fn enumerate_values_mut(&mut self) -> EnumerateValuesMut<R> {
         EnumerateValuesMut {
@@ -110,6 +139,15 @@ impl<'a, R: Real> ExactSizeIterator for EnumerateValuesMut<'a, R> {
     #[inline]
     fn len(&self) -> usize {
         self.values.len()
+    }
+}
+
+// CONVERSIONS: OTHER -> SPECTRUM
+
+impl<R: Real> From<[R; consts::COUNT]> for Sampled<R> {
+    #[inline]
+    fn from(arr: [R; consts::COUNT]) -> Self {
+        Self(arr)
     }
 }
 
