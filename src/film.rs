@@ -8,3 +8,6 @@ pub use buffer::*;
 
 mod pixel;
 pub use pixel::*;
+
+mod xyz;
+pub use xyz::*;

@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use crate::Real;
 
 use super::Continuous;
@@ -84,6 +86,24 @@ impl<R: Real> Sampled<R> {
             current: consts::MIN.into(),
             step: consts::STEP.into(),
         }
+    }
+}
+
+// DEREFS
+
+impl<R> Deref for Sampled<R> {
+    type Target = [R];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<R> DerefMut for Sampled<R> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
