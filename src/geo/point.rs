@@ -37,7 +37,6 @@ pub struct Point {
 }
 
 impl Point {
-
     /// The origin.
     pub const ORIGIN: Self = Self::splat(0.0);
 

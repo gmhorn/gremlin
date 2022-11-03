@@ -16,7 +16,11 @@ impl Buffer {
     #[inline]
     pub fn new(width: u32, height: u32) -> Self {
         let pixels = vec![Pixel::new(); (width * height) as usize];
-        Self { width, height, pixels }
+        Self {
+            width,
+            height,
+            pixels,
+        }
     }
 
     /// The width and height of the film.

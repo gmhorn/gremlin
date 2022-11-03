@@ -38,7 +38,6 @@ pub struct Unit {
 }
 
 impl Unit {
-
     /// The unit vector along the x-axis.
     pub const X_AXIS: Unit = Unit::new(1.0, 0.0, 0.0);
 

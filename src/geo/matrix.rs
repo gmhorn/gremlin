@@ -16,7 +16,6 @@ pub struct Matrix([[MyFloat; 4]; 4]);
 type AugmentedMatrix = [[MyFloat; 8]; 4];
 
 impl Matrix {
-
     /// The identity matrix.
     pub const IDENTITY: Matrix = Self([
         [1.0, 0.0, 0.0, 0.0],

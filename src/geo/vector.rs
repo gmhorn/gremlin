@@ -26,7 +26,6 @@ pub struct Vector {
 }
 
 impl Vector {
-
     /// A vector of length 1 in the x direction.
     pub const X_AXIS: Vector = Vector::new(1.0, 0.0, 0.0);
 
