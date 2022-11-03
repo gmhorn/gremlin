@@ -127,7 +127,7 @@ impl AbsDiffEq for Point {
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         Float::abs_diff_eq(&self.x, &other.x, epsilon) &&
         Float::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        Float::abs_diff_eq(&self.z, &other.z, epsilon) 
+        Float::abs_diff_eq(&self.z, &other.z, epsilon)
     }
 }
 

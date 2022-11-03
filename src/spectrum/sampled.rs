@@ -1,5 +1,5 @@
-use std::ops::{Deref, DerefMut};
 use crate::Float;
+use std::ops::{Deref, DerefMut};
 
 use super::Continuous;
 
@@ -17,6 +17,12 @@ mod consts {
 pub struct Sampled([Float; consts::COUNT]);
 
 impl Sampled {
+    /// Creates a new sampled spectrum with the given values.
+    #[inline]
+    pub const fn new(values: [Float; consts::COUNT]) -> Self {
+        Self(values)
+    }
+
     /// Creates a new sampled spectrum with all values zero.
     #[inline]
     pub const fn zero() -> Self {
@@ -153,14 +159,14 @@ impl<'a> ExactSizeIterator for EnumerateValuesMut<'a> {
 
 impl From<[Float; consts::COUNT]> for Sampled {
     #[inline]
-    fn from(arr: [Float; consts::COUNT]) -> Self {
-        Self(arr)
+    fn from(values: [Float; consts::COUNT]) -> Self {
+        Self::new(values)
     }
 }
 
 impl<C> From<C> for Sampled
 where
-    C: Continuous
+    C: Continuous,
 {
     fn from(spec: C) -> Self {
         Self::from_fn(|w| spec.evaluate(w))
