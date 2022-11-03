@@ -307,7 +307,6 @@ dependencies = [
  "approx",
  "criterion",
  "image",
- "num-traits",
 ]
 
 [[package]]
