@@ -1,5 +1,5 @@
 /// Represents a 2-dimensional point.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Coords<T> {
     pub x: T,
     pub y: T,

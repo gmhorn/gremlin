@@ -49,7 +49,7 @@
 //! Matrix * Matrix = Matrix
 //! ```
 
-/* Modules and re-exports */
+// MODULES AND RE-EXPORTS
 
 mod coords;
 pub use self::coords::*;
