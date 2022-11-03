@@ -1,4 +1,4 @@
-use crate::MyFloat;
+use crate::Float;
 
 use super::{Point, Vector};
 
@@ -21,7 +21,7 @@ impl Ray {
 
     /// Evaluate the ray.
     #[inline]
-    pub fn at(&self, t: MyFloat) -> Point {
+    pub fn at(&self, t: Float) -> Point {
         self.origin + (self.dir * t)
     }
 }

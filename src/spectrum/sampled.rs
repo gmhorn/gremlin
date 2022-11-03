@@ -1,20 +1,20 @@
 use std::ops::{Deref, DerefMut};
-use crate::MyFloat;
+use crate::Float;
 
 use super::Continuous;
 
 // CONSTANTS
 mod consts {
-    use crate::MyFloat;
+    use crate::Float;
 
-    pub const MIN: MyFloat = 380.0;
-    pub const MAX: MyFloat = 780.0;
-    pub const STEP: MyFloat = 5.0;
+    pub const MIN: Float = 380.0;
+    pub const MAX: Float = 780.0;
+    pub const STEP: Float = 5.0;
     pub const COUNT: usize = ((MAX - MIN) / STEP) as usize;
 }
 
 /// A spectrum with values defined at discrete points.
-pub struct Sampled([MyFloat; consts::COUNT]);
+pub struct Sampled([Float; consts::COUNT]);
 
 impl Sampled {
     /// Creates a new sampled spectrum with all values zero.
@@ -25,7 +25,7 @@ impl Sampled {
 
     /// Creates a new sampled spectrum with all values equal.
     #[inline]
-    pub const fn splat(value: MyFloat) -> Self {
+    pub const fn splat(value: Float) -> Self {
         Self([value; consts::COUNT])
     }
 
@@ -35,7 +35,7 @@ impl Sampled {
     /// The argument to the function is the wavelength.
     pub fn from_fn<F>(mut f: F) -> Self
     where
-        F: FnMut(MyFloat) -> MyFloat,
+        F: FnMut(Float) -> Float,
     {
         let mut spec = Self::zero();
         for (wavelength, val) in spec.enumerate_values_mut() {
@@ -70,7 +70,7 @@ impl Sampled {
 // DEREFS
 
 impl Deref for Sampled {
-    type Target = [MyFloat];
+    type Target = [Float];
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -89,12 +89,12 @@ impl DerefMut for Sampled {
 
 /// Enumerates `(wavelength, value)` pairs.
 pub struct EnumerateValues<'a> {
-    values: std::slice::Iter<'a, MyFloat>,
-    current: MyFloat,
+    values: std::slice::Iter<'a, Float>,
+    current: Float,
 }
 
 impl<'a> Iterator for EnumerateValues<'a> {
-    type Item = (MyFloat, &'a MyFloat);
+    type Item = (Float, &'a Float);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -120,12 +120,12 @@ impl<'a> ExactSizeIterator for EnumerateValues<'a> {
 
 /// Enumerates mutable `(wavelength, value)` pairs.
 pub struct EnumerateValuesMut<'a> {
-    values: std::slice::IterMut<'a, MyFloat>,
-    current: MyFloat,
+    values: std::slice::IterMut<'a, Float>,
+    current: Float,
 }
 
 impl<'a> Iterator for EnumerateValuesMut<'a> {
-    type Item = (MyFloat, &'a mut MyFloat);
+    type Item = (Float, &'a mut Float);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -151,9 +151,9 @@ impl<'a> ExactSizeIterator for EnumerateValuesMut<'a> {
 
 // CONVERSIONS: OTHER -> SPECTRUM
 
-impl From<[MyFloat; consts::COUNT]> for Sampled {
+impl From<[Float; consts::COUNT]> for Sampled {
     #[inline]
-    fn from(arr: [MyFloat; consts::COUNT]) -> Self {
+    fn from(arr: [Float; consts::COUNT]) -> Self {
         Self(arr)
     }
 }

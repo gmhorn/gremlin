@@ -1,9 +1,9 @@
-use crate::{spectrum::Sampled, MyFloat};
+use crate::{spectrum::Sampled, Float};
 
 pub struct XYZ {
-    pub X: MyFloat,
-    pub Y: MyFloat,
-    pub Z: MyFloat,
+    pub X: Float,
+    pub Y: Float,
+    pub Z: Float,
 }
 
 impl XYZ {

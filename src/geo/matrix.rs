@@ -1,4 +1,4 @@
-use crate::MyFloat;
+use crate::Float;
 
 use super::{Point, Unit, Vector};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
@@ -10,10 +10,10 @@ use std::ops::{Add, Mul, Neg, Sub};
 /// to encode 3-dimensional transformations. Homogeneous coordinates are
 /// assumed.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Matrix([[MyFloat; 4]; 4]);
+pub struct Matrix([[Float; 4]; 4]);
 
 // Helper typedef to make inverting somewhat more pleasant.
-type AugmentedMatrix = [[MyFloat; 8]; 4];
+type AugmentedMatrix = [[Float; 8]; 4];
 
 impl Matrix {
     /// The identity matrix.
@@ -61,7 +61,7 @@ impl Matrix {
     ///
     /// See also [`Self::scale()`].
     #[inline]
-    pub fn scale_uniform(n: MyFloat) -> Self {
+    pub fn scale_uniform(n: Float) -> Self {
         Self::scale(n, n, n)
     }
 
@@ -76,7 +76,7 @@ impl Matrix {
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#Scaling>
     #[rustfmt::skip]
     #[inline]
-    pub fn scale(x: MyFloat, y: MyFloat, z: MyFloat) -> Self {
+    pub fn scale(x: Float, y: Float, z: Float) -> Self {
         Self::from([
             [  x, 0.0, 0.0, 0.0],
             [0.0,   y, 0.0, 0.0],
@@ -97,7 +97,7 @@ impl Matrix {
     ///
     /// See: <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#RotationaroundanArbitraryAxis>
     #[rustfmt::skip]
-    pub fn rotate(theta: MyFloat, axis: Unit) -> Self {
+    pub fn rotate(theta: Float, axis: Unit) -> Self {
         // Covert angle to radians and axis to vector (so we can get components)
         let theta = theta.to_radians();
         let axis = Vector::from(axis);
@@ -151,9 +151,9 @@ impl Matrix {
 
         // Convert to array so we can grab elements
         // TODO: this kind of sucks...
-        let x_axis: [MyFloat; 3] = x_axis.into();
-        let y_axis: [MyFloat; 3] = y_axis.into();
-        let z_axis: [MyFloat; 3] = z_axis.into();
+        let x_axis: [Float; 3] = x_axis.into();
+        let y_axis: [Float; 3] = y_axis.into();
+        let z_axis: [Float; 3] = z_axis.into();
 
         Self::from([
             [x_axis[0], y_axis[0], z_axis[0], from.x],
@@ -339,11 +339,11 @@ impl Mul for Matrix {
     }
 }
 
-impl Mul<MyFloat> for Matrix {
+impl Mul<Float> for Matrix {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: MyFloat) -> Self::Output {
+    fn mul(self, rhs: Float) -> Self::Output {
         let mut data = self.0;
 
         for row in &mut data {
@@ -356,7 +356,7 @@ impl Mul<MyFloat> for Matrix {
     }
 }
 
-impl Mul<Matrix> for MyFloat {
+impl Mul<Matrix> for Float {
     type Output = Matrix;
 
     #[inline]
@@ -394,8 +394,8 @@ impl Mul<Point> for Matrix {
 
 // CONVERSIONS: OTHER -> MATRIX
 
-impl From<[MyFloat; 16]> for Matrix {
-    fn from(vals: [MyFloat; 16]) -> Self {
+impl From<[Float; 16]> for Matrix {
+    fn from(vals: [Float; 16]) -> Self {
         let mut data = [[0.0; 4]; 4];
 
         for (idx, &val) in vals.iter().enumerate() {
@@ -408,9 +408,9 @@ impl From<[MyFloat; 16]> for Matrix {
     }
 }
 
-impl From<[[MyFloat; 4]; 4]> for Matrix {
+impl From<[[Float; 4]; 4]> for Matrix {
     #[inline]
-    fn from(data: [[MyFloat; 4]; 4]) -> Self {
+    fn from(data: [[Float; 4]; 4]) -> Self {
         Self(data)
     }
 }
@@ -418,11 +418,11 @@ impl From<[[MyFloat; 4]; 4]> for Matrix {
 // APPROXIMATIONS
 
 impl AbsDiffEq for Matrix {
-    type Epsilon = MyFloat;
+    type Epsilon = Float;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        MyFloat::default_epsilon()
+        Float::default_epsilon()
     }
 
     #[inline]
@@ -432,14 +432,14 @@ impl AbsDiffEq for Matrix {
 
         self_vals
             .zip(other_vals)
-            .all(|(a, b)| MyFloat::abs_diff_eq(a, b, epsilon))
+            .all(|(a, b)| Float::abs_diff_eq(a, b, epsilon))
     }
 }
 
 impl RelativeEq for Matrix {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        MyFloat::default_max_relative()
+        Float::default_max_relative()
     }
 
     #[inline]
@@ -454,14 +454,14 @@ impl RelativeEq for Matrix {
 
         self_vals
             .zip(other_vals)
-            .all(|(a, b)| MyFloat::relative_eq(a, b, epsilon, max_relative))
+            .all(|(a, b)| Float::relative_eq(a, b, epsilon, max_relative))
     }
 }
 
 impl UlpsEq for Matrix {
     #[inline]
     fn default_max_ulps() -> u32 {
-        MyFloat::default_max_ulps()
+        Float::default_max_ulps()
     }
 
     #[inline]
@@ -471,7 +471,7 @@ impl UlpsEq for Matrix {
 
         self_vals
             .zip(other_vals)
-            .all(|(a, b)| MyFloat::ulps_eq(a, b, epsilon, max_ulps))
+            .all(|(a, b)| Float::ulps_eq(a, b, epsilon, max_ulps))
     }
 }
 

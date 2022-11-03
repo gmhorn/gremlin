@@ -1,4 +1,4 @@
-use crate::MyFloat;
+use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -20,9 +20,9 @@ use super::{Point, Unit};
 /// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
-    pub x: MyFloat,
-    pub y: MyFloat,
-    pub z: MyFloat,
+    pub x: Float,
+    pub y: Float,
+    pub z: Float,
 }
 
 impl Vector {
@@ -37,13 +37,13 @@ impl Vector {
 
     /// Construct a new vector with the given components.
     #[inline]
-    pub const fn new(x: MyFloat, y: MyFloat, z: MyFloat) -> Self {
+    pub const fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new vector with all components equal.
     #[inline]
-    pub const fn splat(n: MyFloat) -> Self {
+    pub const fn splat(n: Float) -> Self {
         Self::new(n, n, n)
     }
 
@@ -61,7 +61,7 @@ impl Vector {
 
     /// Compute the dot product of this vector with another.
     #[inline]
-    pub fn dot(self, rhs: Self) -> MyFloat {
+    pub fn dot(self, rhs: Self) -> Float {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
@@ -79,13 +79,13 @@ impl Vector {
     /// Compute the squared length of the vector. It is faster to compute than
     /// [`Self::len()`], so use it when you can.
     #[inline]
-    pub fn len_squared(self) -> MyFloat {
+    pub fn len_squared(self) -> Float {
         self.dot(self)
     }
 
     /// Compute the length of the vector.
     #[inline]
-    pub fn len(self) -> MyFloat {
+    pub fn len(self) -> Float {
         self.dot(self).sqrt()
     }
 
@@ -140,16 +140,16 @@ impl Sub for Vector {
     }
 }
 
-impl Mul<MyFloat> for Vector {
+impl Mul<Float> for Vector {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: MyFloat) -> Self::Output {
+    fn mul(self, rhs: Float) -> Self::Output {
         Self::Output::new(rhs * self.x, rhs * self.y, rhs * self.z)
     }
 }
 
-impl Mul<Vector> for MyFloat {
+impl Mul<Vector> for Float {
     type Output = Vector;
 
     #[inline]
@@ -158,7 +158,7 @@ impl Mul<Vector> for MyFloat {
     }
 }
 
-impl Div<MyFloat> for Vector {
+impl Div<Float> for Vector {
     type Output = Self;
 
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
@@ -166,7 +166,7 @@ impl Div<MyFloat> for Vector {
     // hanging fruit when it comes to this stuff, right?
     #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
-    fn div(self, rhs: MyFloat) -> Self::Output {
+    fn div(self, rhs: Float) -> Self::Output {
         self * rhs.recip()
     }
 }
@@ -174,26 +174,26 @@ impl Div<MyFloat> for Vector {
 // APPROXIMATIONS
 
 impl AbsDiffEq for Vector {
-    type Epsilon = MyFloat;
+    type Epsilon = Float;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        MyFloat::default_epsilon()
+        Float::default_epsilon()
     }
 
     #[rustfmt::skip]
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        MyFloat::abs_diff_eq(&self.x, &other.x, epsilon) &&
-        MyFloat::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        MyFloat::abs_diff_eq(&self.z, &other.z, epsilon) 
+        Float::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        Float::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        Float::abs_diff_eq(&self.z, &other.z, epsilon) 
     }
 }
 
 impl RelativeEq for Vector {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        MyFloat::default_max_relative()
+        Float::default_max_relative()
     }
 
     #[rustfmt::skip]
@@ -204,30 +204,30 @@ impl RelativeEq for Vector {
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        MyFloat::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
-        MyFloat::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
-        MyFloat::relative_eq(&self.z, &other.z, epsilon, max_relative)
+        Float::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        Float::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        Float::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
 impl UlpsEq for Vector {
     #[inline]
     fn default_max_ulps() -> u32 {
-        MyFloat::default_max_ulps()
+        Float::default_max_ulps()
     }
 
     #[rustfmt::skip]
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        MyFloat::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
-        MyFloat::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
-        MyFloat::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+        Float::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        Float::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        Float::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
     }
 }
 
 // CONVERSIONS: VECTOR -> OTHER
 
-impl From<Vector> for [MyFloat; 3] {
+impl From<Vector> for [Float; 3] {
     #[inline]
     fn from(v: Vector) -> Self {
         [v.x, v.y, v.z]
@@ -236,9 +236,9 @@ impl From<Vector> for [MyFloat; 3] {
 
 // CONVERSIONS: OTHER -> VECTOR
 
-impl From<[MyFloat; 3]> for Vector {
+impl From<[Float; 3]> for Vector {
     #[inline]
-    fn from(arr: [MyFloat; 3]) -> Self {
+    fn from(arr: [Float; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }

@@ -1,5 +1,5 @@
 use super::Vector;
-use crate::MyFloat;
+use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::ops::{Add, Neg, Sub};
 
@@ -31,9 +31,9 @@ use std::ops::{Add, Neg, Sub};
 /// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
-    pub x: MyFloat,
-    pub y: MyFloat,
-    pub z: MyFloat,
+    pub x: Float,
+    pub y: Float,
+    pub z: Float,
 }
 
 impl Point {
@@ -42,13 +42,13 @@ impl Point {
 
     /// Construct a new point with the given components.
     #[inline]
-    pub const fn new(x: MyFloat, y: MyFloat, z: MyFloat) -> Self {
+    pub const fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new point with all components equal.
     #[inline]
-    pub const fn splat(n: MyFloat) -> Self {
+    pub const fn splat(n: Float) -> Self {
         Self::new(n, n, n)
     }
 
@@ -66,13 +66,13 @@ impl Point {
 
     /// Compute the distance between two points.
     #[inline]
-    pub fn distance(self, other: Self) -> MyFloat {
+    pub fn distance(self, other: Self) -> Float {
         (other - self).len()
     }
 
     /// Linearly interpolate between two points.
     #[inline]
-    pub fn lerp(self, other: Self, t: MyFloat) -> Self {
+    pub fn lerp(self, other: Self, t: Float) -> Self {
         self + (other - self) * t
     }
 
@@ -115,26 +115,26 @@ impl Sub for Point {
 // APPROXIMATIONS
 
 impl AbsDiffEq for Point {
-    type Epsilon = MyFloat;
+    type Epsilon = Float;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        MyFloat::default_epsilon()
+        Float::default_epsilon()
     }
 
     #[rustfmt::skip]
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        MyFloat::abs_diff_eq(&self.x, &other.x, epsilon) &&
-        MyFloat::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        MyFloat::abs_diff_eq(&self.z, &other.z, epsilon) 
+        Float::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        Float::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        Float::abs_diff_eq(&self.z, &other.z, epsilon) 
     }
 }
 
 impl RelativeEq for Point {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        MyFloat::default_max_relative()
+        Float::default_max_relative()
     }
 
     #[rustfmt::skip]
@@ -145,32 +145,32 @@ impl RelativeEq for Point {
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        MyFloat::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
-        MyFloat::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
-        MyFloat::relative_eq(&self.z, &other.z, epsilon, max_relative)
+        Float::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        Float::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        Float::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
 impl UlpsEq for Point {
     #[inline]
     fn default_max_ulps() -> u32 {
-        MyFloat::default_max_ulps()
+        Float::default_max_ulps()
     }
 
     #[rustfmt::skip]
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        MyFloat::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
-        MyFloat::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
-        MyFloat::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+        Float::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        Float::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        Float::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
     }
 }
 
 // CONVERSIONS
 
-impl From<[MyFloat; 3]> for Point {
+impl From<[Float; 3]> for Point {
     #[inline]
-    fn from(arr: [MyFloat; 3]) -> Self {
+    fn from(arr: [Float; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }

@@ -1,5 +1,5 @@
 use super::Vector;
-use crate::MyFloat;
+use crate::Float;
 use std::ops::Neg;
 
 /// A 3-dimensional unit vector.
@@ -32,9 +32,9 @@ use std::ops::Neg;
 /// Panicing may be especially annoying if conversion fails many minutes in to a
 /// long render. So like everything, it's a trade-off.
 pub struct Unit {
-    x: MyFloat,
-    y: MyFloat,
-    z: MyFloat,
+    x: Float,
+    y: Float,
+    z: Float,
 }
 
 impl Unit {
@@ -48,7 +48,7 @@ impl Unit {
     pub const Z_AXIS: Unit = Unit::new(0.0, 0.0, 1.0);
 
     #[inline]
-    const fn new(x: MyFloat, y: MyFloat, z: MyFloat) -> Self {
+    const fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
     }
 }
@@ -66,7 +66,7 @@ impl Neg for Unit {
 
 // CONVERSIONS: UNIT -> OTHER
 
-impl From<Unit> for [MyFloat; 3] {
+impl From<Unit> for [Float; 3] {
     #[inline]
     fn from(u: Unit) -> Self {
         [u.x, u.y, u.z]

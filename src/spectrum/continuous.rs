@@ -1,4 +1,4 @@
-use crate::MyFloat;
+use crate::Float;
 
 use super::Sampled;
 
@@ -7,7 +7,7 @@ pub trait Continuous {
     /// Returns the value of the spectrum at the given wavelength.
     ///
     /// Wavelength units are in nanometers (*e.g.* `750.0` instead of `7.5e-7`).
-    fn evaluate(&self, wavelength: MyFloat) -> MyFloat;
+    fn evaluate(&self, wavelength: Float) -> Float;
 
     /// Creates a sampled spectrum from this spectrum.
     #[inline]
@@ -17,12 +17,12 @@ pub trait Continuous {
 }
 
 /// The spectrum around a black body of a given temperature.
-pub struct Blackbody(MyFloat);
+pub struct Blackbody(Float);
 
 impl Blackbody {
     // https://en.wikipedia.org/wiki/Planck%27s_law#First_and_second_radiation_constants
-    const C1: MyFloat = 3.74177e-16;
-    const C2: MyFloat = 1.43879e-2;
+    const C1: Float = 3.74177e-16;
+    const C2: Float = 1.43879e-2;
 
     /// Creates a new blackbody spectrum for the given temperature (in Kelvin).
     ///
@@ -31,13 +31,13 @@ impl Blackbody {
     ///
     /// See also: <https://en.wikipedia.org/wiki/Planckian_locus>
     #[inline]
-    pub const fn new(temp: MyFloat) -> Self {
+    pub const fn new(temp: Float) -> Self {
         Self(temp)
     }
 }
 
 impl Continuous for Blackbody {
-    fn evaluate(&self, wavelength: MyFloat) -> MyFloat {
+    fn evaluate(&self, wavelength: Float) -> Float {
         // Convert wavelength to meters
         let wavelength = wavelength * 1e-9;
 
@@ -49,32 +49,32 @@ impl Continuous for Blackbody {
 
 /// A narrow Gaussian distribution centered at a given wavelength.
 pub struct Peak {
-    center: MyFloat,
-    variance: MyFloat,
+    center: Float,
+    variance: Float,
 }
 
 impl Peak {
     /// Creates a new peak distribution with the given center and variance.
     #[inline]
-    pub fn new(center: MyFloat, variance: MyFloat) -> Self {
+    pub fn new(center: Float, variance: Float) -> Self {
         Self { center, variance }
     }
 }
 
 impl Continuous for Peak {
-    fn evaluate(&self, wavelength: MyFloat) -> MyFloat {
+    fn evaluate(&self, wavelength: Float) -> Float {
         1.0 / ((wavelength - self.center).powi(2) / (self.variance + self.variance)).exp()
     }
 }
 
 /// The refractive index through a medium.
 pub struct Sellmeier {
-    b_coeffs: [MyFloat; 3],
-    c_coeffs: [MyFloat; 3],
+    b_coeffs: [Float; 3],
+    c_coeffs: [Float; 3],
 }
 
 impl Continuous for Sellmeier {
-    fn evaluate(&self, wavelength: MyFloat) -> MyFloat {
+    fn evaluate(&self, wavelength: Float) -> Float {
         // Convert wavelengths to micrometers
         let wavelength = wavelength * 1e-3;
         // Precompute square
