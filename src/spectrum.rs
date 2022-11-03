@@ -1,28 +1,20 @@
-#[derive(Debug, PartialEq, Clone)]
-pub struct FloatSample([f32; 80]);
+//! # Spectrum module.
+//!
+//! A spectral distribution is a quantity that is a function of wavelength.
+//! Examples are reflectance, refractive index, radiance, etc. This module
+//! defines two core types:
+//!
+//! * [`Sampled`], which is used for spectra that are defined at fixed sample
+//!   wavelengths.
+//! * [`Continuous`], which are spectra that are defined for a continuous range
+//!   of wavelengths.
+//!
+//! The wavelengths we care about are mostly in the human-visible range, roughly
+//! 380nm to 780nm. As a result, most wavelength units are in nanometers rather
+//! than meters.
 
-impl FloatSample {
-    pub const fn splat(n: f32) -> Self {
-        Self([n; 80])
-    }
+mod continuous;
+pub use continuous::*;
 
-    pub fn add_iter(&self, other: &Self) -> Self {
-        let mut data = self.0;
-
-        for (idx, val) in data.iter_mut().enumerate() {
-            *val += other.0[idx];
-        }
-
-        Self(data)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_foo() {
-        let _s = FloatSample::splat(1.0);
-    }
-}
+mod sampled;
+pub use sampled::*;

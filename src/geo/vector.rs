@@ -1,60 +1,50 @@
-use std::ops::{Add, Div, Mul, Sub, Neg};
-
+use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num_traits::Float;
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use super::{Point, Unit};
 
 /// A 3-dimensional vector.
-/// 
+///
 /// Vectors are interpreted as column vectors. They implement the basic algebra
-/// of euclidean **R3** vector space. The basic operands for addition, 
+/// of euclidean **R3** vector space. The basic operands for addition,
 /// subtraction, negation, and scalar multiplication/division are implemented.
 /// The assignment operands (`+=`, `-=`, etc.) are not implemented. Generally
 /// speaking, these are intended to be stack-allocated, highly inline-able, and
 /// extremely cheap to copy. But if it turns out that implementing the mutator
 /// ops improve ergonomics or performance, that should be easy enough.
-/// 
-/// Vectors, like most primitives in the [`geo`][crate::geo] package, are 
+///
+/// Vectors, like most primitives in the [`geo`][crate::geo] package, are
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
-/// will be useful, since almost all functions use [`num_traits::Float`] as
+/// will be useful, since almost all functions use [`crate::Real`] as
 /// their generic bound.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Vector<F> {
-    pub x: F,
-    pub y: F,
-    pub z: F,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vector {
+    pub x: Float,
+    pub y: Float,
+    pub z: Float,
 }
 
-impl<F: Float> Vector<F> {
+impl Vector {
+    /// A vector of length 1 in the x direction.
+    pub const X_AXIS: Vector = Vector::new(1.0, 0.0, 0.0);
+
+    /// A vector of length 1 in the y direction.
+    pub const Y_AXIS: Vector = Vector::new(0.0, 1.0, 0.0);
+
+    /// A vector of length 1 in the z direction.
+    pub const Z_AXIS: Vector = Vector::new(0.0, 0.0, 1.0);
+
     /// Construct a new vector with the given components.
     #[inline]
-    pub const fn new(x: F, y: F, z: F) -> Self {
+    pub const fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new vector with all components equal.
     #[inline]
-    pub const fn splat(n: F) -> Self {
+    pub const fn splat(n: Float) -> Self {
         Self::new(n, n, n)
-    }
-
-    /// Construct a new vector of length 1 along the x-axis.
-    #[inline]
-    pub fn x_axis() -> Self {
-        Unit::x_axis().into()
-    }
-
-    /// Construct a new vector of length 1 along the y-axis.
-    #[inline]
-    pub fn y_axis() -> Self {
-        Unit::y_axis().into()
-    }
-
-    /// Construct a new vector of length 1 along the z-axis.
-    #[inline]
-    pub fn z_axis() -> Self {
-        Unit::z_axis().into()
     }
 
     /// Construct a new vector that is the component-wise minimum of the two.
@@ -71,7 +61,7 @@ impl<F: Float> Vector<F> {
 
     /// Compute the dot product of this vector with another.
     #[inline]
-    pub fn dot(self, rhs: Self) -> F {
+    pub fn dot(self, rhs: Self) -> Float {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
@@ -89,21 +79,21 @@ impl<F: Float> Vector<F> {
     /// Compute the squared length of the vector. It is faster to compute than
     /// [`Self::len()`], so use it when you can.
     #[inline]
-    pub fn len_squared(self) -> F {
+    pub fn len_squared(self) -> Float {
         self.dot(self)
     }
 
     /// Compute the length of the vector.
     #[inline]
-    pub fn len(self) -> F {
+    pub fn len(self) -> Float {
         self.dot(self).sqrt()
     }
 
     /// Normalize the vector.
-    /// 
+    ///
     /// Panics if vector is 0-length or otherwise ill-conditioned.
     #[inline]
-    pub fn normalize(self) -> Unit<F> {
+    pub fn normalize(self) -> Unit {
         Unit::try_from(self).unwrap()
     }
 
@@ -123,7 +113,7 @@ impl<F: Float> Vector<F> {
 
 // OPERATORS
 
-impl<F: Float> Neg for Vector<F> {
+impl Neg for Vector {
     type Output = Self;
 
     #[inline]
@@ -132,7 +122,7 @@ impl<F: Float> Neg for Vector<F> {
     }
 }
 
-impl<F: Float> Add for Vector<F> {
+impl Add for Vector {
     type Output = Self;
 
     #[inline]
@@ -141,7 +131,7 @@ impl<F: Float> Add for Vector<F> {
     }
 }
 
-impl<F: Float> Sub for Vector<F> {
+impl Sub for Vector {
     type Output = Self;
 
     #[inline]
@@ -150,16 +140,25 @@ impl<F: Float> Sub for Vector<F> {
     }
 }
 
-impl<F: Float> Mul<F> for Vector<F> {
+impl Mul<Float> for Vector {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: F) -> Self::Output {
+    fn mul(self, rhs: Float) -> Self::Output {
         Self::Output::new(rhs * self.x, rhs * self.y, rhs * self.z)
     }
 }
 
-impl<F: Float> Div<F> for Vector<F> {
+impl Mul<Vector> for Float {
+    type Output = Vector;
+
+    #[inline]
+    fn mul(self, rhs: Vector) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Div<Float> for Vector {
     type Output = Self;
 
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
@@ -167,84 +166,86 @@ impl<F: Float> Div<F> for Vector<F> {
     // hanging fruit when it comes to this stuff, right?
     #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
-    fn div(self, rhs: F) -> Self::Output {
+    fn div(self, rhs: Float) -> Self::Output {
         self * rhs.recip()
     }
 }
 
 // APPROXIMATIONS
 
-impl<F: AbsDiffEq> AbsDiffEq for Vector<F> where
-    F::Epsilon: Copy,
-{
-    type Epsilon = F::Epsilon;
+impl AbsDiffEq for Vector {
+    type Epsilon = Float;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        F::default_epsilon()
+        Float::default_epsilon()
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        F::abs_diff_eq(&self.x, &other.x, epsilon) &&
-        F::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        F::abs_diff_eq(&self.z, &other.z, epsilon) 
+        Float::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        Float::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        Float::abs_diff_eq(&self.z, &other.z, epsilon) 
     }
 }
 
-impl<F: RelativeEq> RelativeEq for Vector<F> where
-    F::Epsilon: Copy,
-{
+impl RelativeEq for Vector {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        F::default_max_relative()
+        Float::default_max_relative()
     }
 
+    #[rustfmt::skip]
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        F::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
-        F::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
-        F::relative_eq(&self.z, &other.z, epsilon, max_relative)
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
+        Float::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        Float::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        Float::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
-impl<F: UlpsEq> UlpsEq for Vector<F> where
-    F::Epsilon: Copy,
-{
+impl UlpsEq for Vector {
     #[inline]
     fn default_max_ulps() -> u32 {
-        F::default_max_ulps()
+        Float::default_max_ulps()
     }
 
+    #[rustfmt::skip]
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        F::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
-        F::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
-        F::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+        Float::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        Float::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        Float::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
     }
 }
 
 // CONVERSIONS: VECTOR -> OTHER
 
-impl<F: Float> From<Vector<F>> for [F; 3] {
+impl From<Vector> for [Float; 3] {
     #[inline]
-    fn from(v: Vector<F>) -> Self {
+    fn from(v: Vector) -> Self {
         [v.x, v.y, v.z]
     }
 }
 
 // CONVERSIONS: OTHER -> VECTOR
 
-impl<F: Float> From<[F; 3]> for Vector<F> {
+impl From<[Float; 3]> for Vector {
     #[inline]
-    fn from(arr: [F; 3]) -> Self {
+    fn from(arr: [Float; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }
 
-impl<F: Float> From<Point<F>> for Vector<F> {
+impl From<Point> for Vector {
     #[inline]
-    fn from(pt: Point<F>) -> Self {
+    fn from(pt: Point) -> Self {
         Self::new(pt.x, pt.y, pt.z)
     }
 }
@@ -271,17 +272,18 @@ mod tests {
 
     #[test]
     fn dot() {
-        let u = Vector::x_axis();
+        let u = Vector::X_AXIS;
         let v = Vector::new(2.0, 1.0, 0.0);
 
         assert_eq!(2.0, u.dot(v));
     }
 
+    #[rustfmt::skip]
     #[test]
     fn cross() {
-        assert_eq!(Vector::<f64>::z_axis(), Vector::x_axis().cross(Vector::y_axis()));
-        assert_eq!(Vector::<f64>::x_axis(), Vector::y_axis().cross(Vector::z_axis()));
-        assert_eq!(Vector::<f64>::y_axis(), Vector::z_axis().cross(Vector::x_axis()));
+        assert_eq!(Vector::Z_AXIS, Vector::X_AXIS.cross(Vector::Y_AXIS));
+        assert_eq!(Vector::X_AXIS, Vector::Y_AXIS.cross(Vector::Z_AXIS));
+        assert_eq!(Vector::Y_AXIS, Vector::Z_AXIS.cross(Vector::X_AXIS));
     }
 
     #[test]

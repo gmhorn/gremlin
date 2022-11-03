@@ -1,9 +1,9 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::spectrum::FloatSample;
+use gremlin::spectrum::Sampled64;
 
 pub fn spectrum_add_iter(c: &mut Criterion) {
-    let s1 = FloatSample::splat(1.0);
-    let s2 = FloatSample::splat(2.0);
+    let s1 = Sampled64::splat(1.0);
+    let s2 = Sampled64::splat(2.0);
 
     c.bench_function("spectrum add iter", |b| {
         b.iter(|| {
@@ -12,8 +12,5 @@ pub fn spectrum_add_iter(c: &mut Criterion) {
     });
 }
 
-criterion_group!(
-    spectrum,
-    spectrum_add_iter,
-);
+criterion_group!(spectrum, spectrum_add_iter,);
 criterion_main!(spectrum);
