@@ -7,7 +7,7 @@ pub struct XYZ {
 }
 
 impl XYZ {
-    pub fn from_sampled(s: Sampled<MyFloat>) -> Self {
+    pub fn from_sampled(s: Sampled) -> Self {
         todo!()
     }
 }

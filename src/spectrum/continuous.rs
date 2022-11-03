@@ -1,25 +1,29 @@
-use crate::Real;
+use crate::MyFloat;
 
 use super::Sampled;
 
 /// Trait for spectra that are continuous.
-pub trait Continuous<R: Real> {
+pub trait Continuous {
     /// Returns the value of the spectrum at the given wavelength.
     ///
     /// Wavelength units are in nanometers (*e.g.* `750.0` instead of `7.5e-7`).
-    fn evaluate(&self, wavelength: R) -> R;
+    fn evaluate(&self, wavelength: MyFloat) -> MyFloat;
 
     /// Creates a sampled spectrum from this spectrum.
     #[inline]
-    fn to_sampled(&self) -> Sampled<R> {
-        Sampled::<R>::from_fn(|w| self.evaluate(w))
+    fn to_sampled(&self) -> Sampled {
+        Sampled::from_fn(|w| self.evaluate(w))
     }
 }
 
 /// The spectrum around a black body of a given temperature.
-pub struct Blackbody<R>(R);
+pub struct Blackbody(MyFloat);
 
-impl<R: Real> Blackbody<R> {
+impl Blackbody {
+    // https://en.wikipedia.org/wiki/Planck%27s_law#First_and_second_radiation_constants
+    const C1: MyFloat = 3.74177e-16;
+    const C2: MyFloat = 1.43879e-2;
+
     /// Creates a new blackbody spectrum for the given temperature (in Kelvin).
     ///
     /// Units are spectral radiant existance (power per unit area per unit
@@ -27,63 +31,59 @@ impl<R: Real> Blackbody<R> {
     ///
     /// See also: <https://en.wikipedia.org/wiki/Planckian_locus>
     #[inline]
-    pub const fn new(temp: R) -> Self {
+    pub const fn new(temp: MyFloat) -> Self {
         Self(temp)
     }
 }
 
-impl<R: Real> Continuous<R> for Blackbody<R> {
-    fn evaluate(&self, wavelength: R) -> R {
-        // https://en.wikipedia.org/wiki/Planck%27s_law#First_and_second_radiation_constants
-        let c1 = R::from_f32(3.74177e-16);
-        let c2 = R::from_f32(1.43879e-2);
-
+impl Continuous for Blackbody {
+    fn evaluate(&self, wavelength: MyFloat) -> MyFloat {
         // Convert wavelength to meters
-        let wavelength = wavelength * 1e-9_f32.into();
+        let wavelength = wavelength * 1e-9;
 
         // Apply Plank's law
-        let power_term = c1 * wavelength.powi(-5);
-        power_term / (c2 / (wavelength * self.0)).exp_m1()
+        let power_term = Self::C1 * wavelength.powi(-5);
+        power_term / (Self::C2 / (wavelength * self.0)).exp_m1()
     }
 }
 
 /// A narrow Gaussian distribution centered at a given wavelength.
-pub struct Peak<R> {
-    center: R,
-    variance: R,
+pub struct Peak {
+    center: MyFloat,
+    variance: MyFloat,
 }
 
-impl<R: Real> Peak<R> {
+impl Peak {
     /// Creates a new peak distribution with the given center and variance.
     #[inline]
-    pub fn new(center: R, variance: R) -> Self {
+    pub fn new(center: MyFloat, variance: MyFloat) -> Self {
         Self { center, variance }
     }
 }
 
-impl<R: Real> Continuous<R> for Peak<R> {
-    fn evaluate(&self, wavelength: R) -> R {
-        R::one() / ((wavelength - self.center).powi(2) / (self.variance + self.variance)).exp()
+impl Continuous for Peak {
+    fn evaluate(&self, wavelength: MyFloat) -> MyFloat {
+        1.0 / ((wavelength - self.center).powi(2) / (self.variance + self.variance)).exp()
     }
 }
 
 /// The refractive index through a medium.
-pub struct Sellmeier<R> {
-    b_coeffs: [R; 3],
-    c_coeffs: [R; 3],
+pub struct Sellmeier {
+    b_coeffs: [MyFloat; 3],
+    c_coeffs: [MyFloat; 3],
 }
 
-impl<R: Real> Continuous<R> for Sellmeier<R> {
-    fn evaluate(&self, wavelength: R) -> R {
+impl Continuous for Sellmeier {
+    fn evaluate(&self, wavelength: MyFloat) -> MyFloat {
         // Convert wavelengths to micrometers
-        let wavelength = wavelength * R::from_f32(1e-3);
+        let wavelength = wavelength * 1e-3;
         // Precompute square
         let w_square = wavelength.powi(2);
 
         self.b_coeffs
             .iter()
             .zip(self.c_coeffs.iter())
-            .fold(R::one(), |n, (&b, &c)| n + (b * w_square) / (w_square - c))
+            .fold(1.0, |n, (&b, &c)| n + (b * w_square) / (w_square - c))
     }
 }
 
