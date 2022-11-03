@@ -1,5 +1,5 @@
 use super::Vector;
-use crate::Real;
+use crate::MyFloat;
 use std::ops::Neg;
 
 /// A 3-dimensional unit vector.
@@ -31,40 +31,32 @@ use std::ops::Neg;
 ///
 /// Panicing may be especially annoying if conversion fails many minutes in to a
 /// long render. So like everything, it's a trade-off.
-pub struct Unit<R> {
-    x: R,
-    y: R,
-    z: R,
+pub struct Unit {
+    x: MyFloat,
+    y: MyFloat,
+    z: MyFloat,
 }
 
-impl<R: Real> Unit<R> {
+impl Unit {
+
+    /// The unit vector along the x-axis.
+    pub const X_AXIS: Unit = Unit::new(1.0, 0.0, 0.0);
+
+    /// The unit vector along the y-axis.
+    pub const Y_AXIS: Unit = Unit::new(0.0, 1.0, 0.0);
+
+    /// The unit vector along the z-axis.
+    pub const Z_AXIS: Unit = Unit::new(0.0, 0.0, 1.0);
+
     #[inline]
-    const fn new(x: R, y: R, z: R) -> Self {
+    const fn new(x: MyFloat, y: MyFloat, z: MyFloat) -> Self {
         Self { x, y, z }
-    }
-
-    /// Construct a new unit vector along the x-axis.
-    #[inline]
-    pub fn x_axis() -> Self {
-        Self::new(R::one(), R::zero(), R::zero())
-    }
-
-    /// Construct a new unit vector along the y-axis
-    #[inline]
-    pub fn y_axis() -> Self {
-        Self::new(R::zero(), R::one(), R::zero())
-    }
-
-    /// Construct a new unit vector along the z-axis
-    #[inline]
-    pub fn z_axis() -> Self {
-        Self::new(R::zero(), R::zero(), R::one())
     }
 }
 
 // OPERATORS
 
-impl<R: Real> Neg for Unit<R> {
+impl Neg for Unit {
     type Output = Self;
 
     #[inline]
@@ -75,27 +67,27 @@ impl<R: Real> Neg for Unit<R> {
 
 // CONVERSIONS: UNIT -> OTHER
 
-impl<R: Real> From<Unit<R>> for [R; 3] {
+impl From<Unit> for [MyFloat; 3] {
     #[inline]
-    fn from(u: Unit<R>) -> Self {
+    fn from(u: Unit) -> Self {
         [u.x, u.y, u.z]
     }
 }
 
-impl<R: Real> From<Unit<R>> for Vector<R> {
+impl From<Unit> for Vector {
     #[inline]
-    fn from(u: Unit<R>) -> Self {
+    fn from(u: Unit) -> Self {
         Self::new(u.x, u.y, u.z)
     }
 }
 
 // CONVERSIONS: OTHER -> UNIT
 
-impl<R: Real> TryFrom<Vector<R>> for Unit<R> {
+impl TryFrom<Vector> for Unit {
     type Error = &'static str;
 
     #[inline]
-    fn try_from(v: Vector<R>) -> Result<Self, Self::Error> {
+    fn try_from(v: Vector) -> Result<Self, Self::Error> {
         let recip = v.len().recip();
         match recip.is_normal() {
             true => Ok(Self::new(v.x * recip, v.y * recip, v.z * recip)),

@@ -1,4 +1,4 @@
-use crate::Real;
+use crate::MyFloat;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -18,42 +18,34 @@ use super::{Point, Unit};
 /// parameterized over the underlying field. In practice, only `f64` and `f32`
 /// will be useful, since almost all functions use [`crate::Real`] as
 /// their generic bound.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Vector<R> {
-    pub x: R,
-    pub y: R,
-    pub z: R,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vector {
+    pub x: MyFloat,
+    pub y: MyFloat,
+    pub z: MyFloat,
 }
 
-impl<R: Real> Vector<R> {
+impl Vector {
+
+    /// A vector of length 1 in the x direction.
+    pub const X_AXIS: Vector = Vector::new(1.0, 0.0, 0.0);
+
+    /// A vector of length 1 in the y direction.
+    pub const Y_AXIS: Vector = Vector::new(0.0, 1.0, 0.0);
+
+    /// A vector of length 1 in the z direction.
+    pub const Z_AXIS: Vector = Vector::new(0.0, 0.0, 1.0);
+
     /// Construct a new vector with the given components.
     #[inline]
-    pub const fn new(x: R, y: R, z: R) -> Self {
+    pub const fn new(x: MyFloat, y: MyFloat, z: MyFloat) -> Self {
         Self { x, y, z }
     }
 
     /// Construct a new vector with all components equal.
     #[inline]
-    pub const fn splat(n: R) -> Self {
+    pub const fn splat(n: MyFloat) -> Self {
         Self::new(n, n, n)
-    }
-
-    /// Construct a new vector of length 1 along the x-axis.
-    #[inline]
-    pub fn x_axis() -> Self {
-        Unit::x_axis().into()
-    }
-
-    /// Construct a new vector of length 1 along the y-axis.
-    #[inline]
-    pub fn y_axis() -> Self {
-        Unit::y_axis().into()
-    }
-
-    /// Construct a new vector of length 1 along the z-axis.
-    #[inline]
-    pub fn z_axis() -> Self {
-        Unit::z_axis().into()
     }
 
     /// Construct a new vector that is the component-wise minimum of the two.
@@ -70,7 +62,7 @@ impl<R: Real> Vector<R> {
 
     /// Compute the dot product of this vector with another.
     #[inline]
-    pub fn dot(self, rhs: Self) -> R {
+    pub fn dot(self, rhs: Self) -> MyFloat {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
@@ -88,13 +80,13 @@ impl<R: Real> Vector<R> {
     /// Compute the squared length of the vector. It is faster to compute than
     /// [`Self::len()`], so use it when you can.
     #[inline]
-    pub fn len_squared(self) -> R {
+    pub fn len_squared(self) -> MyFloat {
         self.dot(self)
     }
 
     /// Compute the length of the vector.
     #[inline]
-    pub fn len(self) -> R {
+    pub fn len(self) -> MyFloat {
         self.dot(self).sqrt()
     }
 
@@ -102,7 +94,7 @@ impl<R: Real> Vector<R> {
     ///
     /// Panics if vector is 0-length or otherwise ill-conditioned.
     #[inline]
-    pub fn normalize(self) -> Unit<R> {
+    pub fn normalize(self) -> Unit {
         Unit::try_from(self).unwrap()
     }
 
@@ -122,7 +114,7 @@ impl<R: Real> Vector<R> {
 
 // OPERATORS
 
-impl<R: Real> Neg for Vector<R> {
+impl Neg for Vector {
     type Output = Self;
 
     #[inline]
@@ -131,7 +123,7 @@ impl<R: Real> Neg for Vector<R> {
     }
 }
 
-impl<R: Real> Add for Vector<R> {
+impl Add for Vector {
     type Output = Self;
 
     #[inline]
@@ -140,7 +132,7 @@ impl<R: Real> Add for Vector<R> {
     }
 }
 
-impl<R: Real> Sub for Vector<R> {
+impl Sub for Vector {
     type Output = Self;
 
     #[inline]
@@ -149,16 +141,25 @@ impl<R: Real> Sub for Vector<R> {
     }
 }
 
-impl<R: Real> Mul<R> for Vector<R> {
+impl Mul<MyFloat> for Vector {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: R) -> Self::Output {
+    fn mul(self, rhs: MyFloat) -> Self::Output {
         Self::Output::new(rhs * self.x, rhs * self.y, rhs * self.z)
     }
 }
 
-impl<R: Real> Div<R> for Vector<R> {
+impl Mul<Vector> for MyFloat {
+    type Output = Vector;
+
+    #[inline]
+    fn mul(self, rhs: Vector) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Div<MyFloat> for Vector {
     type Output = Self;
 
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
@@ -166,40 +167,34 @@ impl<R: Real> Div<R> for Vector<R> {
     // hanging fruit when it comes to this stuff, right?
     #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
-    fn div(self, rhs: R) -> Self::Output {
+    fn div(self, rhs: MyFloat) -> Self::Output {
         self * rhs.recip()
     }
 }
 
 // APPROXIMATIONS
 
-impl<R: AbsDiffEq> AbsDiffEq for Vector<R>
-where
-    R::Epsilon: Copy,
-{
-    type Epsilon = R::Epsilon;
+impl AbsDiffEq for Vector {
+    type Epsilon = MyFloat;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        R::default_epsilon()
+        MyFloat::default_epsilon()
     }
 
     #[rustfmt::skip]
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        R::abs_diff_eq(&self.x, &other.x, epsilon) &&
-        R::abs_diff_eq(&self.y, &other.y, epsilon) &&
-        R::abs_diff_eq(&self.z, &other.z, epsilon) 
+        MyFloat::abs_diff_eq(&self.x, &other.x, epsilon) &&
+        MyFloat::abs_diff_eq(&self.y, &other.y, epsilon) &&
+        MyFloat::abs_diff_eq(&self.z, &other.z, epsilon) 
     }
 }
 
-impl<R: RelativeEq> RelativeEq for Vector<R>
-where
-    R::Epsilon: Copy,
-{
+impl RelativeEq for Vector {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        R::default_max_relative()
+        MyFloat::default_max_relative()
     }
 
     #[rustfmt::skip]
@@ -210,51 +205,48 @@ where
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        R::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
-        R::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
-        R::relative_eq(&self.z, &other.z, epsilon, max_relative)
+        MyFloat::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
+        MyFloat::relative_eq(&self.y, &other.y, epsilon, max_relative) &&
+        MyFloat::relative_eq(&self.z, &other.z, epsilon, max_relative)
     }
 }
 
-impl<R: UlpsEq> UlpsEq for Vector<R>
-where
-    R::Epsilon: Copy,
-{
+impl UlpsEq for Vector {
     #[inline]
     fn default_max_ulps() -> u32 {
-        R::default_max_ulps()
+        MyFloat::default_max_ulps()
     }
 
     #[rustfmt::skip]
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        R::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
-        R::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
-        R::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
+        MyFloat::ulps_eq(&self.x, &other.x, epsilon, max_ulps) &&
+        MyFloat::ulps_eq(&self.y, &other.y, epsilon, max_ulps) &&
+        MyFloat::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
     }
 }
 
 // CONVERSIONS: VECTOR -> OTHER
 
-impl<R: Real> From<Vector<R>> for [R; 3] {
+impl From<Vector> for [MyFloat; 3] {
     #[inline]
-    fn from(v: Vector<R>) -> Self {
+    fn from(v: Vector) -> Self {
         [v.x, v.y, v.z]
     }
 }
 
 // CONVERSIONS: OTHER -> VECTOR
 
-impl<R: Real> From<[R; 3]> for Vector<R> {
+impl From<[MyFloat; 3]> for Vector {
     #[inline]
-    fn from(arr: [R; 3]) -> Self {
+    fn from(arr: [MyFloat; 3]) -> Self {
         Self::new(arr[0], arr[1], arr[2])
     }
 }
 
-impl<R: Real> From<Point<R>> for Vector<R> {
+impl From<Point> for Vector {
     #[inline]
-    fn from(pt: Point<R>) -> Self {
+    fn from(pt: Point) -> Self {
         Self::new(pt.x, pt.y, pt.z)
     }
 }
@@ -281,7 +273,7 @@ mod tests {
 
     #[test]
     fn dot() {
-        let u = Vector::x_axis();
+        let u = Vector::X_AXIS;
         let v = Vector::new(2.0, 1.0, 0.0);
 
         assert_eq!(2.0, u.dot(v));
@@ -290,9 +282,9 @@ mod tests {
     #[rustfmt::skip]
     #[test]
     fn cross() {
-        assert_eq!(Vector::<f64>::z_axis(), Vector::x_axis().cross(Vector::y_axis()));
-        assert_eq!(Vector::<f64>::x_axis(), Vector::y_axis().cross(Vector::z_axis()));
-        assert_eq!(Vector::<f64>::y_axis(), Vector::z_axis().cross(Vector::x_axis()));
+        assert_eq!(Vector::Z_AXIS, Vector::X_AXIS.cross(Vector::Y_AXIS));
+        assert_eq!(Vector::X_AXIS, Vector::Y_AXIS.cross(Vector::Z_AXIS));
+        assert_eq!(Vector::Y_AXIS, Vector::Z_AXIS.cross(Vector::X_AXIS));
     }
 
     #[test]

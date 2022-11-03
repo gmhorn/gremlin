@@ -1,9 +1,11 @@
+use crate::MyFloat;
+
 /// Value is a tristimulus color value.
 ///
 /// Doesn't have much meaning outside of the context of the color space its
 /// defined in.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Value(f32, f32, f32);
+pub struct Value(MyFloat, MyFloat, MyFloat);
 
 /// An individual film pixel which accumulates radiosity values.
 ///

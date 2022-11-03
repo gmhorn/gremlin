@@ -1,26 +1,27 @@
+use crate::MyFloat;
+
 use super::{Point, Vector};
-use crate::Real;
 
 /// A geometric ray.
 ///
 /// Rays have an origin and a direction (not necessarily normalized). They
 /// [`Point`]s along the ray may be obtained by calling [`at()`][Self::at].
 #[derive(Debug)]
-pub struct Ray<R> {
-    origin: Point<R>,
-    dir: Vector<R>,
+pub struct Ray {
+    origin: Point,
+    dir: Vector,
 }
 
-impl<R: Real> Ray<R> {
+impl Ray {
     /// Construct a new ray with the given origin and direction.
     #[inline]
-    pub const fn new(origin: Point<R>, dir: Vector<R>) -> Self {
+    pub const fn new(origin: Point, dir: Vector) -> Self {
         Self { origin, dir }
     }
 
     /// Evaluate the ray.
     #[inline]
-    pub fn at(&self, t: R) -> Point<R> {
+    pub fn at(&self, t: MyFloat) -> Point {
         self.origin + (self.dir * t)
     }
 }
