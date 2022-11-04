@@ -19,7 +19,7 @@ impl Matrix {
     /// The identity matrix.
     pub const IDENTITY: Matrix = Self([
         [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 1.0],
+        [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
         [0.0, 0.0, 0.0, 1.0],
     ]);
@@ -211,7 +211,7 @@ impl Matrix {
         for i in (0..4).rev() {
             let f = aug[i][i];
             for j in 0..8 {
-                aug[i][j] = aug[i][j] / f;
+                aug[i][j] /= f;
             }
 
             for j in 0..i {
@@ -235,9 +235,8 @@ impl Matrix {
     fn create_augmented(&self) -> AugmentedMatrix {
         let mut augmented = [[0.0; 8]; 4];
 
-        let ident = Self::IDENTITY;
         let lhs_rows = self.0.iter();
-        let rhs_rows = ident.0.iter();
+        let rhs_rows = Self::IDENTITY.0.iter();
 
         for (idx, (lhs, rhs)) in lhs_rows.zip(rhs_rows).enumerate() {
             augmented[idx][..4].copy_from_slice(lhs);
@@ -260,7 +259,7 @@ impl Matrix {
 
         match max.abs().is_normal() {
             true => Some(pivot),
-            false => None,
+            _ => None,
         }
     }
 }

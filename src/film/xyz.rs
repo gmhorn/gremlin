@@ -1,10 +1,29 @@
+use std::ops::{Add, AddAssign};
+
 use crate::{spectrum::Sampled, Float};
 
-pub struct XYZ {
-    pub X: Float,
-    pub Y: Float,
-    pub Z: Float,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct XYZ(Float, Float, Float);
+
+impl Add for XYZ {
+    type Output = Self;
+
+    #[inline]
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
+    }
 }
+
+impl AddAssign for XYZ {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+        self.1 += rhs.1;
+        self.2 += rhs.2;
+    }
+}
+
+
 
 impl XYZ {
     const CIE_X: Sampled = Sampled::new([
@@ -20,6 +39,7 @@ impl XYZ {
     ]);
 
     pub fn from_sampled(s: Sampled) -> Self {
+        let r = 0..5;
         todo!()
     }
 }

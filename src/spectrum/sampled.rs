@@ -14,6 +14,21 @@ mod consts {
 }
 
 /// A spectrum with values defined at discrete points.
+/// 
+/// The sample wavelengths are uniform, compile-time constants. This
+/// significantly reduces the implementation complexity and improves
+/// performance, since linear operations such as addition and riemann summation
+/// can be implemented with straightforward iteration.
+/// 
+/// Each value represents (conceptually, is the "average value") of the spectrum
+/// in a range of wavelengths. For example, if the minimum wavelength is `380nm`
+/// and the step size is `5nm`, then the first value represents the wavelength
+/// range `[380, 385)`, the second `[385, 390)`, etc.
+/// 
+/// Possible future improvements would be to make the minimum, maximum, and
+/// step size constants configurable via Cargo.
+/// 
+/// See: <https://pbr-book.org/3ed-2018/Color_and_Radiometry/The_SampledSpectrum_Class>
 pub struct Sampled([Float; consts::COUNT]);
 
 impl Sampled {
@@ -168,13 +183,47 @@ impl<C> From<C> for Sampled
 where
     C: Continuous,
 {
+    /// Converts a continuous spectrum to sampled.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use gremlin::spectrum::{Blackbody, Sampled};
+    /// 
+    /// let b = Blackbody::new(6500.0);
+    /// let _ = Sampled::from(b);
+    /// ```
     fn from(spec: C) -> Self {
         Self::from_fn(|w| spec.evaluate(w))
     }
 }
 
+/// Returns the Riemann sum of f*g over the domain
+#[inline]
+pub fn integrate(f: &Sampled, g: &Sampled) -> Float {
+    consts::STEP *
+    f.iter()
+        .zip(g.iter())
+        .fold(0.0, |acc, (fx, gx)| acc + fx * gx)
+}
+
+pub fn integrate_3(f: &Sampled, g: &Sampled) -> (Float, Float, Float) {
+    let mut x: Float = 0.0;
+    let mut y: Float = 0.0;
+    let mut z: Float = 0.0;
+
+    for (i, fx) in f.0.iter().enumerate() {
+        x += fx * g.0[i];
+        y += fx * g.0[i];
+        z += fx * g.0[i];
+    }
+    (x, y, z)
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::spectrum::Peak;
+
     use super::*;
 
     #[test]
@@ -189,5 +238,13 @@ mod tests {
         let (wavelength, &value) = e.next().unwrap();
         assert_eq!(385.0, wavelength);
         assert_eq!(0.0, value);
+    }
+
+    #[test]
+    fn test_integrate() {
+        let a = Sampled::splat(1.0);
+        let b = Sampled::from(Peak::new(550.0, 15.0));
+
+        assert_eq!(1.0, integrate(&a, &b));
     }
 }

@@ -16,5 +16,8 @@
 mod continuous;
 pub use continuous::*;
 
+mod irregular;
+pub use irregular::*;
+
 mod sampled;
 pub use sampled::*;
