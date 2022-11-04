@@ -2,6 +2,9 @@ use std::ops::{Add, AddAssign};
 
 use crate::{spectrum::Sampled, Float};
 
+/// A CIE 1931 tristimulus value.
+/// 
+/// Internally all colorspace data is stored in this format.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct XYZ(Float, Float, Float);
 
@@ -22,8 +25,6 @@ impl AddAssign for XYZ {
         self.2 += rhs.2;
     }
 }
-
-
 
 impl XYZ {
     const CIE_X: Sampled = Sampled::new([
