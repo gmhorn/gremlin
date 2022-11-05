@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::spectrum::{Sampled, Peak, self};
+use gremlin::spectrum::{self, Peak, Sampled};
 
 pub fn spectrum_integrate(c: &mut Criterion) {
     let f = Sampled::splat(1.0);

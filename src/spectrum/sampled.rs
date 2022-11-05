@@ -14,20 +14,20 @@ mod consts {
 }
 
 /// A spectrum with values defined at discrete points.
-/// 
+///
 /// The sample wavelengths are uniform, compile-time constants. This
 /// significantly reduces the implementation complexity and improves
 /// performance, since linear operations such as addition and riemann summation
 /// can be implemented with straightforward iteration.
-/// 
+///
 /// Each value represents (conceptually, is the "average value") of the spectrum
 /// in a range of wavelengths. For example, if the minimum wavelength is `380nm`
 /// and the step size is `5nm`, then the first value represents the wavelength
 /// range `[380, 385)`, the second `[385, 390)`, etc.
-/// 
+///
 /// Possible future improvements would be to make the minimum, maximum, and
 /// step size constants configurable via Cargo.
-/// 
+///
 /// See: <https://pbr-book.org/3ed-2018/Color_and_Radiometry/The_SampledSpectrum_Class>
 pub struct Sampled([Float; consts::COUNT]);
 
@@ -184,12 +184,12 @@ where
     C: Continuous,
 {
     /// Converts a continuous spectrum to sampled.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use gremlin::spectrum::{Blackbody, Sampled};
-    /// 
+    ///
     /// let b = Blackbody::new(6500.0);
     /// let _ = Sampled::from(b);
     /// ```
@@ -201,10 +201,10 @@ where
 /// Returns the Riemann sum of f*g over the domain
 #[inline]
 pub fn integrate(f: &Sampled, g: &Sampled) -> Float {
-    consts::STEP *
-    f.iter()
-        .zip(g.iter())
-        .fold(0.0, |acc, (fx, gx)| acc + fx * gx)
+    consts::STEP
+        * f.iter()
+            .zip(g.iter())
+            .fold(0.0, |acc, (fx, gx)| acc + fx * gx)
 }
 
 pub fn integrate_3(f: &Sampled, g: &Sampled) -> (Float, Float, Float) {

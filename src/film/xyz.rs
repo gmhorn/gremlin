@@ -5,7 +5,7 @@ use crate::{spectrum::Sampled, Float};
 use super::consts;
 
 /// A CIE 1931 tristimulus value.
-/// 
+///
 /// Internally all colorspace data is stored in this format.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct XYZ(Float, Float, Float);
@@ -41,11 +41,10 @@ pub struct XYZConvert {
     cie_x: Sampled,
     cie_y: Sampled,
     cie_z: Sampled,
-    cie_norm: Float
+    cie_norm: Float,
 }
 
 impl XYZConvert {
-
     pub fn new() -> Self {
         Self {
             cie_x: consts::CIE_X.into(),

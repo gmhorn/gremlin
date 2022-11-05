@@ -12,7 +12,7 @@ pub struct Buffer<P> {
 // Constructors
 
 impl<P: Default + Clone> Buffer<P> {
-        /// Create a new Film with the given width and height.
+    /// Create a new Film with the given width and height.
     #[inline]
     pub fn new(width: u32, height: u32) -> Self {
         let pixels = vec![P::default(); (width * height) as usize];
