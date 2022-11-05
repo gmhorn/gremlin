@@ -3,6 +3,7 @@
 //! Gremlin is a ray tracer
 pub mod film;
 pub mod geo;
+pub mod math;
 pub mod spectrum;
 
 /// The floating-point format used throughout Gremlin.

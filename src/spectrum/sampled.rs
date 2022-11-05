@@ -1,7 +1,5 @@
-use crate::Float;
+use crate::{Float, math::PiecewiseLinearFn};
 use std::ops::{Deref, DerefMut};
-
-use super::Continuous;
 
 // CONSTANTS
 mod consts {
@@ -53,14 +51,15 @@ impl Sampled {
     /// Creates a new sampled spectrum by repeated application of the given
     /// function.
     ///
-    /// The argument to the function is the wavelength.
+    /// The arguments to the function is the half-open wavelength interval
+    /// `[w0, w1)`.
     pub fn from_fn<F>(mut f: F) -> Self
     where
-        F: FnMut(Float) -> Float,
+        F: FnMut(Float, Float) -> Float,
     {
         let mut spec = Self::zero();
         for (wavelength, val) in spec.enumerate_values_mut() {
-            *val = f(wavelength)
+            *val = f(wavelength, wavelength + consts::STEP)
         }
         spec
     }
@@ -179,51 +178,46 @@ impl From<[Float; consts::COUNT]> for Sampled {
     }
 }
 
-impl<C> From<C> for Sampled
+impl<F> From<F> for Sampled
 where
-    C: Continuous,
+    F: Fn(Float) -> Float,
 {
-    /// Converts a continuous spectrum to sampled.
+    /// Creates a sampled spectrum by evaluating a function.
     ///
-    /// # Examples
-    ///
+    /// There's a subtlety here. Each sampled wavelength represents a half-open
+    /// range of wavelengths `[w0, w1)`. This evaluates the value at `w0`. That
+    /// is, it samples from the beginning of the range. If a different sampling
+    /// method is required (*e.g.* taking the average over the range) then
+    /// [`from_fn`][Self::from_fn] should be used, which provides the closure
+    /// with both ends of the wavelength range.
+    /// 
+    /// # Example
+    /// 
     /// ```
-    /// use gremlin::spectrum::{Blackbody, Sampled};
-    ///
-    /// let b = Blackbody::new(6500.0);
-    /// let _ = Sampled::from(b);
+    /// use gremlin::spectrum::Sampled;
+    /// 
+    /// let _ = Sampled::from(|w| w + 1.0);
     /// ```
-    fn from(spec: C) -> Self {
-        Self::from_fn(|w| spec.evaluate(w))
+    #[inline]
+    fn from(f: F) -> Self {
+        let mut spec = Self::zero();
+        for (wavelength, val) in spec.enumerate_values_mut() {
+            *val = f(wavelength)
+        }
+        spec
     }
 }
 
-/// Returns the Riemann sum of f*g over the domain
-#[inline]
-pub fn integrate(f: &Sampled, g: &Sampled) -> Float {
-    consts::STEP
-        * f.iter()
-            .zip(g.iter())
-            .fold(0.0, |acc, (fx, gx)| acc + fx * gx)
-}
-
-pub fn integrate_3(f: &Sampled, g: &Sampled) -> (Float, Float, Float) {
-    let mut x: Float = 0.0;
-    let mut y: Float = 0.0;
-    let mut z: Float = 0.0;
-
-    for (i, fx) in f.0.iter().enumerate() {
-        x += fx * g.0[i];
-        y += fx * g.0[i];
-        z += fx * g.0[i];
+impl From<PiecewiseLinearFn> for Sampled {
+    /// Converts
+    #[inline]
+    fn from(f: PiecewiseLinearFn) -> Self {
+        Self::from_fn(|w0, w1| f.integrate(w0, w1) / consts::STEP)
     }
-    (x, y, z)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::spectrum::Peak;
-
     use super::*;
 
     #[test]
@@ -238,13 +232,5 @@ mod tests {
         let (wavelength, &value) = e.next().unwrap();
         assert_eq!(385.0, wavelength);
         assert_eq!(0.0, value);
-    }
-
-    #[test]
-    fn test_integrate() {
-        let a = Sampled::splat(1.0);
-        let b = Sampled::from(Peak::new(550.0, 15.0));
-
-        assert_eq!(1.0, integrate(&a, &b));
     }
 }
