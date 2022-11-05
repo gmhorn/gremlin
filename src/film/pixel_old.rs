@@ -25,12 +25,12 @@ pub struct Value(Float, Float, Float);
 ///
 /// See: <https://computergraphics.stackexchange.com/a/11000>
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Pixel {
+pub struct PixelOld {
     value: Value,
     samples: u32,
 }
 
-impl Pixel {
+impl PixelOld {
     #[inline]
     pub const fn new() -> Self {
         Self {

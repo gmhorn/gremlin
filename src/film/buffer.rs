@@ -1,28 +1,30 @@
 use std::ops::{Deref, DerefMut};
 
-use super::Pixel;
-
-/// Film is a rectangular grid of [`Pixel`]s.
+/// Film is a rectangular grid of pixels.
 ///
-/// It supports various
-pub struct Buffer {
+/// It supports various operations for iteration.
+pub struct Buffer<P> {
     width: u32,
     height: u32,
-    pixels: Vec<Pixel>,
+    pixels: Vec<P>,
 }
 
-impl Buffer {
-    /// Create a new Film with the given width and height.
+// Constructors
+
+impl<P: Default + Clone> Buffer<P> {
+        /// Create a new Film with the given width and height.
     #[inline]
     pub fn new(width: u32, height: u32) -> Self {
-        let pixels = vec![Pixel::new(); (width * height) as usize];
+        let pixels = vec![P::default(); (width * height) as usize];
         Self {
             width,
             height,
             pixels,
         }
     }
+}
 
+impl<P> Buffer<P> {
     /// The width and height of the film.
     #[inline]
     pub fn dimensions(&self) -> (u32, u32) {
@@ -52,7 +54,7 @@ impl Buffer {
     /// Yields the raster-space coordinates of each pixel and a reference to the
     /// pixel itself. Iteration order is left-to-right, top-to-bottom.
     #[inline]
-    pub fn enumerate_pixels(&self) -> EnumeratePixels {
+    pub fn enumerate_pixels(&self) -> EnumeratePixels<P> {
         EnumeratePixels {
             pixels: self.pixels.iter(),
             width: self.width,
@@ -66,7 +68,7 @@ impl Buffer {
     /// reference to the pixel itself. Iteration order is left-to-right,
     /// top-to-bottom.
     #[inline]
-    pub fn enumerate_pixels_mut(&mut self) -> EnumeratePixelsMut {
+    pub fn enumerate_pixels_mut(&mut self) -> EnumeratePixelsMut<P> {
         EnumeratePixelsMut {
             pixels: self.pixels.iter_mut(),
             width: self.width,
@@ -77,8 +79,8 @@ impl Buffer {
 
 // DEREFS
 
-impl Deref for Buffer {
-    type Target = [Pixel];
+impl<P> Deref for Buffer<P> {
+    type Target = [P];
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -86,7 +88,7 @@ impl Deref for Buffer {
     }
 }
 
-impl DerefMut for Buffer {
+impl<P> DerefMut for Buffer<P> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.pixels
@@ -95,9 +97,9 @@ impl DerefMut for Buffer {
 
 // ITERATORS
 
-impl IntoIterator for Buffer {
-    type Item = Pixel;
-    type IntoIter = std::vec::IntoIter<Pixel>;
+impl<P> IntoIterator for Buffer<P> {
+    type Item = P;
+    type IntoIter = std::vec::IntoIter<P>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
@@ -108,14 +110,14 @@ impl IntoIterator for Buffer {
 // ENUMERATIONS
 
 /// Enumerate pixels of the film.
-pub struct EnumeratePixels<'a> {
-    pixels: std::slice::Iter<'a, Pixel>,
+pub struct EnumeratePixels<'a, P> {
+    pixels: std::slice::Iter<'a, P>,
     width: u32,
     current: usize,
 }
 
-impl<'a> Iterator for EnumeratePixels<'a> {
-    type Item = (u32, u32, &'a Pixel);
+impl<'a, P> Iterator for EnumeratePixels<'a, P> {
+    type Item = (u32, u32, &'a P);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -132,7 +134,7 @@ impl<'a> Iterator for EnumeratePixels<'a> {
     }
 }
 
-impl<'a> ExactSizeIterator for EnumeratePixels<'a> {
+impl<'a, P> ExactSizeIterator for EnumeratePixels<'a, P> {
     #[inline]
     fn len(&self) -> usize {
         self.pixels.len()
@@ -140,14 +142,14 @@ impl<'a> ExactSizeIterator for EnumeratePixels<'a> {
 }
 
 /// Enumerates mutable pixels of the film.
-pub struct EnumeratePixelsMut<'a> {
-    pixels: std::slice::IterMut<'a, Pixel>,
+pub struct EnumeratePixelsMut<'a, P> {
+    pixels: std::slice::IterMut<'a, P>,
     width: u32,
     current: usize,
 }
 
-impl<'a> Iterator for EnumeratePixelsMut<'a> {
-    type Item = (u32, u32, &'a mut Pixel);
+impl<'a, P> Iterator for EnumeratePixelsMut<'a, P> {
+    type Item = (u32, u32, &'a mut P);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -164,7 +166,7 @@ impl<'a> Iterator for EnumeratePixelsMut<'a> {
     }
 }
 
-impl<'a> ExactSizeIterator for EnumeratePixelsMut<'a> {
+impl<'a, P> ExactSizeIterator for EnumeratePixelsMut<'a, P> {
     #[inline]
     fn len(&self) -> usize {
         self.pixels.len()
