@@ -25,13 +25,16 @@ impl PiecewiseLinearFn {
     /// Constructs a new piecewise-linear function with the given x and y values.
     ///
     /// Allocates on the heap.
-    pub fn new(xs: &[Float], ys: &[Float]) -> Self {
-        let mut coords: Vec<_> = xs
-            .iter()
-            .zip(ys.iter())
-            .map(|(&x, &y)| Coord(x, y))
-            .collect();
+    pub fn new<T>(xs: T, ys: T) -> Self
+    where
+        T: AsRef<[Float]>,
+    {
+        let xs = xs.as_ref().iter();
+        let ys = ys.as_ref().iter();
+
+        let mut coords: Vec<_> = xs.zip(ys).map(|(&x, &y)| Coord(x, y)).collect();
         coords.sort_unstable_by(|a, b| a.0.total_cmp(&b.0));
+
         Self { coords }
     }
 
@@ -43,12 +46,39 @@ impl PiecewiseLinearFn {
     }
 
     /// Evaluates the function at the given x-value.
-    pub fn y(x: Float) -> Float {
+    pub fn y(&self, x: Float) -> Float {
+        // match self.binary_search(x) {
+        //     Ok(idx) => self.coords[idx].1,
+        //     Err(idx) => {
+        //         let idx2 = 
+        //     }
+        // }
         todo!()
+    }
+
+    #[inline(always)]
+    fn binary_search(&self, x: Float) -> Result<usize, usize> {
+        self.coords.binary_search_by(|c| c.0.total_cmp(&x))
     }
 
     /// Calculates the average value of the function between `x0` and `x1`.
     pub fn average_value(&self, x0: Float, x1: Float) -> Float {
         self.integrate(x0, x1) / (x1 - x0).abs()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_evaluate() {
+        let f = PiecewiseLinearFn::new([-1.0, 0.0, 1.0], [1.0, 0.0, 1.0]);
+
+        // assert_eq!(2.0, f.y(-2.0)); // Outside domain, negative
+        // assert_eq!(0.5, f.y(-0.5)); // Inside domain
+        assert_eq!(0.0, f.y(0.0));  // Exact value
+        // assert_eq!(0.5, f.y(0.5));  // Inside domain
+        // assert_eq!(2.0, f.y(2.0));  // Outside domain, positive
     }
 }

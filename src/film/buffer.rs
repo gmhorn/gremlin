@@ -1,8 +1,14 @@
 use std::ops::{Deref, DerefMut};
 
-/// Film is a rectangular grid of pixels.
+/// A rectangular grid of pixels.
 ///
-/// It supports various operations for iteration.
+/// It supports various operations for iteration and pixel retrieval.
+/// Specializations may support additional operations, such as conversion
+/// between color spaces and saving to disk.
+/// 
+/// Raster space extends from `(0, 0)` at the top-left to `(width-1, height-1)`
+/// at the bottom right.
+#[derive(Debug)]
 pub struct Buffer<P> {
     width: u32,
     height: u32,
@@ -47,6 +53,27 @@ impl<P> Buffer<P> {
     #[inline]
     pub fn aspect_ratio(&self) -> f64 {
         (self.width as f64) / (self.height as f64)
+    }
+
+    /// Get a pixel at the given `(x, y)` coordinates.
+    /// 
+    /// # Panics
+    /// 
+    /// If `x >= width` or `y >= height`.
+    #[inline]
+    pub fn get_pixel(&self, x: u32, y: u32) -> &P {
+        let idx = (y * self.height) + x;
+        &self.pixels[idx as usize]
+    }
+
+    /// Get a pixel at the given `(x, y)` coordinates.
+    #[inline]
+    pub fn get_pixel_checked(&self, x: u32, y: u32) -> Option<&P> {
+        if x >= self.width || y >= self.height {
+            None
+        } else {
+            Some(self.get_pixel(x, y))
+        }
     }
 
     /// Enumerates over the pixels of the image.

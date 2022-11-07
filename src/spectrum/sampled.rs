@@ -1,4 +1,4 @@
-use crate::{Float, math::PiecewiseLinearFn};
+use crate::{math::PiecewiseLinearFn, Float};
 use std::ops::{Deref, DerefMut};
 
 // CONSTANTS
@@ -53,6 +53,7 @@ impl Sampled {
     ///
     /// The arguments to the function is the half-open wavelength interval
     /// `[w0, w1)`.
+    #[inline]
     pub fn from_fn<F>(mut f: F) -> Self
     where
         F: FnMut(Float, Float) -> Float,
@@ -179,23 +180,20 @@ impl From<[Float; consts::COUNT]> for Sampled {
 }
 
 impl<F> From<F> for Sampled
-where
-    F: Fn(Float) -> Float,
+where 
+    F: Fn(Float) -> Float
 {
     /// Creates a sampled spectrum by evaluating a function.
     ///
-    /// There's a subtlety here. Each sampled wavelength represents a half-open
-    /// range of wavelengths `[w0, w1)`. This evaluates the value at `w0`. That
-    /// is, it samples from the beginning of the range. If a different sampling
-    /// method is required (*e.g.* taking the average over the range) then
-    /// [`from_fn`][Self::from_fn] should be used, which provides the closure
-    /// with both ends of the wavelength range.
-    /// 
+    /// This is a convenience for the more general [`from_fn`][Self::from_fn].
+    /// Here the closure is only evaluated at the sample wavelengths, rather
+    /// being provided the full half-open interval `[w0, w1)`.
+    ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use gremlin::spectrum::Sampled;
-    /// 
+    ///
     /// let _ = Sampled::from(|w| w + 1.0);
     /// ```
     #[inline]
@@ -209,7 +207,17 @@ where
 }
 
 impl From<PiecewiseLinearFn> for Sampled {
-    /// Converts
+    /// Creates a sampled spectrum from a piecewise-linear function.
+    ///
+    /// Uses the average value of the function over each wavelength interval.
+    ///
+    /// ```
+    /// use gremlin::math::PiecewiseLinearFn;
+    /// use gremlin::spectrum::Sampled;
+    ///
+    /// let f = PiecewiseLinearFn::new([380.0, 780.0], [0.0, 1.0]);
+    /// let _ = Sampled::from(f);
+    /// ```
     #[inline]
     fn from(f: PiecewiseLinearFn) -> Self {
         Self::from_fn(|w0, w1| f.integrate(w0, w1) / consts::STEP)

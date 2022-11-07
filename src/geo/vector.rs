@@ -1,6 +1,6 @@
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub, AddAssign, SubAssign, MulAssign, DivAssign};
 
 use super::{Point, Unit};
 
@@ -53,27 +53,49 @@ impl Vector {
         Self::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z))
     }
 
+    /// Fetch the minimum component of this vector.
+    #[inline]
+    pub fn min_component(&self) -> Float {
+        self.x.min(self.y).min(self.z)
+    }
+
     /// Construct a new vector that is the component-wise maximum of the two.
     #[inline]
     pub fn max(a: Self, b: Self) -> Self {
         Self::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z))
     }
 
+    /// Fetch the maximum component of this vector.
+    #[inline]
+    pub fn max_component(&self) -> Float {
+        self.x.max(self.y).max(self.z)
+    }
+
     /// Compute the dot product of this vector with another.
     #[inline]
-    pub fn dot(self, rhs: Self) -> Float {
+    pub fn dot(&self, rhs: Self) -> Float {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
     /// Construct a new vector that is the cross product of this vector with
     /// another.
     #[inline]
-    pub fn cross(self, rhs: Self) -> Self {
+    pub fn cross(&self, rhs: Self) -> Self {
         Self {
             x: (self.y * rhs.z) - (self.z * rhs.y),
             y: (self.z * rhs.x) - (self.x * rhs.z),
             z: (self.x * rhs.y) - (self.y * rhs.x),
         }
+    }
+
+    /// Construct a new vectory by applying a function to the components of this
+    /// vector.
+    #[inline]
+    pub fn apply<F>(&self, f: F) -> Self
+    where
+        F: Fn(Float) -> Float
+    {
+        Self::new(f(self.x), f(self.y), f(self.z))
     }
 
     /// Compute the squared length of the vector. It is faster to compute than
@@ -131,6 +153,15 @@ impl Add for Vector {
     }
 }
 
+impl AddAssign for Vector {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
 impl Sub for Vector {
     type Output = Self;
 
@@ -140,12 +171,30 @@ impl Sub for Vector {
     }
 }
 
+impl SubAssign for Vector {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
+    }
+}
+
 impl Mul<Float> for Vector {
     type Output = Self;
 
     #[inline]
     fn mul(self, rhs: Float) -> Self::Output {
         Self::Output::new(rhs * self.x, rhs * self.y, rhs * self.z)
+    }
+}
+
+impl MulAssign<Float> for Vector {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Float) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
     }
 }
 
@@ -168,6 +217,13 @@ impl Div<Float> for Vector {
     #[inline]
     fn div(self, rhs: Float) -> Self::Output {
         self * rhs.recip()
+    }
+}
+
+impl DivAssign<Float> for Vector {
+    #[inline]
+    fn div_assign(&mut self, rhs: Float) {
+        *self *= rhs.recip();
     }
 }
 

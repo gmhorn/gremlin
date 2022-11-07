@@ -1,4 +1,4 @@
-use crate::Float;
+use crate::{Float};
 
 pub const CIE_WAVELENGTHS: [Float; 471] = [
     360., 361., 362., 363., 364., 365., 366., 367., 368., 369., 370., 371., 372., 373., 374., 375.,
