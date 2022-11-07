@@ -28,9 +28,3 @@ pub use continuous::*;
 
 mod sampled;
 pub use sampled::*;
-
-pub trait Conversion {
-    type Target;
-
-    fn convert(&self, sampled: Sampled) -> Self::Target;
-}

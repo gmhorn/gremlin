@@ -3,7 +3,6 @@
 //! Gremlin is a ray tracer
 pub mod film;
 pub mod geo;
-pub mod math;
 pub mod spectrum;
 
 // Typedef for what floating-point value to use.

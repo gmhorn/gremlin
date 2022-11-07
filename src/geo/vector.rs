@@ -1,6 +1,6 @@
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, Div, Mul, Neg, Sub, AddAssign, SubAssign, MulAssign, DivAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use super::{Point, Unit};
 
@@ -93,7 +93,7 @@ impl Vector {
     #[inline]
     pub fn apply<F>(&self, f: F) -> Self
     where
-        F: Fn(Float) -> Float
+        F: Fn(Float) -> Float,
     {
         Self::new(f(self.x), f(self.y), f(self.z))
     }
@@ -221,7 +221,6 @@ impl Div<Float> for Vector {
 }
 
 impl DivAssign<Float> for Vector {
-
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
     // the reciprical once and then do multiplication" is the lowest of low-
     // hanging fruit when it comes to this stuff, right?

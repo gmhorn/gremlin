@@ -5,7 +5,7 @@ use crate::Float;
 /// It supports various operations for iteration and pixel retrieval.
 /// Specializations may support additional operations, such as conversion
 /// between color spaces and saving to disk.
-/// 
+///
 /// Raster space extends from `(0, 0)` at the top-left to `(width-1, height-1)`
 /// at the bottom right.
 #[derive(Debug)]
@@ -56,9 +56,9 @@ impl<P> Buffer<P> {
     }
 
     /// Get a pixel at the given `(x, y)` coordinates.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// If `x >= width` or `y >= height`.
     #[inline]
     pub fn get_pixel(&self, x: u32, y: u32) -> &P {
@@ -77,9 +77,9 @@ impl<P> Buffer<P> {
     }
 
     /// Get a pixel at the given `(x, y)` coordinates.
-    /// 
+    ///
     /// # Panics
-    /// 
+    ///
     /// If `x >= width` or `y >= height`.
     #[inline]
     pub fn get_pixel_mut(&mut self, x: u32, y: u32) -> &mut P {

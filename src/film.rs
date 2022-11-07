@@ -3,16 +3,11 @@
 //! Implements functionality for aggregating radiosity samples collected during
 //! ray tracing, and converting to final images.
 
-mod buffer;
+use image::ImageResult;
 use std::path::Path;
 
+mod buffer;
 pub use buffer::*;
-
-mod consts;
-
-mod pixel_old;
-use image::ImageResult;
-pub use pixel_old::*;
 
 mod spectral;
 pub use spectral::*;
