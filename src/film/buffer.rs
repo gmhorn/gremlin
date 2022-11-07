@@ -66,18 +66,15 @@ impl<P> Buffer<P> {
     /// If `x >= width` or `y >= height`.
     #[inline]
     pub fn get_pixel(&self, x: u32, y: u32) -> &P {
-        let idx = (y * self.height) + x;
-        &self.pixels[idx as usize]
+        let idx = self.index_of(x, y);
+        &self.pixels[idx]
     }
 
     /// Get a pixel at the given `(x, y)` coordinates.
     #[inline]
     pub fn get_pixel_checked(&self, x: u32, y: u32) -> Option<&P> {
-        if x >= self.width || y >= self.height {
-            None
-        } else {
-            Some(self.get_pixel(x, y))
-        }
+        let idx = self.index_of_checked(x, y)?;
+        Some(&self.pixels[idx])
     }
 
     /// Get a pixel at the given `(x, y)` coordinates.
@@ -87,17 +84,28 @@ impl<P> Buffer<P> {
     /// If `x >= width` or `y >= height`.
     #[inline]
     pub fn get_pixel_mut(&mut self, x: u32, y: u32) -> &mut P {
-        let idx = (y * self.height) + x;
-        &mut self.pixels[idx as usize]
+        let idx = self.index_of(x, y);
+        &mut self.pixels[idx]
     }
 
     /// Get a pixel at the given `(x, y)` coordinates.
     #[inline]
     pub fn get_pixel_mut_checked(&mut self, x: u32, y: u32) -> Option<&mut P> {
+        let idx = self.index_of_checked(x, y)?;
+        Some(&mut self.pixels[idx])
+    }
+
+    #[inline(always)]
+    fn index_of(&self, x: u32, y: u32) -> usize {
+        ((y * self.width) + x) as usize
+    }
+
+    #[inline(always)]
+    fn index_of_checked(&self, x: u32, y: u32) -> Option<usize> {
         if x >= self.width || y >= self.height {
             None
         } else {
-            Some(self.get_pixel_mut(x, y))
+            Some(self.index_of(x, y))
         }
     }
 
@@ -220,6 +228,20 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn enumerate_pixels() {
+        let buf: Buffer<i32> = Buffer::new(3, 2);
+        let mut iter = buf.enumerate_pixels();
+        
+        assert_eq!(Some((0_u32, 0_u32, &0_i32)), iter.next());
+        assert_eq!(Some((1_u32, 0_u32, &0_i32)), iter.next());
+        assert_eq!(Some((2_u32, 0_u32, &0_i32)), iter.next());
+        assert_eq!(Some((0_u32, 1_u32, &0_i32)), iter.next());
+        assert_eq!(Some((1_u32, 1_u32, &0_i32)), iter.next());
+        assert_eq!(Some((2_u32, 1_u32, &0_i32)), iter.next());
+        assert_eq!(None, iter.next());
+    }
 
     #[test]
     fn get_pixel() {
