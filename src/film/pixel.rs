@@ -1,41 +1,37 @@
 use crate::Float;
+use std::ops::{AddAssign, Div};
 
-/// Value is a tristimulus color value.
-///
-/// Doesn't have much meaning outside of the context of the color space its
-/// defined in.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Value(Float, Float, Float);
+use super::Buffer;
 
-/// An individual film pixel which accumulates radiosity values.
-///
-/// Stores a running sum of the spectral sample contributions. Averaging by the
-/// number of samples collected gives the final color value. Stores samples in a
-/// tristimulus accumulator, rather than a full spectral accumulator. This is
-/// valid to do, because
-///
-/// * averaging spectral values
-/// * converting from a spectrum to a (linear) tristimulus colorspace point
-/// * averaging (linear) tristimulus colorspace points
-///
-/// are all linear operations and distribute over each other. So we're free to
-/// pick the most convenient order to perform them in. Converting to tristimulus
-/// before storing and averaging saves substantial memory, at the cost of having
-/// to perform the conversion more frequently.
-///
-/// See: <https://computergraphics.stackexchange.com/a/11000>
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Pixel {
-    value: Value,
-    samples: u32,
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct FilmPixel<P> {
+    total: P,
+    count: u32,
 }
 
-impl Pixel {
-    #[inline]
-    pub const fn new() -> Self {
-        Self {
-            value: Value(0.0, 0.0, 0.0),
-            samples: 0,
-        }
+impl<P> FilmPixel<P> {
+    pub fn add_sample<S>(&mut self, sample: S)
+    where
+        P: From<S> + AddAssign,
+    {
+        self.total += P::from(sample);
+        self.count += 1;
+    }
+}
+
+impl<P> Buffer<FilmPixel<P>>
+where
+    P: Default + Copy + Div<Float, Output = P>,
+{
+    /// Creates a snapshot of this buffer's values.
+    pub fn snapshot(&self) -> Buffer<P> {
+        let mut buf = Buffer::<P>::new(self.width(), self.height());
+        self.enumerate_pixels()
+            .filter(|(_, _, &p)| p.count > 0)
+            .for_each(|(x, y, &p)| {
+                let avg = p.total / (p.count as Float);
+                *buf.get_pixel_mut(x, y) = avg;
+            });
+        buf
     }
 }

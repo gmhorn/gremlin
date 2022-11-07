@@ -14,6 +14,10 @@ image = "0.24.4"
 criterion = "0.3"
 
 [[bench]]
+name = "film"
+harness = false
+
+[[bench]]
 name = "geo"
 harness = false
 

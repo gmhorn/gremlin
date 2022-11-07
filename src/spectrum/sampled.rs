@@ -1,7 +1,5 @@
-use std::ops::{Deref, DerefMut};
 use crate::Float;
-
-use super::Continuous;
+use std::ops::{Deref, DerefMut};
 
 // CONSTANTS
 mod consts {
@@ -14,13 +12,29 @@ mod consts {
 }
 
 /// A spectrum with values defined at discrete points.
+///
+/// The sample wavelengths are uniform, compile-time constants. This
+/// significantly reduces the implementation complexity and improves
+/// performance, since linear operations such as addition and riemann summation
+/// can be implemented with straightforward iteration.
+///
+/// Each value represents (conceptually, is the "average value") of the spectrum
+/// in a range of wavelengths. For example, if the minimum wavelength is `380nm`
+/// and the step size is `5nm`, then the first value represents the wavelength
+/// range `[380, 385)`, the second `[385, 390)`, etc.
+///
+/// Possible future improvements would be to make the minimum, maximum, and
+/// step size constants configurable via Cargo.
+///
+/// See: <https://pbr-book.org/3ed-2018/Color_and_Radiometry/The_SampledSpectrum_Class>
+#[derive(Debug, Clone, PartialEq)]
 pub struct Sampled([Float; consts::COUNT]);
 
 impl Sampled {
-    /// Creates a new sampled spectrum with all values zero.
+    /// Creates a new sampled spectrum with the given values.
     #[inline]
-    pub const fn zero() -> Self {
-        Self::splat(0.0)
+    pub const fn new(values: [Float; consts::COUNT]) -> Self {
+        Self(values)
     }
 
     /// Creates a new sampled spectrum with all values equal.
@@ -32,14 +46,16 @@ impl Sampled {
     /// Creates a new sampled spectrum by repeated application of the given
     /// function.
     ///
-    /// The argument to the function is the wavelength.
+    /// The arguments to the function is the half-open wavelength interval
+    /// `[w0, w1)`.
+    #[inline]
     pub fn from_fn<F>(mut f: F) -> Self
     where
-        F: FnMut(Float) -> Float,
+        F: FnMut(Float, Float) -> Float,
     {
-        let mut spec = Self::zero();
+        let mut spec = Self::default();
         for (wavelength, val) in spec.enumerate_values_mut() {
-            *val = f(wavelength)
+            *val = f(wavelength, wavelength + consts::STEP)
         }
         spec
     }
@@ -64,6 +80,14 @@ impl Sampled {
             values: self.0.iter_mut(),
             current: consts::MIN,
         }
+    }
+}
+
+impl Default for Sampled {
+    /// Creates a default spectrum that is 0-valued everywhere.
+    #[inline]
+    fn default() -> Self {
+        Self::splat(0.0)
     }
 }
 
@@ -153,19 +177,55 @@ impl<'a> ExactSizeIterator for EnumerateValuesMut<'a> {
 
 impl From<[Float; consts::COUNT]> for Sampled {
     #[inline]
-    fn from(arr: [Float; consts::COUNT]) -> Self {
-        Self(arr)
+    fn from(values: [Float; consts::COUNT]) -> Self {
+        Self::new(values)
     }
 }
 
-impl<C> From<C> for Sampled
+impl<F> From<F> for Sampled
 where
-    C: Continuous
+    F: Fn(Float) -> Float,
 {
-    fn from(spec: C) -> Self {
-        Self::from_fn(|w| spec.evaluate(w))
+    /// Creates a sampled spectrum by evaluating a function.
+    ///
+    /// This is a convenience for the more general [`from_fn`][Self::from_fn].
+    /// Here the closure is only evaluated at the sample wavelengths, rather
+    /// being provided the full half-open interval `[w0, w1)`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use gremlin::spectrum::Sampled;
+    ///
+    /// let _ = Sampled::from(|w| w + 1.0);
+    /// ```
+    #[inline]
+    fn from(f: F) -> Self {
+        let mut spec = Self::default();
+        for (wavelength, val) in spec.enumerate_values_mut() {
+            *val = f(wavelength)
+        }
+        spec
     }
 }
+
+// impl From<PiecewiseLinearFn> for Sampled {
+//     /// Creates a sampled spectrum from a piecewise-linear function.
+//     ///
+//     /// Uses the average value of the function over each wavelength interval.
+//     ///
+//     /// ```
+//     /// use gremlin::math::PiecewiseLinearFn;
+//     /// use gremlin::spectrum::Sampled;
+//     ///
+//     /// let f = PiecewiseLinearFn::new([380.0, 780.0], [0.0, 1.0]);
+//     /// let _ = Sampled::from(f);
+//     /// ```
+//     #[inline]
+//     fn from(f: PiecewiseLinearFn) -> Self {
+//         Self::from_fn(|w0, w1| f.integrate(w0, w1) / consts::STEP)
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -173,7 +233,7 @@ mod tests {
 
     #[test]
     fn enumerate_values() {
-        let s = Sampled::zero();
+        let s = Sampled::default();
         let mut e = s.enumerate_values();
 
         let (wavelength, &value) = e.next().unwrap();
