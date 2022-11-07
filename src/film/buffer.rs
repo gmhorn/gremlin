@@ -1,4 +1,8 @@
+use image::{Rgb, RgbImage};
+
 use crate::Float;
+
+use super::Save;
 
 /// A rectangular grid of pixels.
 ///
@@ -17,7 +21,7 @@ pub struct Buffer<P> {
 
 // Constructors
 
-impl<P: Default + Clone> Buffer<P> {
+impl<P: Default + Copy> Buffer<P> {
     /// Create a new Film with the given width and height.
     #[inline]
     pub fn new(width: u32, height: u32) -> Self {
@@ -188,6 +192,28 @@ impl<'a, P> ExactSizeIterator for EnumeratePixelsMut<'a, P> {
     #[inline]
     fn len(&self) -> usize {
         self.pixels.len()
+    }
+}
+
+// TRAIT IMPLS
+
+impl<P> Save for Buffer<P>
+where
+    Rgb<u8>: From<P>,
+    P: Copy,
+{
+    /// Saves the buffer to a file at the path specified.
+    ///
+    /// The image format is derived from the file extension. Assumes a sRGB
+    /// color space.
+    fn save_image<Q>(&self, path: Q) -> image::ImageResult<()>
+    where
+        Q: AsRef<std::path::Path>,
+    {
+        RgbImage::from_fn(self.width, self.height, |x, y| {
+            Rgb::<u8>::from(*self.get_pixel(x, y)).into()
+        })
+        .save(path)
     }
 }
 

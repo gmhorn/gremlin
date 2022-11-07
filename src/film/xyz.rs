@@ -1,14 +1,10 @@
-use super::{Buffer, Save};
 use crate::{
     geo::{Matrix, Vector},
     spectrum::Sampled,
     Float,
 };
-use image::{ImageResult, Rgb, RgbImage};
-use std::{
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign},
-    path::Path,
-};
+use image::Rgb;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign};
 
 /// A CIE 1931 tristimulus value.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -83,7 +79,7 @@ impl From<XYZ> for [Float; 3] {
     }
 }
 
-impl From<&XYZ> for Rgb<u8> {
+impl From<XYZ> for Rgb<u8> {
     /// Creates a [`u8`]-valued RGB value from this XYZ value.
     ///
     /// The `image` crate expects values to be in sRGB color space, so that is
@@ -99,7 +95,7 @@ impl From<&XYZ> for Rgb<u8> {
     /// _Colour Rendering of Spectra_ page:
     /// * <https://www.fourmilab.ch/documents/specrend/>
     /// * <https://www.fourmilab.ch/documents/specrend/specrend.c>
-    fn from(xyz: &XYZ) -> Self {
+    fn from(xyz: XYZ) -> Self {
         // Work in vector space, since it already implements the operations we
         // need.
         let xyz = Vector::new(xyz.0, xyz.1, xyz.2);
@@ -128,11 +124,11 @@ impl From<&XYZ> for Rgb<u8> {
 
 // CONVERSIONS: OTHER -> XYZ
 
-impl From<&Sampled> for XYZ {
+impl From<Sampled> for XYZ {
     /// Converts a sampled spectrum to XYZ values by integrating against the
     /// CIE color-matching curves.
     #[inline]
-    fn from(sampled: &Sampled) -> Self {
+    fn from(sampled: Sampled) -> Self {
         let mut x = 0.0;
         let mut y = 0.0;
         let mut z = 0.0;
@@ -175,27 +171,6 @@ fn gamma(v: Float) -> Float {
         12.92 * v
     } else {
         1.055 * v.powf(0.41667) - 0.055
-    }
-}
-
-// BUFFER IMPLEMENTATIONS
-
-/// A buffer whose pixels are XYZ tristimulus values.
-pub type XYZBuffer = Buffer<XYZ>;
-
-impl Save for Buffer<XYZ> {
-    /// Saves the buffer to a file at the path specified.
-    ///
-    /// The image format is derived from the file extension. Image is converted
-    /// to sRGB color space.
-    fn save_image<P>(&self, path: P) -> ImageResult<()>
-    where
-        P: AsRef<Path>,
-    {
-        RgbImage::from_fn(self.width(), self.height(), |x, y| {
-            self.get_pixel(x, y).into()
-        })
-        .save(path)
     }
 }
 
