@@ -233,7 +233,7 @@ mod tests {
     fn enumerate_pixels() {
         let buf: Buffer<i32> = Buffer::new(3, 2);
         let mut iter = buf.enumerate_pixels();
-        
+
         assert_eq!(Some((0_u32, 0_u32, &0_i32)), iter.next());
         assert_eq!(Some((1_u32, 0_u32, &0_i32)), iter.next());
         assert_eq!(Some((2_u32, 0_u32, &0_i32)), iter.next());

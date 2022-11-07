@@ -26,5 +26,10 @@ pub fn sampled_from_blackbody(c: &mut Criterion) {
     });
 }
 
-criterion_group!(spectrum, sampled_splat, sampled_clone, sampled_from_blackbody);
+criterion_group!(
+    spectrum,
+    sampled_splat,
+    sampled_clone,
+    sampled_from_blackbody
+);
 criterion_main!(spectrum);

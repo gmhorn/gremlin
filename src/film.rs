@@ -2,7 +2,7 @@
 //!
 //! Implements functionality for aggregating radiosity samples collected during
 //! ray tracing, and converting to final images.
-//! 
+//!
 //! [`Buffer`] is the base struct used throughout this package. It is a generic
 //! rectangular container for pixels.
 

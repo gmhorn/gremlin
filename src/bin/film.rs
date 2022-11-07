@@ -1,4 +1,7 @@
-use gremlin::{film::{RGBBuffer, Save, SpectralFilm, RGBFilm, RGB}, spectrum::{Sampled, self}};
+use gremlin::{
+    film::{RGBBuffer, RGBFilm, Save, SpectralFilm, RGB},
+    spectrum::{self, Sampled},
+};
 
 fn main() {
     let buf = RGBBuffer::new(10, 5);
