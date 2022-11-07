@@ -19,10 +19,16 @@ impl Matrix {
     /// The identity matrix.
     pub const IDENTITY: Matrix = Self([
         [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 1.0],
+        [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
         [0.0, 0.0, 0.0, 1.0],
     ]);
+
+    /// Creates a matrix from raw values
+    #[inline]
+    pub const fn new(raw: [[Float; 4]; 4]) -> Self {
+        Self(raw)
+    }
 
     /// Construct a matrix representing translation by the given vector.
     ///
@@ -49,7 +55,7 @@ impl Matrix {
     #[rustfmt::skip]
     #[inline]
     pub fn shift(v: Vector) -> Self {
-        Self::from([
+        Self([
             [1.0, 0.0, 0.0, v.x],
             [0.0, 1.0, 0.0, v.y],
             [0.0, 0.0, 1.0, v.z],
@@ -77,7 +83,7 @@ impl Matrix {
     #[rustfmt::skip]
     #[inline]
     pub fn scale(x: Float, y: Float, z: Float) -> Self {
-        Self::from([
+        Self([
             [  x, 0.0, 0.0, 0.0],
             [0.0,   y, 0.0, 0.0],
             [0.0, 0.0,   z, 0.0],
@@ -118,7 +124,7 @@ impl Matrix {
         let d21 = axis.z * axis.y * (1.0 - cos_theta) + axis.x * sin_theta;
         let d22 = axis.z * axis.z + (1.0 - axis.z * axis.z) * cos_theta;
 
-        Self::from([
+        Self([
             [d00, d01, d02, 0.0],
             [d10, d11, d12, 0.0],
             [d20, d21, d22, 0.0],
@@ -155,7 +161,7 @@ impl Matrix {
         let y_axis: [Float; 3] = y_axis.into();
         let z_axis: [Float; 3] = z_axis.into();
 
-        Self::from([
+        Self([
             [x_axis[0], y_axis[0], z_axis[0], from.x],
             [x_axis[1], y_axis[1], z_axis[1], from.y],
             [x_axis[2], y_axis[2], z_axis[2], from.z],
@@ -167,7 +173,7 @@ impl Matrix {
     #[rustfmt::skip]
     #[inline]
     pub fn transpose(&self) -> Self {
-        Self::from([
+        Self([
             [self.0[0][0], self.0[1][0], self.0[2][0], self.0[3][0]],
             [self.0[0][1], self.0[1][1], self.0[2][1], self.0[3][1]],
             [self.0[0][2], self.0[1][2], self.0[2][2], self.0[3][2]],
@@ -211,7 +217,7 @@ impl Matrix {
         for i in (0..4).rev() {
             let f = aug[i][i];
             for j in 0..8 {
-                aug[i][j] = aug[i][j] / f;
+                aug[i][j] /= f;
             }
 
             for j in 0..i {
@@ -229,15 +235,14 @@ impl Matrix {
             data[idx][..].copy_from_slice(&row[4..]);
         }
 
-        Some(Self::from(data))
+        Some(Self(data))
     }
 
     fn create_augmented(&self) -> AugmentedMatrix {
         let mut augmented = [[0.0; 8]; 4];
 
-        let ident = Self::IDENTITY;
         let lhs_rows = self.0.iter();
-        let rhs_rows = ident.0.iter();
+        let rhs_rows = Self::IDENTITY.0.iter();
 
         for (idx, (lhs, rhs)) in lhs_rows.zip(rhs_rows).enumerate() {
             augmented[idx][..4].copy_from_slice(lhs);
@@ -260,7 +265,7 @@ impl Matrix {
 
         match max.abs().is_normal() {
             true => Some(pivot),
-            false => None,
+            _ => None,
         }
     }
 }
@@ -280,7 +285,7 @@ impl Neg for Matrix {
             }
         }
 
-        Self::Output::from(data)
+        Self::Output::new(data)
     }
 }
 
@@ -297,7 +302,7 @@ impl Add for Matrix {
             }
         }
 
-        Self::Output::from(data)
+        Self::Output::new(data)
     }
 }
 
@@ -314,7 +319,7 @@ impl Sub for Matrix {
             }
         }
 
-        Self::Output::from(data)
+        Self::Output::new(data)
     }
 }
 
@@ -335,7 +340,7 @@ impl Mul for Matrix {
             }
         }
 
-        Self::Output::from(data)
+        Self::Output::new(data)
     }
 }
 
@@ -352,7 +357,7 @@ impl Mul<Float> for Matrix {
             }
         }
 
-        Self::Output::from(data)
+        Self::Output::new(data)
     }
 }
 
@@ -404,14 +409,7 @@ impl From<[Float; 16]> for Matrix {
             data[row][col] = val;
         }
 
-        Self::from(data)
-    }
-}
-
-impl From<[[Float; 4]; 4]> for Matrix {
-    #[inline]
-    fn from(data: [[Float; 4]; 4]) -> Self {
-        Self(data)
+        Self::new(data)
     }
 }
 
@@ -518,7 +516,7 @@ mod tests {
 
         assert_eq!(
             m + n,
-            Matrix::from([
+            Matrix::new([
                 [8.0, 0.0, 0.0, 0.0],
                 [0.0, 8.0, 0.0, 0.0],
                 [0.0, 0.0, 8.0, 0.0],
@@ -529,7 +527,7 @@ mod tests {
 
     #[test]
     fn matrix_inverse() {
-        let m = Matrix::from([
+        let m = Matrix::new([
             [3.0, 4.0, 6.0, 8.0],
             [1.0, 2.0, 7.0, 2.0],
             [8.0, 9.0, 1.0, 3.0],
@@ -538,7 +536,7 @@ mod tests {
         let m_inv = m.inverse().unwrap();
 
         assert_relative_eq!(
-            Matrix::from([
+            Matrix::new([
                 [0.174737, -0.694737, -0.48, 0.715789],
                 [-0.212632, 0.652632, 0.56, -0.642105],
                 [-0.0147368, 0.0947368, -0.08, 0.0842105],
