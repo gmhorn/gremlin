@@ -1,6 +1,6 @@
 use std::{ops::{Add, AddAssign, Mul}, path::Path};
 use image::{ImageResult, RgbImage, Rgb};
-use crate::{spectrum::Sampled, Float, geo::{Matrix, Vector}};
+use crate::{spectrum::{Sampled, Conversion}, Float, geo::{Matrix, Vector}};
 use super::Buffer;
 
 /// A CIE 1931 tristimulus value.
@@ -119,6 +119,8 @@ impl From<Vector> for XYZ {
     }
 }
 
+
+
 // Matrix for taking XYZ to linear RGB
 //
 // Values from Bruce Lindbloom's page
@@ -145,6 +147,9 @@ fn gamma(v: Float) -> Float {
 
 // BUFFER IMPLEMENTATIONS
 
+/// A buffer whose pixels are XYZ tristimulus values.
+pub type XYZBuffer = Buffer<XYZ>;
+
 impl Buffer<XYZ> {
     /// Saves the buffer to a file at the path specified.
     /// 
@@ -160,20 +165,23 @@ impl Buffer<XYZ> {
     }
 }
 
-pub struct XYZConvert {
+#[derive(Debug)]
+pub struct ColorMatchingCurves {
     cie_x: Sampled,
     cie_y: Sampled,
     cie_z: Sampled,
     cie_norm: Float,
 }
 
-impl XYZConvert {
-    pub fn sampled_to_xyz(&self, spec: &Sampled) -> XYZ {
+impl Conversion for ColorMatchingCurves {
+    type Target = XYZ;
+
+    fn convert(&self, sampled: Sampled) -> Self::Target {
         let mut x = 0.0;
         let mut y = 0.0;
         let mut z = 0.0;
 
-        for (i, val) in spec.iter().enumerate() {
+        for (i, val) in sampled.iter().enumerate() {
             x += val * self.cie_x[i];
             y += val * self.cie_y[i];
             z += val * self.cie_z[i];

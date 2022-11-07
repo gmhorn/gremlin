@@ -27,6 +27,7 @@ mod consts {
 /// step size constants configurable via Cargo.
 ///
 /// See: <https://pbr-book.org/3ed-2018/Color_and_Radiometry/The_SampledSpectrum_Class>
+#[derive(Debug)]
 pub struct Sampled([Float; consts::COUNT]);
 
 impl Sampled {

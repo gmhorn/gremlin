@@ -1,4 +1,4 @@
-use std::ops::{Deref, DerefMut};
+use crate::Float;
 
 /// A rectangular grid of pixels.
 ///
@@ -51,8 +51,8 @@ impl<P> Buffer<P> {
 
     /// The aspect ratio (width / height) of the film.
     #[inline]
-    pub fn aspect_ratio(&self) -> f64 {
-        (self.width as f64) / (self.height as f64)
+    pub fn aspect_ratio(&self) -> Float {
+        (self.width as Float) / (self.height as Float)
     }
 
     /// Get a pixel at the given `(x, y)` coordinates.
@@ -73,6 +73,27 @@ impl<P> Buffer<P> {
             None
         } else {
             Some(self.get_pixel(x, y))
+        }
+    }
+
+    /// Get a pixel at the given `(x, y)` coordinates.
+    /// 
+    /// # Panics
+    /// 
+    /// If `x >= width` or `y >= height`.
+    #[inline]
+    pub fn get_pixel_mut(&mut self, x: u32, y: u32) -> &mut P {
+        let idx = (y * self.height) + x;
+        &mut self.pixels[idx as usize]
+    }
+
+    /// Get a pixel at the given `(x, y)` coordinates.
+    #[inline]
+    pub fn get_pixel_mut_checked(&mut self, x: u32, y: u32) -> Option<&mut P> {
+        if x >= self.width || y >= self.height {
+            None
+        } else {
+            Some(self.get_pixel_mut(x, y))
         }
     }
 
@@ -101,36 +122,6 @@ impl<P> Buffer<P> {
             width: self.width,
             current: 0,
         }
-    }
-}
-
-// DEREFS
-
-impl<P> Deref for Buffer<P> {
-    type Target = [P];
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.pixels
-    }
-}
-
-impl<P> DerefMut for Buffer<P> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.pixels
-    }
-}
-
-// ITERATORS
-
-impl<P> IntoIterator for Buffer<P> {
-    type Item = P;
-    type IntoIter = std::vec::IntoIter<P>;
-
-    #[inline]
-    fn into_iter(self) -> Self::IntoIter {
-        self.pixels.into_iter()
     }
 }
 
@@ -197,5 +188,19 @@ impl<'a, P> ExactSizeIterator for EnumeratePixelsMut<'a, P> {
     #[inline]
     fn len(&self) -> usize {
         self.pixels.len()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_pixel() {
+        let mut buf: Buffer<i64> = Buffer::new(10, 5);
+        assert_eq!(0, *buf.get_pixel(0, 1));
+
+        *buf.get_pixel_mut(0, 1) = 10;
+        assert_eq!(10, *buf.get_pixel(0, 1));
     }
 }
