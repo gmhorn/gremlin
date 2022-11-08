@@ -212,8 +212,8 @@ where
 {
     /// Saves the buffer to a file at the path specified.
     ///
-    /// The image format is derived from the file extension. Assumes a sRGB
-    /// color space.
+    /// The image format is derived from the file extension. Does not perform
+    /// any gamma correction.
     fn save_image<Q>(&self, path: Q) -> image::ImageResult<()>
     where
         Q: AsRef<std::path::Path>,
