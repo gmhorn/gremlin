@@ -16,3 +16,4 @@ resample it itself, but for now this works just fine.
 
 * [`data/ciexyz31.csv`](./data/ciexyz31.csv) - CIE color matching curves at 1nm
   intervals, from <http://cvrl.ucl.ac.uk/cmfs.htm>
+* <https://refractiveindex.info> - Public domain CC1.0 database of optical measurements.
