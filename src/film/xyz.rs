@@ -234,4 +234,4 @@ const CIE_Z: Sampled = Sampled::new([
     0.0000000e+00, 0.0000000e+00, 0.0000000e+00, 0.0000000e+00, 0.0000000e+00,
 ]);
 
-const CIE_NORM: Float = 106.8564135.recip();
+const CIE_NORM: Float = 1.0 / 106.8564135;
