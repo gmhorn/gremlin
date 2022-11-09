@@ -3,6 +3,11 @@ use std::ops::{AddAssign, Div};
 
 use super::Buffer;
 
+/// A pixel that supports aggregating values.
+///
+/// Intended to be used with the [`XYZ`][super::XYZ] and [`RGB`][super::RGB]
+/// structs, but any struct supporting the necessary trait bounds can also be
+/// used.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct FilmPixel<P> {
     total: P,
@@ -10,6 +15,7 @@ pub struct FilmPixel<P> {
 }
 
 impl<P> FilmPixel<P> {
+    /// Add a value to be averaged in to the final color value.
     pub fn add_sample<S>(&mut self, sample: S)
     where
         P: From<S> + AddAssign,
