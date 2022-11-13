@@ -1,4 +1,10 @@
-use gremlin::{prelude::*, film::{RGBFilm, RGB}, geo::{Ray, Unit}, camera::Perspective, spectrum::Sampled};
+use gremlin::{
+    camera::Perspective,
+    film::{RGBFilm, RGB},
+    geo::{Ray, Unit},
+    prelude::*,
+    spectrum::Sampled,
+};
 use rayon::prelude::*;
 
 const WHITE: RGB = RGB::new(1.0, 1.0, 1.0);
@@ -7,8 +13,8 @@ const BLUE: RGB = RGB::new(0.3, 0.5, 1.0);
 
 fn ray_color(ray: Ray) -> RGB {
     if let Ok(unit) = Unit::try_from(ray.direction()) {
-        let t = 0.5*(unit.y() + 1.0);
-        WHITE*(1.0-t) + BLUE*t
+        let t = 0.5 * (unit.y() + 1.0);
+        WHITE * (1.0 - t) + BLUE * t
     } else {
         BLACK
     }

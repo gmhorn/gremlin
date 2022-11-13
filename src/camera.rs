@@ -1,4 +1,4 @@
-use crate::{Float, geo::Ray};
+use crate::{geo::Ray, Float};
 
 mod perspective;
 pub use perspective::*;

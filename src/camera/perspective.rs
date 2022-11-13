@@ -1,4 +1,7 @@
-use crate::{Float, geo::{Point, Matrix, Ray, Vector}};
+use crate::{
+    geo::{Matrix, Point, Ray, Vector},
+    Float,
+};
 
 use super::Camera;
 
@@ -17,16 +20,22 @@ impl Perspective {
 
         let eye = Point::ORIGIN;
         let target = Point::new(0.0, 0.0, -1.0);
-        let cam_to_world = Matrix::look_at(eye, target, Vector::Y_AXIS); 
+        let cam_to_world = Matrix::look_at(eye, target, Vector::Y_AXIS);
 
-        Self {aspect_ratio, tan_half_fov, eye, target, cam_to_world}
+        Self {
+            aspect_ratio,
+            tan_half_fov,
+            eye,
+            target,
+            cam_to_world,
+        }
     }
 
     pub fn move_to(&mut self, location: Point) {
         self.eye = location;
         self.cam_to_world = Matrix::look_at(self.eye, self.target, Vector::Y_AXIS);
     }
-    
+
     pub fn look_at(&mut self, location: Point) {
         self.target = location;
         self.cam_to_world = Matrix::look_at(self.eye, self.target, Vector::Y_AXIS);
@@ -40,9 +49,10 @@ impl Camera for Perspective {
         // camera is set to the origin, so we can skip the subtraction and
         // use it straight-up as the direction vector.
         let screen_pt = Vector::new(
-            (2.0*u - 1.0) * self.aspect_ratio * self.tan_half_fov,
-            (1.0 - 2.0*v) * self.tan_half_fov,
-            -1.0);
+            (2.0 * u - 1.0) * self.aspect_ratio * self.tan_half_fov,
+            (1.0 - 2.0 * v) * self.tan_half_fov,
+            -1.0,
+        );
         Ray::new(self.eye, self.cam_to_world * screen_pt)
     }
 }
@@ -50,7 +60,6 @@ impl Camera for Perspective {
 #[cfg(test)]
 mod tests {
     use super::*;
-
 
     #[test]
     fn foo() {

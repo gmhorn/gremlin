@@ -3,7 +3,7 @@
 //! Implements basic geometric primitives needed for ray tracing. Attempts to
 //! be simple, minimal, and fast (enough).
 //!
-//! * Uses minimal generics (underlying field is a compile-time flag, see 
+//! * Uses minimal generics (underlying field is a compile-time flag, see
 //!   [`crate::Float`])
 //! * Directly implements operator traits rather than relying on macros
 //! * Supports the subset of functionality needed by other modules
