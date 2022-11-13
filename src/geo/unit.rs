@@ -31,6 +31,10 @@ use std::ops::Neg;
 ///
 /// Panicing may be especially annoying if conversion fails many minutes in to a
 /// long render. So like everything, it's a trade-off.
+/// 
+/// See also: Will Crichton's [Type-Driven API Design In Rust](https://willcrichton.net/rust-api-type-patterns/witnesses.html)
+/// where he discusses *witnesses* as a way to prove properties of a type via
+/// construction.
 pub struct Unit {
     x: Float,
     y: Float,

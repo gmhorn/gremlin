@@ -1,8 +1,9 @@
-use gremlin::{prelude::*, film::{RGBFilm, RGB}, geo::{Ray, Unit}, camera::Perspective};
+use gremlin::{prelude::*, film::{RGBFilm, RGB}, geo::{Ray, Unit}, camera::Perspective, spectrum::Sampled};
+use rayon::prelude::*;
 
 const WHITE: RGB = RGB::new(1.0, 1.0, 1.0);
 const BLACK: RGB = RGB::new(0.0, 0.0, 0.0);
-const BLUE: RGB = RGB::new(0.5, 0.7, 1.0);
+const BLUE: RGB = RGB::new(0.3, 0.5, 1.0);
 
 fn ray_color(ray: Ray) -> RGB {
     if let Ok(unit) = Unit::try_from(ray.direction()) {
@@ -15,19 +16,14 @@ fn ray_color(ray: Ray) -> RGB {
 
 fn main() {
     let mut img = RGBFilm::new(800, 600);
-    let mut cam = Perspective::new(img.aspect_ratio(), 75.0);
+    let cam = Perspective::new(img.aspect_ratio(), 75.0);
 
-    for (x, y, pixel) in img.enumerate_pixels_mut() {
-        // let ray = cam.ray(u, v)
-    }
-    let scale_x = (img.width() as Float) - 1.0;
-    let scale_y = (img.height() as Float) - 1.0;
-    for (x, y, pixel) in img.enumerate_pixels_mut() {
-        let r = (x as Float) / scale_x;
-        let g = (y as Float) / scale_y;
-        let b = 0.25;
-
-        pixel.add_sample(RGB::new(r, g, b));
-    }
+    img.enumerate_pixels_mut()
+        .par_bridge()
+        .for_each(|(x, y, pixel)| {
+            let u = ((x as Float) + 0.5) / 800.0;
+            let v = ((y as Float) + 0.5) / 600.0;
+            pixel.add_sample(ray_color(cam.ray(u, v)));
+        });
     img.snapshot().save_image("rtow.png").unwrap();
 }
