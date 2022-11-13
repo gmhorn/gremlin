@@ -65,33 +65,3 @@ pub trait Shape {
         self.intersect(ray, t_min, t_max).is_some()
     }
 }
-
-pub enum Shapes {
-    Sphere(Sphere),
-    Triangle(Triangle),
-}
-
-impl Shape for Shapes {
-    fn value(&self) -> Float {
-        match self {
-            Self::Sphere(sphere) => sphere.value(),
-            Self::Triangle(triangle) => triangle.value(),
-        }
-    }
-
-    fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
-        todo!()
-    }
-}
-
-impl From<Sphere> for Shapes {
-    fn from(sphere: Sphere) -> Self {
-        Shapes::Sphere(sphere)
-    }
-}
-
-impl From<Triangle> for Shapes {
-    fn from(triangle: Triangle) -> Self {
-        Shapes::Triangle(triangle)
-    }
-}

@@ -4,12 +4,12 @@ use rand::prelude::*;
 
 pub fn enum_dispatch(c: &mut Criterion) {
     let mut rng = rand::thread_rng();
-    let mut shapes: Vec<Shapes> = vec![];
+    let mut shapes: Vec<Surface> = vec![];
     for _ in 0..100000 {
         if rng.gen() {
-            shapes.push(Shapes::from(Sphere));
+            shapes.push(Surface::from(Sphere));
         } else {
-            shapes.push(Shapes::from(Triangle));
+            shapes.push(Surface::from(Triangle));
         }
     }
     c.bench_function("enum dispatch", |b| {
