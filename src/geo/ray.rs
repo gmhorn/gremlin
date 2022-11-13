@@ -4,7 +4,7 @@ use super::{Point, Vector};
 
 /// A geometric ray.
 ///
-/// Rays have an origin and a direction (not necessarily normalized). They
+/// Rays have an origin and a direction (not necessarily normalized). The
 /// [`Point`]s along the ray may be obtained by calling [`at()`][Self::at].
 #[derive(Debug)]
 pub struct Ray {
@@ -23,5 +23,16 @@ impl Ray {
     #[inline]
     pub fn at(&self, t: Float) -> Point {
         self.origin + (self.dir * t)
+    }
+
+    /// The ray's direction.
+    #[inline]
+    pub const fn direction(&self) -> Vector {
+        self.dir
+    }
+
+    #[inline]
+    pub const fn origin(&self) -> Point {
+        self.origin
     }
 }

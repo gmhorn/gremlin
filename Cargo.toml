@@ -9,6 +9,8 @@ f32 = []
 [dependencies]
 approx = "0.5.1"
 image = "0.24.4"
+rand = "0.8.5"
+rayon = "1.5.3"
 
 [dev-dependencies]
 criterion = "0.3"
@@ -19,6 +21,10 @@ harness = false
 
 [[bench]]
 name = "geo"
+harness = false
+
+[[bench]]
+name = "shape"
 harness = false
 
 [[bench]]

@@ -58,6 +58,7 @@ impl MulAssign<Float> for RGB {
 impl Div<Float> for RGB {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
     fn div(self, rhs: Float) -> Self::Output {
         self * rhs.recip()
@@ -65,6 +66,7 @@ impl Div<Float> for RGB {
 }
 
 impl DivAssign<Float> for RGB {
+    #[allow(clippy::suspicious_op_assign_impl)]
     #[inline]
     fn div_assign(&mut self, rhs: Float) {
         *self *= rhs.recip();
