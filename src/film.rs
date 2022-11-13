@@ -24,9 +24,6 @@ use std::path::Path;
 mod buffer;
 pub use buffer::*;
 
-mod iter;
-pub use iter::*;
-
 mod pixel;
 pub use pixel::*;
 

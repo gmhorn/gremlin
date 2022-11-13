@@ -3,7 +3,6 @@ use gremlin::{
     film::{RGBFilm, RGB},
     geo::{Ray, Unit},
     prelude::*,
-    spectrum::Sampled,
 };
 use rayon::prelude::*;
 
@@ -24,11 +23,9 @@ fn main() {
     let mut img = RGBFilm::new(800, 600);
     let cam = Perspective::new(img.aspect_ratio(), 75.0);
 
-    img.enumerate_pixels_mut()
+    img.enumerate_ndc_mut()
         .par_bridge()
-        .for_each(|(x, y, pixel)| {
-            let u = ((x as Float) + 0.5) / 800.0;
-            let v = ((y as Float) + 0.5) / 600.0;
+        .for_each(|(u, v, pixel)| {
             pixel.add_sample(ray_color(cam.ray(u, v)));
         });
     img.snapshot().save_image("rtow.png").unwrap();

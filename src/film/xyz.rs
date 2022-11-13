@@ -57,6 +57,7 @@ impl MulAssign<Float> for XYZ {
 impl Div<Float> for XYZ {
     type Output = Self;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     #[inline]
     fn div(self, rhs: Float) -> Self::Output {
         self * rhs.recip()
@@ -64,6 +65,7 @@ impl Div<Float> for XYZ {
 }
 
 impl DivAssign<Float> for XYZ {
+    #[allow(clippy::suspicious_op_assign_impl)]
     #[inline]
     fn div_assign(&mut self, rhs: Float) {
         *self *= rhs.recip();

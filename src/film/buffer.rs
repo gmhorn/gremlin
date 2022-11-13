@@ -1,7 +1,5 @@
-use image::{Rgb, RgbImage};
-
+use image::{ImageResult, Rgb, RgbImage};
 use crate::Float;
-
 use super::Save;
 
 /// A rectangular grid of pixels.
@@ -114,12 +112,12 @@ impl<P> Buffer<P> {
     /// Yields the raster-space coordinates of each pixel and a reference to the
     /// pixel itself. Iteration order is left-to-right, top-to-bottom.
     #[inline]
-    pub fn enumerate_pixels(&self) -> EnumeratePixels<P> {
-        EnumeratePixels {
-            pixels: self.pixels.iter(),
-            width: self.width,
-            current: 0,
-        }
+    pub fn enumerate_raster(&self) -> impl Iterator<Item = (u32, u32, &P)> {
+        self.pixels.iter().enumerate().map(|(idx, pixel)| {
+            let x = (idx as u32) % self.width;
+            let y = (idx as u32) / self.width;
+            (x, y, pixel)
+        })
     }
 
     /// Enumerates over the pixels of the image.
@@ -128,78 +126,51 @@ impl<P> Buffer<P> {
     /// reference to the pixel itself. Iteration order is left-to-right,
     /// top-to-bottom.
     #[inline]
-    pub fn enumerate_pixels_mut(&mut self) -> EnumeratePixelsMut<P> {
-        EnumeratePixelsMut {
-            pixels: self.pixels.iter_mut(),
-            width: self.width,
-            current: 0,
-        }
-    }
-}
-
-// ENUMERATIONS
-
-/// Enumerate pixels of the film.
-pub struct EnumeratePixels<'a, P> {
-    pixels: std::slice::Iter<'a, P>,
-    width: u32,
-    current: usize,
-}
-
-impl<'a, P> Iterator for EnumeratePixels<'a, P> {
-    type Item = (u32, u32, &'a P);
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        let pixel = self.pixels.next()?;
-        let idx = self.current as u32;
-
-        self.current += 1;
-        Some((idx % self.width, idx / self.width, pixel))
+    pub fn enumerate_raster_mut(&mut self) -> impl Iterator<Item = (u32, u32, &mut P)> {
+        self.pixels.iter_mut().enumerate().map(|(idx, pixel)| {
+            let x = (idx as u32) % self.width;
+            let y = (idx as u32) / self.width;
+            (x, y, pixel)
+        })
     }
 
+    /// Enumerates over the pixels of the image.
+    ///
+    /// Yields a random NDC-space coordinate within each pixel and a reference
+    /// to the pixel itself. Iteration order is left-to-right, top-to-bottom.
     #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.pixels.size_hint()
-    }
-}
+    pub fn enumerate_ndc(&self) -> impl Iterator<Item = (Float, Float, &P)> {
+        let width = self.width as Float;
+        let height = self.height as Float;
 
-impl<'a, P> ExactSizeIterator for EnumeratePixels<'a, P> {
-    #[inline]
-    fn len(&self) -> usize {
-        self.pixels.len()
-    }
-}
+        self.pixels.iter().enumerate().map(move |(idx, pixel)| {
+            let x = (idx as u32) % self.width;
+            let y = (idx as u32) / self.width;
 
-/// Enumerates mutable pixels of the film.
-pub struct EnumeratePixelsMut<'a, P> {
-    pixels: std::slice::IterMut<'a, P>,
-    width: u32,
-    current: usize,
-}
-
-impl<'a, P> Iterator for EnumeratePixelsMut<'a, P> {
-    type Item = (u32, u32, &'a mut P);
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        let pixel = self.pixels.next()?;
-        let idx = self.current as u32;
-
-        self.current += 1;
-        Some((idx % self.width, idx / self.width, pixel))
+            let u = ((x as Float) + rand::random::<Float>()) / width;
+            let v = ((y as Float) + rand::random::<Float>()) / height;
+            (u, v, pixel)
+        })
     }
 
+    /// Enumerates over the pixels of the image.
+    ///
+    /// Yields a random NDC-space coordinate within each pixel and a mutable
+    /// reference to the pixel itself. Iteration order is left-to-right,
+    /// top-to-bottom.
     #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.pixels.size_hint()
-    }
-}
+    pub fn enumerate_ndc_mut(&mut self) -> impl Iterator<Item = (Float, Float, &mut P)> {
+        self.pixels.iter_mut().enumerate().map(|(idx, pixel)| {
+            let x = (idx as u32) % self.width;
+            let y = (idx as u32) / self.width;
 
-impl<'a, P> ExactSizeIterator for EnumeratePixelsMut<'a, P> {
-    #[inline]
-    fn len(&self) -> usize {
-        self.pixels.len()
+            let width = self.width as Float;
+            let height = self.height as Float;
+
+            let u = ((x as Float) + rand::random::<Float>()) / width;
+            let v = ((y as Float) + rand::random::<Float>()) / height;
+            (u, v, pixel)
+        })
     }
 }
 
@@ -214,12 +185,12 @@ where
     ///
     /// The image format is derived from the file extension. Does not perform
     /// any gamma correction.
-    fn save_image<Q>(&self, path: Q) -> image::ImageResult<()>
+    fn save_image<Q>(&self, path: Q) -> ImageResult<()>
     where
         Q: AsRef<std::path::Path>,
     {
         RgbImage::from_fn(self.width, self.height, |x, y| {
-            Rgb::<u8>::from(*self.get_pixel(x, y)).into()
+            Rgb::<u8>::from(*self.get_pixel(x, y))
         })
         .save(path)
     }
@@ -232,7 +203,7 @@ mod tests {
     #[test]
     fn enumerate_pixels() {
         let buf: Buffer<i32> = Buffer::new(3, 2);
-        let mut iter = buf.enumerate_pixels();
+        let mut iter = buf.enumerate_raster();
 
         assert_eq!(Some((0_u32, 0_u32, &0_i32)), iter.next());
         assert_eq!(Some((1_u32, 0_u32, &0_i32)), iter.next());

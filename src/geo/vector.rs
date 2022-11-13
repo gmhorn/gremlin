@@ -219,7 +219,7 @@ impl DivAssign<Float> for Vector {
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
     // the reciprical once and then do multiplication" is the lowest of low-
     // hanging fruit when it comes to this stuff, right?
-    #[allow(clippy::suspicious_arithmetic_impl)]
+    #[allow(clippy::suspicious_op_assign_impl)]
     #[inline]
     fn div_assign(&mut self, rhs: Float) {
         *self *= rhs.recip();

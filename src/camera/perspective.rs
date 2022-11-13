@@ -64,7 +64,6 @@ mod tests {
     #[test]
     fn foo() {
         let mut cam = Perspective::new(1.0, 1.0);
-        cam.move_to(Point::new(1.0, 2.0, 3.0));
         cam.look_at(Point::new(1.0, 2.0, 3.0));
 
         let _r = cam.ray(1.0, 1.0);
