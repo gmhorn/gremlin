@@ -139,7 +139,7 @@ impl Matrix {
     /// * `to` is the point the camera's looking at (world space)
     /// * `up` is the vertical direction "according to the camera" (camera space)
     ///
-    /// Using [`Vector::y_axis()`] will give a camera that's "pointing-up".
+    /// Using [`Vector::Y_AXIS`] will give a camera that's "pointing-up".
     ///
     /// See:
     /// * <https://www.pbr-book.org/3ed-2018/Geometry_and_Transformations/Transformations#TheLook-AtTransformation>

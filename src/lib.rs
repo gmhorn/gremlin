@@ -1,8 +1,13 @@
 //! # Gremlin
 //!
 //! Gremlin is a ray tracer
+pub mod camera;
 pub mod film;
 pub mod geo;
+pub mod integrator;
+pub mod prelude;
+pub mod scene;
+pub mod shape;
 pub mod spectrum;
 
 // Typedef for what floating-point value to use.

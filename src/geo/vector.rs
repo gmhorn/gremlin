@@ -13,11 +13,6 @@ use super::{Point, Unit};
 /// speaking, these are intended to be stack-allocated, highly inline-able, and
 /// extremely cheap to copy. But if it turns out that implementing the mutator
 /// ops improve ergonomics or performance, that should be easy enough.
-///
-/// Vectors, like most primitives in the [`geo`][crate::geo] package, are
-/// parameterized over the underlying field. In practice, only `f64` and `f32`
-/// will be useful, since almost all functions use [`crate::Real`] as
-/// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
     pub x: Float,
@@ -224,7 +219,7 @@ impl DivAssign<Float> for Vector {
     // Clippy doesn't like that we're multiplying in a `div` impl, but "compute
     // the reciprical once and then do multiplication" is the lowest of low-
     // hanging fruit when it comes to this stuff, right?
-    #[allow(clippy::suspicious_arithmetic_impl)]
+    #[allow(clippy::suspicious_op_assign_impl)]
     #[inline]
     fn div_assign(&mut self, rhs: Float) {
         *self *= rhs.recip();

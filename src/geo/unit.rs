@@ -31,6 +31,10 @@ use std::ops::Neg;
 ///
 /// Panicing may be especially annoying if conversion fails many minutes in to a
 /// long render. So like everything, it's a trade-off.
+///
+/// See also: Will Crichton's [Type-Driven API Design In Rust](https://willcrichton.net/rust-api-type-patterns/witnesses.html)
+/// where he discusses *witnesses* as a way to prove properties of a type via
+/// construction.
 pub struct Unit {
     x: Float,
     y: Float,
@@ -50,6 +54,24 @@ impl Unit {
     #[inline]
     const fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
+    }
+
+    /// The x-coordinate.
+    #[inline]
+    pub const fn x(&self) -> Float {
+        self.x
+    }
+
+    /// The y-coordinate.
+    #[inline]
+    pub const fn y(&self) -> Float {
+        self.y
+    }
+
+    /// The z-coordinate.
+    #[inline]
+    pub const fn z(&self) -> Float {
+        self.z
     }
 }
 

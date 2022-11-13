@@ -35,17 +35,20 @@ pub use xyz::*;
 
 // TYPE DEFINITIONS
 
+/// A film that's generic over pixel type.
+pub type Film<P> = Buffer<FilmPixel<P>>;
+
 /// A buffer whose pixels are RGB values.
 pub type RGBBuffer = Buffer<RGB>;
 
 /// A film that takes RGB samples.
-pub type RGBFilm = Buffer<FilmPixel<RGB>>;
+pub type RGBFilm = Film<RGB>;
 
 /// A buffer whose pixels are XYZ values.
 pub type XYZBuffer = Buffer<XYZ>;
 
 /// A film that takes spectral samples.
-pub type SpectralFilm = Buffer<FilmPixel<XYZ>>;
+pub type SpectralFilm = Film<XYZ>;
 
 /// Used for saving an image to disk.
 pub trait Save {
