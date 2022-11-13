@@ -1,6 +1,6 @@
-use image::{ImageResult, Rgb, RgbImage};
-use crate::Float;
 use super::Save;
+use crate::Float;
+use image::{ImageResult, Rgb, RgbImage};
 
 /// A rectangular grid of pixels.
 ///
