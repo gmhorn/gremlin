@@ -36,9 +36,5 @@ pub fn dynamic_dispatch(c: &mut Criterion) {
     });
 }
 
-criterion_group!(
-    shape,
-    enum_dispatch,
-    dynamic_dispatch,
-);
+criterion_group!(shape, enum_dispatch, dynamic_dispatch,);
 criterion_main!(shape);
