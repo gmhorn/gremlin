@@ -24,11 +24,6 @@ use std::ops::{Add, Neg, Sub};
 ///   `p` by the vector `v`
 /// * Some convenience functions like [`Self::distance()`], [`Self::lerp()`],
 ///   and [`Self::center()`].
-///
-/// Points, like most primitives in the [`geo`][crate::geo] package, are
-/// parameterized over the underlying field. In practice, only `f64` and `f32`
-/// will be useful, since almost all functions use [`num_traits::Float`] as
-/// their generic bound.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
     pub x: Float,

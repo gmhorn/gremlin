@@ -3,7 +3,8 @@
 //! Implements basic geometric primitives needed for ray tracing. Attempts to
 //! be simple, minimal, and fast (enough).
 //!
-//! * Uses minimal generics (most things parameterized over [`num_traits::Float`])
+//! * Uses minimal generics (underlying field is a compile-time flag, see 
+//!   [`crate::Float`])
 //! * Directly implements operator traits rather than relying on macros
 //! * Supports the subset of functionality needed by other modules
 //!
@@ -19,7 +20,7 @@
 //! Instead, the goal is to be mathematically correct, while speaking in the
 //! "domain language" of ray tracing. So, *e.g.* separate `Point`, `Vector` and
 //! `Unit` structs are defined, even though the inner-product space of
-//! `f64`-valued vectors would be sufficient to cover all those use-cases. And
+//! float-valued vectors would be sufficient to cover all those use-cases. And
 //! although `Point` is an inner-product space (with the standard operations of
 //! vector addition and scalar multiplication), only the subset of traits from
 //! `std::opts::*` that represent common "ray tracing operations on points" are

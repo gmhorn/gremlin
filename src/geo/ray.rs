@@ -24,4 +24,15 @@ impl Ray {
     pub fn at(&self, t: Float) -> Point {
         self.origin + (self.dir * t)
     }
+
+    /// The ray's direction.
+    #[inline]
+    pub const fn direction(&self) -> Vector {
+        self.dir
+    }
+
+    #[inline]
+    pub const fn origin(&self) -> Point {
+        self.origin
+    }
 }

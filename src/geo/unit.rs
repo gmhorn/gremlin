@@ -51,6 +51,24 @@ impl Unit {
     const fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
     }
+
+    /// The x-coordinate.
+    #[inline]
+    pub const fn x(&self) -> Float {
+        self.x
+    }
+
+    /// The y-coordinate.
+    #[inline]
+    pub const fn y(&self) -> Float {
+        self.y
+    }
+
+    /// The z-coordinate.
+    #[inline]
+    pub const fn z(&self) -> Float {
+        self.z
+    }
 }
 
 // OPERATORS

@@ -5,6 +5,7 @@ pub mod camera;
 pub mod film;
 pub mod geo;
 pub mod integrator;
+pub mod prelude;
 pub mod scene;
 pub mod spectrum;
 

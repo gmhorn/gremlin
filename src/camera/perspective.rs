@@ -35,7 +35,15 @@ impl Perspective {
 
 impl Camera for Perspective {
     fn ray(&self, u: Float, v: Float) -> Ray {
-        todo!()
+        // little shortcut. This is really the point on the screen, and the
+        // direction would be given by subtracting the camera eye. But the
+        // camera is set to the origin, so we can skip the subtraction and
+        // use it straight-up as the direction vector.
+        let screen_pt = Vector::new(
+            (2.0*u - 1.0) * self.aspect_ratio * self.tan_half_fov,
+            (1.0 - 2.0*v) * self.tan_half_fov,
+            -1.0);
+        Ray::new(self.eye, self.cam_to_world * screen_pt)
     }
 }
 
@@ -50,6 +58,6 @@ mod tests {
         cam.move_to(Point::new(1.0, 2.0, 3.0));
         cam.look_at(Point::new(1.0, 2.0, 3.0));
 
-        let r = cam.ray(1.0, 1.0);
+        let _r = cam.ray(1.0, 1.0);
     }
 }
