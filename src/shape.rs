@@ -13,7 +13,10 @@
 //!
 //! Naming things is hard, especially when it comes to
 
-use crate::{geo::{Ray, Unit, Point}, Float};
+use crate::{
+    geo::{Point, Ray, Unit},
+    Float,
+};
 
 // RE-EXPORTS
 

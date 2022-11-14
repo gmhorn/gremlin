@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::{shape::*, geo::Point};
+use gremlin::{geo::Point, shape::*};
 use rand::prelude::*;
 
 pub fn enum_dispatch(c: &mut Criterion) {

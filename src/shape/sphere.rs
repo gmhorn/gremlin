@@ -33,7 +33,7 @@ impl Sphere {
             Ordering::Equal => {
                 let root = -0.5 * b / a;
                 Some((root, root))
-            },
+            }
             Ordering::Greater => {
                 let q = if b > 0.0 {
                     -0.5 * (b + discr.sqrt())
@@ -75,34 +75,24 @@ impl Shape for Sphere {
         2.0
     }
 
+    #[inline]
     fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
-        // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
-        let l = ray.origin() - self.center;
-
-        let a = ray.direction().len_squared();
-        let b = 2.0 * l.dot(ray.direction());
-        let c = l.len_squared() - self.radius.powi(2);
-
-        let t = Self::solve_quadratic(a, b, c)
-            .into_iter()
-            .flat_map(|(r1, r2)| {
-                let mut arr = [r1, r2];
-                arr.sort_by(Float::total_cmp);
-                arr
-            })
-            .filter(|r| t_min <= *r && *r <= t_max)
-            .next()?;
-
+        let t = self.nearest_intersection(ray, t_min, t_max)?;
         let point = ray.at(t);
         let norm = Unit::try_from(point - self.center).ok()?;
         return Some(Intersection { point, norm, t });
+    }
+
+    #[inline]
+    fn intersects(&self, ray: &Ray, t_min: Float, t_max: Float) -> bool {
+        self.nearest_intersection(ray, t_min, t_max).is_some()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::geo::Vector;
     use super::*;
+    use crate::geo::Vector;
 
     #[test]
     fn intersect_two_points() {
