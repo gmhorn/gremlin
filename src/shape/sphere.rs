@@ -65,22 +65,17 @@ impl Sphere {
                 arr.sort_by(Float::total_cmp);
                 arr
             })
-            .filter(|r| t_min <= *r && *r <= t_max)
-            .next()
+            .find(|&r| t_min <= r && r <= t_max)
     }
 }
 
 impl Shape for Sphere {
-    fn value(&self) -> Float {
-        2.0
-    }
-
     #[inline]
     fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
         let t = self.nearest_intersection(ray, t_min, t_max)?;
         let point = ray.at(t);
         let norm = Unit::try_from(point - self.center).ok()?;
-        return Some(Intersection { point, norm, t });
+        Some(Intersection { point, norm, t })
     }
 
     #[inline]

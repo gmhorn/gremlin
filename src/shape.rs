@@ -47,9 +47,6 @@ pub struct Intersection {
 /// This trait encapsulates the main functionality needed for efficient
 /// ray-object intersection.
 pub trait Shape {
-    /// TODO: Delete me.
-    fn value(&self) -> Float;
-
     /// Ray intersection test.
     ///
     /// Check whether the ray intersects this shape within the given

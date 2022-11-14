@@ -14,17 +14,19 @@ pub enum Surface {
 }
 
 impl Shape for Surface {
-    fn value(&self) -> Float {
+    #[inline]
+    fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
         match self {
-            Self::Sphere(sphere) => sphere.value(),
-            Self::Triangle(triangle) => triangle.value(),
+            Self::Sphere(s) => s.intersect(ray, t_min, t_max),
+            Self::Triangle(t) => t.intersect(ray, t_min, t_max),
         }
     }
 
-    fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
+    #[inline]
+    fn intersects(&self, ray: &Ray, t_min: Float, t_max: Float) -> bool {
         match self {
-            Self::Sphere(sphere) => sphere.intersect(ray, t_min, t_max),
-            Self::Triangle(triange) => triange.intersect(ray, t_min, t_max),
+            Self::Sphere(s) => s.intersects(ray, t_min, t_max),
+            Self::Triangle(t) => t.intersects(ray, t_min, t_max),
         }
     }
 }
