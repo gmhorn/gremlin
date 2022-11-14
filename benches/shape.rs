@@ -69,10 +69,6 @@ pub fn aggregate_dynamic_dispatch(c: &mut Criterion) {
     for sphere in random_spheres() {
         agg.push(Box::new(sphere));
     }
-    // let agg: DynamicAggregate = random_spheres()
-        // .into_iter()
-        // .map(|sphere| Box::new(sphere) as Box<dyn Shape>)
-        // .collect();
     let ray = Ray::new(Point::new(0.0, 0.0, -20.0), Vector::Z_AXIS);
 
     c.bench_function("aggregate dynamic dispatch", |b| {
