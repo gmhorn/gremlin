@@ -1,44 +1,58 @@
-use super::{Intersection, Shape, Surface};
+use super::{Intersection, Shape};
 use crate::{geo::Ray, Float};
 
-pub struct DynamicAggregate(Vec<Box<dyn Shape>>);
+pub type DirectAggregate<S> = Vec<S>;
 
-impl DynamicAggregate {
-    pub fn new() -> Self {
-        Self(vec![])
-    }
-
-    pub fn add<S: Shape + 'static>(&mut self, s: S) {
-        self.0.push(Box::new(s))
+impl<S: Shape> Shape for DirectAggregate<S> {
+    fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
+        self.iter().fold(None, |curr, next| {
+            let next = next.intersect(ray, t_min, t_max);
+            match (curr, next) {
+                (_, None) => curr,
+                (None, _) => next,
+                (Some(curr), Some(next)) => {
+                    if curr.t < next.t {
+                        Some(curr)
+                    } else {
+                        Some(next)
+                    }
+                }
+            }
+        })
     }
 }
 
-impl Default for DynamicAggregate {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+pub type DynamicAggregate = Vec<Box<dyn Shape>>;
 
 impl Shape for DynamicAggregate {
     fn intersect(&self, ray: &Ray, t_min: Float, t_max: Float) -> Option<Intersection> {
-        todo!()
+        self.iter().fold(None, |curr, next| {
+            let next = next.intersect(ray, t_min, t_max);
+            match (curr, next) {
+                (_, None) => curr,
+                (None, _) => next,
+                (Some(curr), Some(next)) => {
+                    if curr.t < next.t {
+                        Some(curr)
+                    } else {
+                        Some(next)
+                    }
+                }
+            }
+        })
     }
 }
 
-pub struct SurfaceAggregate(Vec<Surface>);
+#[cfg(test)]
+mod tests {
+    use crate::{geo::Point, shape::Sphere};
 
-impl SurfaceAggregate {
-    pub fn new() -> Self {
-        Self(vec![])
-    }
+    use super::*;
 
-    pub fn add<S: Into<Surface>>(&mut self, s: S) {
-        self.0.push(s.into())
-    }
-}
-
-impl Default for SurfaceAggregate {
-    fn default() -> Self {
-        Self::new()
+    #[test]
+    fn dynamic_aggregate_add() {
+        let mut agg = DynamicAggregate::new();
+        let sphere = Sphere::new(Point::new(10.0, 0.0, 0.0), 1.0);
+        agg.push(Box::new(sphere));
     }
 }

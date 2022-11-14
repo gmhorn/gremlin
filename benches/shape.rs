@@ -1,9 +1,10 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use gremlin::{
-    geo::{Point, Ray, Vector},
+    geo::{Matrix, Point, Ray, Vector},
     shape::*,
     Float,
 };
+use rand::prelude::*;
 
 pub fn direct_dispatch(c: &mut Criterion) {
     let sphere = Sphere::new(Point::new(10.0, 0.0, 0.0), 1.0);
@@ -38,5 +39,68 @@ pub fn dynamic_dispatch(c: &mut Criterion) {
     });
 }
 
-criterion_group!(shape, direct_dispatch, enum_dispatch, dynamic_dispatch,);
+pub fn aggregate_direct_dispatch(c: &mut Criterion) {
+    let agg = random_spheres();
+    let ray = Ray::new(Point::new(0.0, 0.0, -20.0), Vector::Z_AXIS);
+
+    c.bench_function("aggregate direct dispatch", |b| {
+        b.iter(|| {
+            let _ = black_box(agg.intersect(&ray, 0.0, Float::INFINITY));
+        })
+    });
+}
+
+pub fn aggregate_enum_dispatch(c: &mut Criterion) {
+    let agg: Vec<Surface> = random_spheres()
+        .into_iter()
+        .map(|sphere| Surface::from(sphere))
+        .collect();
+    let ray = Ray::new(Point::new(0.0, 0.0, -20.0), Vector::Z_AXIS);
+
+    c.bench_function("aggregate enum dispatch", |b| {
+        b.iter(|| {
+            let _ = black_box(agg.intersect(&ray, 0.0, Float::INFINITY));
+        })
+    });
+}
+
+pub fn aggregate_dynamic_dispatch(c: &mut Criterion) {
+    let mut agg = DynamicAggregate::new();
+    for sphere in random_spheres() {
+        agg.push(Box::new(sphere));
+    }
+    // let agg: DynamicAggregate = random_spheres()
+        // .into_iter()
+        // .map(|sphere| Box::new(sphere) as Box<dyn Shape>)
+        // .collect();
+    let ray = Ray::new(Point::new(0.0, 0.0, -20.0), Vector::Z_AXIS);
+
+    c.bench_function("aggregate dynamic dispatch", |b| {
+        b.iter(|| {
+            let _ = black_box(agg.intersect(&ray, 0.0, Float::INFINITY));
+        })
+    });
+}
+
+fn random_spheres() -> Vec<Sphere> {
+    let mut rng = StdRng::seed_from_u64(1234);
+    let m = Matrix::scale_uniform(10.0);
+    (0..1024)
+        .into_iter()
+        .map(|_| {
+            let p = Point::new(rng.gen(), rng.gen(), rng.gen());
+            Sphere::new(m * p, rng.gen())
+        })
+        .collect()
+}
+
+criterion_group!(
+    shape,
+    direct_dispatch,
+    enum_dispatch,
+    dynamic_dispatch,
+    aggregate_direct_dispatch,
+    aggregate_enum_dispatch,
+    aggregate_dynamic_dispatch,
+);
 criterion_main!(shape);
