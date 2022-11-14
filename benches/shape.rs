@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use gremlin::shape::*;
+use gremlin::{shape::*, geo::Point};
 use rand::prelude::*;
 
 pub fn enum_dispatch(c: &mut Criterion) {
@@ -7,7 +7,7 @@ pub fn enum_dispatch(c: &mut Criterion) {
     let mut shapes: Vec<Surface> = vec![];
     for _ in 0..100000 {
         if rng.gen() {
-            shapes.push(Surface::from(Sphere));
+            shapes.push(Surface::from(Sphere::new(Point::ORIGIN, 1.0)));
         } else {
             shapes.push(Surface::from(Triangle));
         }
@@ -24,7 +24,7 @@ pub fn dynamic_dispatch(c: &mut Criterion) {
     let mut shapes: Vec<Box<dyn Shape>> = vec![];
     for _ in 0..100000 {
         if rng.gen() {
-            shapes.push(Box::new(Sphere));
+            shapes.push(Box::new(Sphere::new(Point::ORIGIN, 1.0)));
         } else {
             shapes.push(Box::new(Triangle));
         }

@@ -1,12 +1,12 @@
+use super::{Intersection, Shape, Sphere, Triangle};
 use crate::{geo::Ray, Float};
-use super::{Sphere, Triangle, Shape, Intersection};
 
 /// A surface that supports ray-object intersection.
-/// 
+///
 /// This is essentially a polymorphic enum over the various [`Shape`] trait
 /// implementations. Done to allow fast static dispatch (with matching) vs.
 /// comparable slower dynamic dispatch (via [`Box<dyn Shape>`] or similar).
-/// 
+///
 /// [`Shape`]: crate::shape::Shape
 pub enum Surface {
     Sphere(Sphere),

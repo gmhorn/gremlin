@@ -13,7 +13,7 @@
 //!
 //! Naming things is hard, especially when it comes to
 
-use crate::{geo::Ray, Float};
+use crate::{geo::{Ray, Unit, Point}, Float};
 
 // RE-EXPORTS
 
@@ -32,7 +32,12 @@ pub use triangle::*;
 // CORE DEFINITIONS
 
 /// Encapsulates all information related to a ray-object intersection.
-pub struct Intersection;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Intersection {
+    pub point: Point,
+    pub norm: Unit,
+    pub t: Float,
+}
 
 /// The core trait defining ray-object intersection.
 ///
