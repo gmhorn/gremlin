@@ -1,5 +1,5 @@
-use crate::Float;
 use super::{Point, Vector};
+use crate::Float;
 
 /// A geometric ray.
 #[derive(Debug)]

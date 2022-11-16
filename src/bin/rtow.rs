@@ -3,8 +3,9 @@ use std::time::Instant;
 use gremlin::{
     camera::Perspective,
     film::{RGBFilm, RGB},
-    geo::{Ray, Point},
-    prelude::*, shape::{Sphere, Intersection},
+    geo::{Point, Ray},
+    prelude::*,
+    shape::{Intersection, Sphere},
 };
 use rayon::prelude::*;
 
@@ -13,7 +14,11 @@ const BLUE: RGB = RGB::new(0.3, 0.5, 1.0);
 
 fn ray_color(ray: &Ray, isect: Option<Intersection>) -> RGB {
     if let Some(isect) = isect {
-        RGB::new(isect.norm.x() + 1.0, isect.norm.y() + 1.0, isect.norm.z() + 1.0) * 0.5
+        RGB::new(
+            isect.norm.x() + 1.0,
+            isect.norm.y() + 1.0,
+            isect.norm.z() + 1.0,
+        ) * 0.5
     } else {
         let dir = ray.direction().normalize();
         let t = 0.5 * (dir.y() + 1.0);
@@ -41,6 +46,6 @@ fn main() {
     }
     let dur = Instant::now() - start;
     println!("Took {:?}", dur);
-    
+
     img.snapshot().save_image("rtow.png").unwrap();
 }
