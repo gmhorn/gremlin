@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use gremlin::{
     camera::Perspective,
     film::{RGBFilm, RGB},
@@ -27,12 +29,18 @@ fn main() {
 
     let sphere = Sphere::new(Point::new(0.0, 0.0, -1.0), 1.0);
 
-    img.enumerate_ndc_mut()
-        .par_bridge()
-        .for_each(|(u, v, pixel)| {
-            let ray = cam.ray(u, v);
-            let isect = sphere.intersect(&ray, 0.0, Float::INFINITY);
-            pixel.add_sample(ray_color(&ray, isect));
-        });
+    let start = Instant::now();
+    for _ in 0..1 {
+        img.enumerate_ndc_mut()
+            .par_bridge()
+            .for_each(|(u, v, pixel)| {
+                let ray = cam.ray(u, v);
+                let isect = sphere.intersect(&ray, 0.0, Float::INFINITY);
+                pixel.add_sample(ray_color(&ray, isect));
+            });
+    }
+    let dur = Instant::now() - start;
+    println!("Took {:?}", dur);
+    
     img.snapshot().save_image("rtow.png").unwrap();
 }
