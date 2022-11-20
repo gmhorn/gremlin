@@ -1,6 +1,5 @@
 use crate::Float;
 use std::ops::{AddAssign, Div};
-
 use super::Buffer;
 
 /// A pixel that supports aggregating values.
@@ -25,12 +24,12 @@ impl<P> FilmPixel<P> {
     }
 }
 
-impl<P> Buffer<FilmPixel<P>>
-where
-    P: Default + Copy + Div<Float, Output = P>,
-{
+impl<P> Buffer<FilmPixel<P>> {
     /// Creates a snapshot of this buffer's values.
-    pub fn snapshot(&self) -> Buffer<P> {
+    pub fn snapshot(&self) -> Buffer<P>
+    where
+        P: Default + Copy + Div<Float, Output = P>
+    {
         let mut buf = Buffer::<P>::new(self.width(), self.height());
         self.enumerate_raster()
             .filter(|(_, _, &p)| p.count > 0)
@@ -39,5 +38,19 @@ where
                 *buf.get_pixel_mut(x, y) = avg;
             });
         buf
+    }
+
+    pub fn add_samples<F, S>(&mut self, f: F)
+    where
+        F: Send + Sync + Fn(Float, Float) -> S,
+        P: Send + Sync + From<S> + AddAssign
+    {
+        use rayon::prelude::*;
+        let w = self.width();
+        self.par_iter_mut().enumerate().for_each(|(idx, p)| {
+            let x = idx as u32 % w;
+            let y = idx as u32 / w;
+            p.add_sample(f(x as Float, y as Float));
+        })
     }
 }

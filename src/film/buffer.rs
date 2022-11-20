@@ -1,6 +1,9 @@
+use std::ops::{Deref, DerefMut};
+
 use super::Save;
 use crate::Float;
 use image::{ImageResult, Rgb, RgbImage};
+use rayon::prelude::*;
 
 /// A rectangular grid of pixels.
 ///
@@ -107,6 +110,18 @@ impl<P> Buffer<P> {
         }
     }
 
+    pub fn set_all<F>(&mut self, f: F)
+    where
+        F: Send + Sync + Fn(u32, u32) -> P,
+        P: Send
+    {
+        self.pixels.par_iter_mut().enumerate().for_each(|(idx, p)| {
+            let x = idx as u32 % self.width;
+            let y = idx as u32 / self.width;
+            *p = f(x, y)
+        })
+    }
+
     /// Enumerates over the pixels of the image.
     ///
     /// Yields the raster-space coordinates of each pixel and a reference to the
@@ -193,6 +208,20 @@ where
             Rgb::<u8>::from(*self.get_pixel(x, y))
         })
         .save(path)
+    }
+}
+
+impl<P> Deref for Buffer<P> {
+    type Target = [P];
+
+    fn deref(&self) -> &Self::Target {
+        &self.pixels
+    }
+}
+
+impl<P> DerefMut for Buffer<P> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.pixels
     }
 }
 
