@@ -36,12 +36,12 @@ fn main() {
 
     let sphere = Surface::from(Sphere::new(Point::new(0.0, 0.0, -1.0), 1.0));
 
-    let to_ndc = img.ndc_conversion();
+    let raster_to_ndc = img.raster_to_ndc();
     let timer = Timer::tick();
     for _ in 0..50 {
         img.add_samples(|x, y| {
             let mut rng = rand::thread_rng();
-            let (u, v) = to_ndc(x + rng.gen::<Float>(), y + rng.gen::<Float>());
+            let (u, v) = raster_to_ndc(x + rng.gen::<Float>(), y + rng.gen::<Float>());
 
             RAY_COUNT.inc();
             let ray = cam.ray(u, v);

@@ -87,7 +87,9 @@ impl<P> Buffer<P> {
         .save(path)
     }
 
-    pub fn ndc_conversion(&self) -> impl Fn(Float, Float) -> (Float, Float) {
+    /// Create a function that can convert raster-space values to NDC-space
+    /// values.
+    pub fn raster_to_ndc(&self) -> impl Fn(Float, Float) -> (Float, Float) {
         let w = self.width as Float;
         let h = self.height as Float;
         move |x, y| (x / w, y / h)

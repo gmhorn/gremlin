@@ -29,11 +29,11 @@ use std::{
 };
 
 /// The CIE 1931 color space.
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct CIE1931;
 
 /// Linear RGB color space.
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct LinearRGB;
 
 /// A tristimulus color value, parameterized by its color space.
@@ -43,17 +43,6 @@ pub struct Color<CS> {
     // operations we need...
     vals: Vector,
     _colorspace: PhantomData<CS>,
-}
-
-impl<CS> Color<CS> {
-    /// Create a new color value from an array of component values.
-    #[inline]
-    pub const fn new(c1: Float, c2: Float, c3: Float) -> Self {
-        Self {
-            vals: Vector::new(c1, c2, c3),
-            _colorspace: PhantomData,
-        }
-    }
 }
 
 impl<CS> Default for Color<CS> {
@@ -325,10 +314,10 @@ mod test {
 
     #[test]
     fn type_system() {
-        let xyz1 = XYZ::new(0.25, 0.5, 0.75);
-        let xyz2 = XYZ::new(0.25, 0.5, 0.75);
-        let rgb1 = RGB::new(0.25, 0.5, 0.75);
-        let rgb2 = RGB::new(0.25, 0.5, 0.75);
+        let xyz1 = XYZ::from([0.25, 0.5, 0.75]);
+        let xyz2 = XYZ::from([0.25, 0.5, 0.75]);
+        let rgb1 = RGB::from([0.25, 0.5, 0.75]);
+        let rgb2 = RGB::from([0.25, 0.5, 0.75]);
 
         let _ = xyz1 + xyz2;
         let _ = rgb1 + rgb2;
