@@ -5,9 +5,11 @@ use gremlin::{
     film::{RGBFilm, RGB},
     geo::{Point, Ray},
     prelude::*,
-    shape::{Intersection, Sphere},
+    shape::{Intersection, Sphere, Surface}, metrics::{Counter, Timer},
 };
 use rayon::prelude::*;
+
+static RAY_COUNT: Counter = Counter::new();
 
 const WHITE: RGB = RGB::new(1.0, 1.0, 1.0);
 const BLUE: RGB = RGB::new(0.3, 0.5, 1.0);
@@ -32,20 +34,21 @@ fn main() {
     cam.move_to(0.0, 0.0, 1.0);
     cam.look_at(0.0, 0.0, -1.0);
 
-    let sphere = Sphere::new(Point::new(0.0, 0.0, -1.0), 1.0);
+    let sphere = Surface::from(Sphere::new(Point::new(0.0, 0.0, -1.0), 1.0));
 
-    let start = Instant::now();
-    for _ in 0..1 {
+    let timer = Timer::tick();
+    for _ in 0..50 {
         img.enumerate_ndc_mut()
-            .par_bridge()
+            // .par_bridge()
             .for_each(|(u, v, pixel)| {
+                RAY_COUNT.inc();
                 let ray = cam.ray(u, v);
                 let isect = sphere.intersect(&ray, 0.0, Float::INFINITY);
                 pixel.add_sample(ray_color(&ray, isect));
             });
     }
-    let dur = Instant::now() - start;
-    println!("Took {:?}", dur);
+    println!("Traced {} rays in {:?}", RAY_COUNT.get(), timer.tock());
+    println!("{} Rays/Sec", RAY_COUNT.get() as f64 / timer.tock().as_secs_f64());
 
     img.snapshot().save_image("rtow.png").unwrap();
 }
