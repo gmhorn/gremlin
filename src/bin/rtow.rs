@@ -1,10 +1,11 @@
 use gremlin::{
     camera::Perspective,
-    film::{RGBFilm},
+    color::RGB,
+    film::RGBFilm,
     geo::{Point, Ray},
     metrics::{Counter, Timer},
     prelude::*,
-    shape::{Intersection, Sphere, Surface}, color::RGB,
+    shape::{Intersection, Sphere, Surface},
 };
 use rand::prelude::*;
 

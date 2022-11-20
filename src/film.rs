@@ -2,7 +2,7 @@
 //!
 //! This module contains the basic building blocks needed for collecting and
 //! aggregating radiosity samples, and converting to final images.
-//! 
+//!
 //! [`Buffer`] is the base struct used throughout this package. It is heap-
 //! allocated rectangular grid of (generic) pixels. Most of the time, it's
 //! easier to use the [`RGBFilm`] or [`SpectralFilm`] typedefs, as they support
@@ -12,24 +12,27 @@
 //! ```no_run
 //! use gremlin::film::RGBFilm;
 //! use gremlin::color::RGB;
-//! 
+//!
 //! let mut img = RGBFilm::new(800, 600);
 //! img.add_samples(|x, y| {
 //!     RGB::from([x / 800.0, y / 600.0, 0.25])
 //! });
 //! img.to_snapshot().save_image("out.png").unwrap();
 //! ```
-//! 
+//!
 //! Raster space [`Buffer`]s runs from `(0, 0)` in the upper-left to
 //! `(width-1, height-1)` in the lower right.
 
-use image::{ImageResult, RgbImage, Rgb};
+use crate::{
+    color::{Color, LinearRGB, CIE1931},
+    Float,
+};
+use image::{ImageResult, Rgb, RgbImage};
+use rayon::prelude::*;
 use std::{
     ops::{Deref, DerefMut},
     path::Path,
 };
-use rayon::prelude::*;
-use crate::{Float, color::{Color, LinearRGB, CIE1931}};
 
 /// A rectangular grid of pixels.
 pub struct Buffer<P> {
@@ -44,7 +47,7 @@ impl<P> Buffer<P> {
     /// All pixels are initialized with their default value.
     pub fn new(width: u32, height: u32) -> Self
     where
-        P: Default + Clone
+        P: Default + Clone,
     {
         let pixels = vec![P::default(); (width * height) as usize];
         Self {
@@ -70,12 +73,12 @@ impl<P> Buffer<P> {
     }
 
     /// Save the buffer as an image at the path specified.
-    /// 
+    ///
     /// Image format is derived from the file extension.
     pub fn save_image<Q>(&self, path: Q) -> ImageResult<()>
     where
         Q: AsRef<Path>,
-        P: Into<[u8; 3]> + Copy
+        P: Into<[u8; 3]> + Copy,
     {
         RgbImage::from_fn(self.width, self.height, |x, y| {
             let idx = ((y * self.width) + x) as usize;
@@ -87,9 +90,7 @@ impl<P> Buffer<P> {
     pub fn ndc_conversion(&self) -> impl Fn(Float, Float) -> (Float, Float) {
         let w = self.width as Float;
         let h = self.height as Float;
-        move |x, y| {
-            (x / w, y / h)
-        }
+        move |x, y| (x / w, y / h)
     }
 }
 
@@ -127,7 +128,7 @@ impl<CS: Copy> Pixel<CS> {
     #[inline]
     pub fn add_sample<S>(&mut self, sample: S)
     where
-        Color<CS>: From<S>
+        Color<CS>: From<S>,
     {
         self.sum += sample.into();
         self.count += 1;
@@ -138,12 +139,12 @@ impl<CS: Copy> Pixel<CS> {
 pub type Film<CS> = Buffer<Pixel<CS>>;
 
 /// A film with [`RGB`] pixels.
-/// 
+///
 /// [`RGB`]: ::crate::color::RGB
 pub type RGBFilm = Buffer<Pixel<LinearRGB>>;
 
 /// A film with [`XYZ`] pixels.
-/// 
+///
 /// [`XYZ`]: ::crate::color::XYZ
 pub type SpectralFilm = Buffer<Pixel<CIE1931>>;
 
@@ -158,33 +159,33 @@ impl<CS: Copy> Buffer<Pixel<CS>> {
     }
 
     /// Add a sample value to each pixel using the supplied function.
-    /// 
+    ///
     /// The supplied function must be parallelizable, and is run across multiple
     /// pixels simultaneously. Often, the supplied function will be the main
     /// raytracing integrator, and effectively implementing a single pass of a
     /// main rendering loop.
-    /// 
+    ///
     /// The values supplied to the function will be the raster-space values of
     /// the pixel (converted to [`Float`] for convenience). This makes it
     /// especially easy to pick a "random point in the pixel":
-    /// 
+    ///
     /// ```no_run
     /// use gremlin::color::RGB;
     /// use gremlin::film::RGBFilm;
     /// use gremlin::Float;
     /// use rand::prelude::*;
-    /// 
+    ///
     /// let mut img = RGBFilm::new(800, 600);
     /// img.add_samples(|x, y| {
     ///     let x = x + random::<Float>();
     ///     let y = y + random::<Float>();
     ///     pixel_color(x, y)
     /// });
-    /// 
+    ///
     /// fn pixel_color(x: Float, y: Float) -> RGB {
     ///     todo!()
     /// }
-    /// ``` 
+    /// ```
     pub fn add_samples<F, S>(&mut self, func: F)
     where
         F: Fn(Float, Float) -> S + Sync,
@@ -231,6 +232,5 @@ mod test {
     }
 
     #[test]
-    fn add_samples() {
-    }
+    fn add_samples() {}
 }

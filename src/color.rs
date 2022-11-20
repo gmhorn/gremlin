@@ -1,32 +1,32 @@
 //! Color spaces and conversions.
-//! 
+//!
 //! The base [`Color`] struct represents a tristimulus color value in a specific
 //! color space. Each component has a gamut of `[0, 1]`. Basic arithmetic on
 //! color values within a color space is supported, while preventing arithmetic
 //! on color values in different spaces.
-//! 
+//!
 //! Two color spaces are supported: [`CIE1931`] and [`LinearRGB`]. Convenience
 //! typedefs ([`XYZ`] and [`RGB`], respectively) make it easy to construct and
 //! refer to values in these spaces.
-//! 
+//!
 //! ```
 //! use gremlin::color::{RGB, XYZ};
-//! 
+//!
 //! let mut rgb = RGB::from([0.0, 0.5, 1.0]);
 //! let mut xyz = XYZ::from([0.5, 0.3, 0.0]);
-//! 
+//!
 //! rgb /= 2.0;
 //! xyz *= 2.0;
-//! 
+//!
 //! // won't compile!
 //! //let invalid = rgb + xyz;
 //! ```
 
+use crate::{geo::Vector, spectrum::Sampled, Float};
 use std::{
     marker::PhantomData,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign},
 };
-use crate::{geo::Vector, Float, spectrum::Sampled};
 
 /// The CIE 1931 color space.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -49,14 +49,20 @@ impl<CS> Color<CS> {
     /// Create a new color value from an array of component values.
     #[inline]
     pub const fn new(c1: Float, c2: Float, c3: Float) -> Self {
-        Self { vals: Vector::new(c1, c2, c3), _colorspace: PhantomData }
+        Self {
+            vals: Vector::new(c1, c2, c3),
+            _colorspace: PhantomData,
+        }
     }
 }
 
 impl<CS> Default for Color<CS> {
     #[inline]
     fn default() -> Self {
-        Self { vals: Vector::splat(0.0), _colorspace: PhantomData }
+        Self {
+            vals: Vector::splat(0.0),
+            _colorspace: PhantomData,
+        }
     }
 }
 
