@@ -133,15 +133,28 @@ impl<P> DerefMut for Buf<P> {
     }
 }
 
+/// A pixel that aggregates values from a given color space.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Pixel<CS> {
     sum: Color<CS>,
     count: u32,
 }
 
 impl<CS: Copy> Pixel<CS> {
+    /// Get the color value representing the average over all samples.
     #[inline]
-    fn to_color(&self) -> Color<CS> {
-        self.sum / (self.count as Float)
+    pub fn to_color(&self) -> Color<CS> {
+        self.sum / (self.count as Float).max(1.0)
+    }
+
+    /// Add a sample to this pixel.
+    #[inline]
+    pub fn add_sample<S>(&mut self, sample: S)
+    where
+        Color<CS>: From<S>
+    {
+        self.sum += sample.into();
+        self.count += 1;
     }
 }
 
@@ -152,5 +165,35 @@ impl<CS: Copy> Buf<Pixel<CS>> {
             height: self.height,
             pixels: self.pixels.iter().map(|p| p.to_color()).collect(),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::color::*;
+
+    #[test]
+    fn pixel_aggregation() {
+        let mut pix = Pixel::default();
+        pix.add_sample(RGB::from([1.0, 1.0, 1.0]));
+        assert_eq!(pix.to_color(), RGB::from([1.0, 1.0, 1.0]));
+
+        pix.add_sample(RGB::from([0.0, 0.0, 0.0]));
+        assert_eq!(pix.to_color(), RGB::from([0.5, 0.5, 0.5]));
+    }
+
+    #[test]
+    fn add_sample_conv() {
+        let mut pix = Pixel::default();
+
+        struct Uniform(Float);
+        impl From<Uniform> for XYZ {
+            fn from(val: Uniform) -> Self {
+                XYZ::from([val.0, val.0, val.0])
+            }
+        }
+
+        pix.add_sample(Uniform(1.0));
     }
 }
