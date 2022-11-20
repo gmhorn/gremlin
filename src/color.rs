@@ -108,6 +108,7 @@ impl<CS> From<[Float; 3]> for Color<CS> {
 /// A CIE 1931 tristimulus color value.
 pub type XYZ = Color<CIE1931>;
 
+// TODO: Consider moving to Spectrum module?
 impl From<Sampled> for XYZ {
     /// Converts a sampled spectrum to XYZ by integrating against the CIE color-
     /// matching curves.
