@@ -3,7 +3,7 @@
 //! The base [`Color`] struct represents a tristimulus color value in a specific
 //! color space. Each component has a gamut of `[0, 1]`. Basic arithmetic on
 //! color values within a color space is supported, while preventing arithmetic
-//! on color vlaues in different spaces.
+//! on color values in different spaces.
 //! 
 //! Two color spaces are supported: [`CIE1931`] and [`LinearRGB`]. Convenience
 //! typedefs ([`XYZ`] and [`RGB`], respectively) make it easy to construct and
@@ -12,8 +12,8 @@
 //! ```
 //! use gremlin::color::{RGB, XYZ};
 //! 
-//! let rgb = RGB::from([0.0, 0.5, 1.0]);
-//! let xyz = XYZ::from([0.5, 0.3, 0.0]);
+//! let mut rgb = RGB::from([0.0, 0.5, 1.0]);
+//! let mut xyz = XYZ::from([0.5, 0.3, 0.0]);
 //! 
 //! rgb /= 2.0;
 //! xyz *= 2.0;

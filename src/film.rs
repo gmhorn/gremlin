@@ -1,28 +1,27 @@
-//! # Buffers, pixels, and films
+//! # Buffers, pixels, and films.
 //!
 //! This module contains the basic building blocks needed for collecting and
 //! aggregating radiosity samples, and converting to final images.
 //! 
 //! [`Buffer`] is the base struct used throughout this package. It is heap-
-//! allocated rectangular grid of (generic) pixels.
+//! allocated rectangular grid of (generic) pixels. Most of the time, it's
+//! easier to use the [`RGBFilm`] or [`SpectralFilm`] typedefs, as they support
+//! the most common operations needed for raytracing (aggregating color values
+//! on a per-pixel basis, and taking snapshots of average pixel values ).
+//!
+//! ```no_run
+//! use gremlin::film::RGBFilm;
+//! use gremlin::color::RGB;
 //! 
-//! Implements functionality for aggregating radiosity samples collected during
-//! ray tracing, and converting to final images.
-//!
-//! [`Buffer`] is the base struct used throughout this package. It is a generic
-//! rectangular container for pixels. By bringing the [`Save`] trait into scope,
-//! buffers may be saved to disk (as long as the underlying pixel type supports
-//! conversion to packed [`u8`] RGB format).
-//!
-//! Two color representations are supported: [`RGB`] and [`XYZ`]. Both are
-//! tristimulus and [`Float`][crate::Float]-valued, with a gamut of `[0, 1]`.
-//! [`XYZ`] are treated as CIE 1931 colorspace values. [`RGB`] are not treated
-//! as being part of any particular color space.
-//!
-//! The [`FilmPixel`] struct supports computing a final color by averaging
-//! multiple samples. To make things convenient, this package exports a number
-//! of typedefs. The general pattern is a `Buffer<Foo>` is exported as
-//! `FooBuffer`, while a `Buffer<FilmPixel<Foo>>` is exported as `FooFilm`.
+//! let mut img = RGBFilm::new(800, 600);
+//! img.add_samples(|x, y| {
+//!     RGB::from([x / 800.0, y / 600.0, 0.25])
+//! });
+//! img.to_snapshot().save_image("out.png").unwrap();
+//! ```
+//! 
+//! Raster space [`Buffer`]s runs from `(0, 0)` in the upper-left to
+//! `(width-1, height-1)` in the lower right.
 
 use image::{ImageResult, RgbImage, Rgb};
 use std::{
@@ -83,6 +82,14 @@ impl<P> Buffer<P> {
             Rgb::<u8>::from(self.pixels[idx].into())
         })
         .save(path)
+    }
+
+    pub fn ndc_conversion(&self) -> impl Fn(Float, Float) -> (Float, Float) {
+        let w = self.width as Float;
+        let h = self.height as Float;
+        move |x, y| {
+            (x / w, y / h)
+        }
     }
 }
 
@@ -150,6 +157,34 @@ impl<CS: Copy> Buffer<Pixel<CS>> {
         }
     }
 
+    /// Add a sample value to each pixel using the supplied function.
+    /// 
+    /// The supplied function must be parallelizable, and is run across multiple
+    /// pixels simultaneously. Often, the supplied function will be the main
+    /// raytracing integrator, and effectively implementing a single pass of a
+    /// main rendering loop.
+    /// 
+    /// The values supplied to the function will be the raster-space values of
+    /// the pixel (converted to [`Float`] for convenience). This makes it
+    /// especially easy to pick a "random point in the pixel":
+    /// 
+    /// ```no_run
+    /// use gremlin::color::RGB;
+    /// use gremlin::film::RGBFilm;
+    /// use gremlin::Float;
+    /// use rand::prelude::*;
+    /// 
+    /// let mut img = RGBFilm::new(800, 600);
+    /// img.add_samples(|x, y| {
+    ///     let x = x + random::<Float>();
+    ///     let y = y + random::<Float>();
+    ///     pixel_color(x, y)
+    /// });
+    /// 
+    /// fn pixel_color(x: Float, y: Float) -> RGB {
+    ///     todo!()
+    /// }
+    /// ``` 
     pub fn add_samples<F, S>(&mut self, func: F)
     where
         F: Fn(Float, Float) -> S + Sync,
