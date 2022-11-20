@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use gremlin::{
-    film::XYZ,
+    color::XYZ,
     spectrum::{self, Sampled},
 };
 

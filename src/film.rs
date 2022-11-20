@@ -1,5 +1,11 @@
-//! # Film module
+//! # Buffers, pixels, and films
 //!
+//! This module contains the basic building blocks needed for collecting and
+//! aggregating radiosity samples, and converting to final images.
+//! 
+//! [`Buffer`] is the base struct used throughout this package. It is heap-
+//! allocated rectangular grid of (generic) pixels.
+//! 
 //! Implements functionality for aggregating radiosity samples collected during
 //! ray tracing, and converting to final images.
 //!
