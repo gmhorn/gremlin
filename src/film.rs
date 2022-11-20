@@ -171,7 +171,7 @@ impl<CS: Copy> Buf<Pixel<CS>> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::color::*;
+    use crate::color::{RGB, XYZ};
 
     #[test]
     fn pixel_aggregation() {
@@ -195,5 +195,7 @@ mod test {
         }
 
         pix.add_sample(Uniform(1.0));
+        pix.add_sample(Uniform(0.0));
+        assert_eq!(XYZ::from([0.5, 0.5, 0.5]), pix.to_color());
     }
 }
