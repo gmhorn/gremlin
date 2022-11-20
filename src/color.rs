@@ -1,9 +1,4 @@
 //! Color spaces and conversions.
-//!
-//! The main type in this package is [`Color`], which is a tristimulus color
-//! value parameterized by its color space. It's not possible to directly
-//! instantiate one of these objects. Only [`XYZ`] and [`RGB`] instances, which
-//! have concrete values for their color space parameter, may be instantiated.
 
 use std::{
     marker::PhantomData,
@@ -13,17 +8,35 @@ use std::{
 use crate::{geo::Vector, Float};
 
 /// The CIE 1931 color space.
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CIE1931;
 
 /// Linear RGB color space.
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LinearRGB;
 
 /// A tristimulus color value, parameterized by its color space.
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color<CS> {
     // Kind of a gross implementation detail, but it already implements all the
     // operations we need...
     vals: Vector,
     _colorspace: PhantomData<CS>,
+}
+
+impl<CS> Color<CS> {
+    /// Create a new color value from an array of component values.
+    #[inline]
+    pub const fn new(c1: Float, c2: Float, c3: Float) -> Self {
+        Self { vals: Vector::new(c1, c2, c3), _colorspace: PhantomData }
+    }
+}
+
+impl<CS> Default for Color<CS> {
+    #[inline]
+    fn default() -> Self {
+        Self { vals: Vector::splat(0.0), _colorspace: PhantomData }
+    }
 }
 
 impl<CS> Add for Color<CS> {
@@ -96,30 +109,10 @@ impl<CS> From<[Float; 3]> for Color<CS> {
 /// A CIE 1931 tristimulus color value.
 pub type XYZ = Color<CIE1931>;
 
-impl XYZ {
-    /// Create a new XYZ color from component values.
-    #[inline]
-    pub const fn new(x: Float, y: Float, z: Float) -> Self {
-        Self {
-            vals: Vector::new(x, y, z),
-            _colorspace: PhantomData,
-        }
-    }
-}
-
 /// A linear RGB color value.
 pub type RGB = Color<LinearRGB>;
 
 impl RGB {
-    /// Create a new RGB color from component values.
-    #[inline]
-    pub const fn new(r: Float, g: Float, b: Float) -> Self {
-        Self {
-            vals: Vector::new(r, g, b),
-            _colorspace: PhantomData,
-        }
-    }
-
     /// Convert linear RGB to sRGB.
     pub fn to_srgb(&self) -> [u8; 3] {
         // Implementation note:

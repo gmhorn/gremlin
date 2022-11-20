@@ -18,9 +18,9 @@
 //! of typedefs. The general pattern is a `Buffer<Foo>` is exported as
 //! `FooBuffer`, while a `Buffer<FilmPixel<Foo>>` is exported as `FooFilm`.
 
-use image::ImageResult;
+use image::{ImageResult, RgbImage, Rgb};
 use std::{
-    ops::{AddAssign, Deref, DerefMut, Div},
+    ops::{Deref, DerefMut},
     path::Path,
 };
 
@@ -36,7 +36,7 @@ pub use rgb::*;
 mod xyz;
 pub use xyz::*;
 
-use crate::Float;
+use crate::{Float, color::Color};
 
 // TYPE DEFINITIONS
 
@@ -63,23 +63,6 @@ pub trait Save {
         P: AsRef<Path>;
 }
 
-/// A color value.
-pub trait Color: Default + Copy + AddAssign + Div<Float, Output = Self> {}
-
-impl<C: Default + Copy + AddAssign + Div<Float, Output = Self>> Color for C {}
-
-/// A pixel that aggregates color values.
-pub struct Pixel<C> {
-    sum: C,
-    count: u32,
-}
-
-impl<C: Color> Pixel<C> {
-    pub fn to_color(&self) -> C {
-        self.sum / (self.count as Float)
-    }
-}
-
 /// A rectangular grid of pixels.
 pub struct Buf<P> {
     width: u32,
@@ -88,6 +71,21 @@ pub struct Buf<P> {
 }
 
 impl<P> Buf<P> {
+    /// Create a new buffer with the given width and height.
+    ///
+    /// All pixels are initialized with their default value.
+    pub fn new(width: u32, height: u32) -> Self
+    where
+        P: Default + Clone
+    {
+        let pixels = vec![P::default(); (width * height) as usize];
+        Self {
+            width,
+            height,
+            pixels,
+        }
+    }
+
     /// The width of the buffer
     pub fn width(&self) -> u32 {
         self.width
@@ -102,19 +100,20 @@ impl<P> Buf<P> {
     pub fn aspect_ratio(&self) -> Float {
         self.width as Float / self.height as Float
     }
-}
 
-impl<P: Default + Clone> Buf<P> {
-    /// Create a new buffer with the given width and height.
-    ///
-    /// All pixels are initialized with their default value.
-    pub fn new(width: u32, height: u32) -> Self {
-        let pixels = vec![P::default(); (width * height) as usize];
-        Self {
-            width,
-            height,
-            pixels,
-        }
+    /// Save the buffer as an image at the path specified.
+    /// 
+    /// Image format is derived from the file extension.
+    pub fn save_image<Q>(&self, path: Q) -> ImageResult<()>
+    where
+        Q: AsRef<Path>,
+        P: Into<[u8; 3]> + Copy
+    {
+        RgbImage::from_fn(self.width, self.height, |x, y| {
+            let idx = ((y * self.width) + x) as usize;
+            Rgb::<u8>::from(self.pixels[idx].into())
+        })
+        .save(path)
     }
 }
 
@@ -134,8 +133,20 @@ impl<P> DerefMut for Buf<P> {
     }
 }
 
-impl<C: Color> Buf<Pixel<C>> {
-    pub fn to_snapshot(&self) -> Buf<C> {
+pub struct Pixel<CS> {
+    sum: Color<CS>,
+    count: u32,
+}
+
+impl<CS: Copy> Pixel<CS> {
+    #[inline]
+    fn to_color(&self) -> Color<CS> {
+        self.sum / (self.count as Float)
+    }
+}
+
+impl<CS: Copy> Buf<Pixel<CS>> {
+    pub fn to_snapshot(&self) -> Buf<Color<CS>> {
         Buf {
             width: self.width,
             height: self.height,
