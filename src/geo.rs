@@ -1,4 +1,4 @@
-//! # Geometry module
+//! # Geometric primitives.
 //!
 //! Implements basic geometric primitives needed for ray tracing. Attempts to
 //! be simple, minimal, and fast (enough).

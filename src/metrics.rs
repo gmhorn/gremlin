@@ -100,6 +100,6 @@ mod tests {
         (0..1_000).into_par_iter().for_each(|_| {
             q.inc_by(0.1);
         });
-        assert_relative_eq!(100.0, q.get(), epsilon=1e-6);
+        assert_relative_eq!(100.0, q.get(), epsilon = 1e-6);
     }
 }
