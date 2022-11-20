@@ -19,7 +19,10 @@
 //! `FooBuffer`, while a `Buffer<FilmPixel<Foo>>` is exported as `FooFilm`.
 
 use image::ImageResult;
-use std::{path::Path, ops::{Deref, DerefMut, AddAssign, Div}};
+use std::{
+    ops::{AddAssign, Deref, DerefMut, Div},
+    path::Path,
+};
 
 mod buffer;
 pub use buffer::*;
@@ -61,9 +64,9 @@ pub trait Save {
 }
 
 /// A color value.
-pub trait Color: Default + Copy + AddAssign + Div<Float, Output=Self> {}
+pub trait Color: Default + Copy + AddAssign + Div<Float, Output = Self> {}
 
-impl<C: Default + Copy + AddAssign + Div<Float, Output=Self>> Color for C {}
+impl<C: Default + Copy + AddAssign + Div<Float, Output = Self>> Color for C {}
 
 /// A pixel that aggregates color values.
 pub struct Pixel<C> {
@@ -105,9 +108,9 @@ impl<P: Default + Clone> Buf<P> {
     /// Create a new buffer with the given width and height.
     ///
     /// All pixels are initialized with their default value.
-    pub fn new(width: u32, height:u32) -> Self {
+    pub fn new(width: u32, height: u32) -> Self {
         let pixels = vec![P::default(); (width * height) as usize];
-        Self { 
+        Self {
             width,
             height,
             pixels,
@@ -122,7 +125,7 @@ impl<P> Deref for Buf<P> {
 
     fn deref(&self) -> &Self::Target {
         &self.pixels
-    }    
+    }
 }
 
 impl<P> DerefMut for Buf<P> {
@@ -136,7 +139,7 @@ impl<C: Color> Buf<Pixel<C>> {
         Buf {
             width: self.width,
             height: self.height,
-            pixels: self.pixels.iter().map(|p| p.to_color()).collect()
+            pixels: self.pixels.iter().map(|p| p.to_color()).collect(),
         }
     }
 }

@@ -113,7 +113,7 @@ impl<P> Buffer<P> {
     pub fn set_all<F>(&mut self, f: F)
     where
         F: Send + Sync + Fn(u32, u32) -> P,
-        P: Send
+        P: Send,
     {
         self.pixels.par_iter_mut().enumerate().for_each(|(idx, p)| {
             let x = idx as u32 % self.width;
