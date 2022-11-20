@@ -19,7 +19,7 @@
 //! `FooBuffer`, while a `Buffer<FilmPixel<Foo>>` is exported as `FooFilm`.
 
 use image::ImageResult;
-use std::path::Path;
+use std::{path::Path, ops::{Deref, DerefMut, AddAssign, Div}};
 
 mod buffer;
 pub use buffer::*;
@@ -32,6 +32,8 @@ pub use rgb::*;
 
 mod xyz;
 pub use xyz::*;
+
+use crate::Float;
 
 // TYPE DEFINITIONS
 
@@ -56,4 +58,85 @@ pub trait Save {
     fn save_image<P>(&self, path: P) -> ImageResult<()>
     where
         P: AsRef<Path>;
+}
+
+/// A color value.
+pub trait Color: Default + Copy + AddAssign + Div<Float, Output=Self> {}
+
+impl<C: Default + Copy + AddAssign + Div<Float, Output=Self>> Color for C {}
+
+/// A pixel that aggregates color values.
+pub struct Pixel<C> {
+    sum: C,
+    count: u32,
+}
+
+impl<C: Color> Pixel<C> {
+    pub fn to_color(&self) -> C {
+        self.sum / (self.count as Float)
+    }
+}
+
+/// A rectangular grid of pixels.
+pub struct Buf<P> {
+    width: u32,
+    height: u32,
+    pixels: Vec<P>,
+}
+
+impl<P> Buf<P> {
+    /// The width of the buffer
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    /// The height of the buffer
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    /// The aspect ratio (`width`/`height`) of the buffer
+    pub fn aspect_ratio(&self) -> Float {
+        self.width as Float / self.height as Float
+    }
+}
+
+impl<P: Default + Clone> Buf<P> {
+    /// Create a new buffer with the given width and height.
+    ///
+    /// All pixels are initialized with their default value.
+    pub fn new(width: u32, height:u32) -> Self {
+        let pixels = vec![P::default(); (width * height) as usize];
+        Self { 
+            width,
+            height,
+            pixels,
+        }
+    }
+}
+
+// DEREFS
+
+impl<P> Deref for Buf<P> {
+    type Target = [P];
+
+    fn deref(&self) -> &Self::Target {
+        &self.pixels
+    }    
+}
+
+impl<P> DerefMut for Buf<P> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.pixels
+    }
+}
+
+impl<C: Color> Buf<Pixel<C>> {
+    pub fn to_snapshot(&self) -> Buf<C> {
+        Buf {
+            width: self.width,
+            height: self.height,
+            pixels: self.pixels.iter().map(|p| p.to_color()).collect()
+        }
+    }
 }

@@ -1,13 +1,10 @@
-use std::time::Instant;
-
 use gremlin::{
     camera::Perspective,
-    film::{RGBFilm, RGB},
+    film::{RGBFilm, RGB, Buf},
     geo::{Point, Ray},
     prelude::*,
     shape::{Intersection, Sphere, Surface}, metrics::{Counter, Timer},
 };
-use rayon::prelude::*;
 use rand::prelude::*;
 
 static RAY_COUNT: Counter = Counter::new();
@@ -30,6 +27,11 @@ fn ray_color(ray: &Ray, isect: Option<Intersection>) -> RGB {
 }
 
 fn main() {
+    let mut img2 = Buf::new(800, 600);
+
+    for _ in 0..50 {
+        img2.
+    }
     let mut img = RGBFilm::new(800, 600);
     let mut cam = Perspective::new(img.aspect_ratio(), 75.0);
     cam.move_to(0.0, 0.0, 1.0);

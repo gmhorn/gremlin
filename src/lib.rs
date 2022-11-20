@@ -2,6 +2,7 @@
 //!
 //! Gremlin is a ray tracer
 pub mod camera;
+pub mod color;
 pub mod film;
 pub mod geo;
 pub mod integrator;
