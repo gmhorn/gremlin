@@ -24,16 +24,16 @@ use std::{
     path::Path,
 };
 use rayon::prelude::*;
-use crate::{Float, color::{Color, LinearRGB}};
+use crate::{Float, color::{Color, LinearRGB, CIE1931}};
 
 /// A rectangular grid of pixels.
-pub struct Buf<P> {
+pub struct Buffer<P> {
     width: u32,
     height: u32,
     pixels: Vec<P>,
 }
 
-impl<P> Buf<P> {
+impl<P> Buffer<P> {
     /// Create a new buffer with the given width and height.
     ///
     /// All pixels are initialized with their default value.
@@ -82,7 +82,7 @@ impl<P> Buf<P> {
 
 // DEREFS
 
-impl<P> Deref for Buf<P> {
+impl<P> Deref for Buffer<P> {
     type Target = [P];
 
     fn deref(&self) -> &Self::Target {
@@ -90,7 +90,7 @@ impl<P> Deref for Buf<P> {
     }
 }
 
-impl<P> DerefMut for Buf<P> {
+impl<P> DerefMut for Buffer<P> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.pixels
     }
@@ -122,21 +122,22 @@ impl<CS: Copy> Pixel<CS> {
 }
 
 /// Convenience typedef for a buffer of pixels in a given color space.
-pub type Film<CS> = Buf<Pixel<CS>>;
+pub type Film<CS> = Buffer<Pixel<CS>>;
 
 /// A film with [`RGB`] pixels.
 /// 
 /// [`RGB`]: ::crate::color::RGB
-pub type RGBFilm = Buf<Pixel<LinearRGB>>;
+pub type RGBFilm = Buffer<Pixel<LinearRGB>>;
 
 /// A film with [`XYZ`] pixels.
 /// 
 /// [`XYZ`]: ::crate::color::XYZ
+pub type SpectralFilm = Buffer<Pixel<CIE1931>>;
 
-impl<CS: Copy> Buf<Pixel<CS>> {
+impl<CS: Copy> Buffer<Pixel<CS>> {
     /// Creates a snapshot of the buffer's values.
-    pub fn to_snapshot(&self) -> Buf<Color<CS>> {
-        Buf {
+    pub fn to_snapshot(&self) -> Buffer<Color<CS>> {
+        Buffer {
             width: self.width,
             height: self.height,
             pixels: self.pixels.iter().map(|p| p.to_color()).collect(),
