@@ -1,3 +1,10 @@
+//! Color spaces and conversions.
+//!
+//! The main type in this package is [`Color`], which is a tristimulus color
+//! value parameterized by its color space. It's not possible to directly
+//! instantiate one of these objects. Only [`XYZ`] and [`RGB`] instances, which
+//! have concrete values for their color space parameter, may be instantiated.
+
 use std::{
     marker::PhantomData,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign},
@@ -100,7 +107,6 @@ impl XYZ {
     }
 }
 
-
 /// A linear RGB color value.
 pub type RGB = Color<LinearRGB>;
 
@@ -122,7 +128,7 @@ impl RGB {
         // _Colour Rendering of Spectra_ page:
         // * <https://www.fourmilab.ch/documents/specrend/>
         // * <https://www.fourmilab.ch/documents/specrend/specrend.c>
-        
+
         // Convert linear RGB to sRGB by applying gamma
         let mut vals = self.vals.apply(Self::gamma);
 
@@ -159,7 +165,10 @@ impl RGB {
 impl From<XYZ> for RGB {
     #[inline]
     fn from(xyz: XYZ) -> Self {
-        Self { vals: consts::XYZ_TO_RGB * xyz.vals, _colorspace: PhantomData }
+        Self {
+            vals: consts::XYZ_TO_RGB * xyz.vals,
+            _colorspace: PhantomData,
+        }
     }
 }
 

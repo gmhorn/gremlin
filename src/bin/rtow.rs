@@ -1,9 +1,10 @@
 use gremlin::{
     camera::Perspective,
-    film::{RGBFilm, RGB, Buf},
+    film::{Buf, RGBFilm, RGB},
     geo::{Point, Ray},
+    metrics::{Counter, Timer},
     prelude::*,
-    shape::{Intersection, Sphere, Surface}, metrics::{Counter, Timer},
+    shape::{Intersection, Sphere, Surface},
 };
 use rand::prelude::*;
 
@@ -27,11 +28,6 @@ fn ray_color(ray: &Ray, isect: Option<Intersection>) -> RGB {
 }
 
 fn main() {
-    let mut img2 = Buf::new(800, 600);
-
-    for _ in 0..50 {
-        img2.
-    }
     let mut img = RGBFilm::new(800, 600);
     let mut cam = Perspective::new(img.aspect_ratio(), 75.0);
     cam.move_to(0.0, 0.0, 1.0);
@@ -50,7 +46,10 @@ fn main() {
         });
     }
     println!("Traced {} rays in {:?}", RAY_COUNT.get(), timer.tock());
-    println!("{} Rays/Sec", RAY_COUNT.get() as f64 / timer.tock().as_secs_f64());
+    println!(
+        "{} Rays/Sec",
+        RAY_COUNT.get() as f64 / timer.tock().as_secs_f64()
+    );
 
     img.snapshot().save_image("rtow.png").unwrap();
 }
