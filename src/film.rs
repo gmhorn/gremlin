@@ -23,6 +23,7 @@ use std::{
     ops::{Deref, DerefMut},
     path::Path,
 };
+use rayon::prelude::*;
 
 mod buffer;
 pub use buffer::*;
@@ -159,12 +160,26 @@ impl<CS: Copy> Pixel<CS> {
 }
 
 impl<CS: Copy> Buf<Pixel<CS>> {
+    /// Creates a snapshot of the buffer's values.
     pub fn to_snapshot(&self) -> Buf<Color<CS>> {
         Buf {
             width: self.width,
             height: self.height,
             pixels: self.pixels.iter().map(|p| p.to_color()).collect(),
         }
+    }
+
+    pub fn add_samples<F, S>(&mut self, func: F)
+    where
+        F: Fn(Float, Float) -> S + Sync,
+        Color<CS>: From<S> + Send,
+    {
+        let width = self.width;
+        self.par_iter_mut().enumerate().for_each(|(idx, pixel)| {
+            let x = idx as u32 % width;
+            let y = idx as u32 / width;
+            pixel.add_sample(func(x as Float, y as Float))
+        });
     }
 }
 
@@ -197,5 +212,9 @@ mod test {
         pix.add_sample(Uniform(1.0));
         pix.add_sample(Uniform(0.0));
         assert_eq!(XYZ::from([0.5, 0.5, 0.5]), pix.to_color());
+    }
+
+    #[test]
+    fn add_samples() {
     }
 }
