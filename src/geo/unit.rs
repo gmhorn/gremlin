@@ -35,6 +35,7 @@ use std::ops::Neg;
 /// See also: Will Crichton's [Type-Driven API Design In Rust](https://willcrichton.net/rust-api-type-patterns/witnesses.html)
 /// where he discusses *witnesses* as a way to prove properties of a type via
 /// construction.
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Unit {
     x: Float,
     y: Float,

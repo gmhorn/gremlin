@@ -1,11 +1,7 @@
+use super::{Point, Vector};
 use crate::Float;
 
-use super::{Point, Vector};
-
 /// A geometric ray.
-///
-/// Rays have an origin and a direction (not necessarily normalized). The
-/// [`Point`]s along the ray may be obtained by calling [`at()`][Self::at].
 #[derive(Debug)]
 pub struct Ray {
     origin: Point,
@@ -31,6 +27,7 @@ impl Ray {
         self.dir
     }
 
+    /// The ray's origin.
     #[inline]
     pub const fn origin(&self) -> Point {
         self.origin

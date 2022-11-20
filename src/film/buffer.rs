@@ -159,7 +159,7 @@ impl<P> Buffer<P> {
     /// reference to the pixel itself. Iteration order is left-to-right,
     /// top-to-bottom.
     #[inline]
-    pub fn enumerate_ndc_mut(&mut self) -> impl Iterator<Item = (Float, Float, &mut P)> {
+    pub fn enumerate_ndc_mut(&mut self) -> impl ExactSizeIterator<Item = (Float, Float, &mut P)> {
         self.pixels.iter_mut().enumerate().map(|(idx, pixel)| {
             let x = (idx as u32) % self.width;
             let y = (idx as u32) / self.width;

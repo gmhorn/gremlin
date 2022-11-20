@@ -31,13 +31,13 @@ impl Perspective {
         }
     }
 
-    pub fn move_to(&mut self, location: Point) {
-        self.eye = location;
+    pub fn move_to(&mut self, x: Float, y: Float, z: Float) {
+        self.eye = Point::new(x, y, z);
         self.cam_to_world = Matrix::look_at(self.eye, self.target, Vector::Y_AXIS);
     }
 
-    pub fn look_at(&mut self, location: Point) {
-        self.target = location;
+    pub fn look_at(&mut self, x: Float, y: Float, z: Float) {
+        self.target = Point::new(x, y, z);
         self.cam_to_world = Matrix::look_at(self.eye, self.target, Vector::Y_AXIS);
     }
 }
@@ -64,7 +64,7 @@ mod tests {
     #[test]
     fn foo() {
         let mut cam = Perspective::new(1.0, 1.0);
-        cam.look_at(Point::new(1.0, 2.0, 3.0));
+        cam.look_at(1.0, 2.0, 3.0);
 
         let _r = cam.ray(1.0, 1.0);
     }
