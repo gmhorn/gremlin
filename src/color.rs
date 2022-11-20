@@ -175,12 +175,21 @@ impl RGB {
 }
 
 impl From<XYZ> for RGB {
+    /// Converts an XYZ to linear RGB.
     #[inline]
     fn from(xyz: XYZ) -> Self {
         Self {
             vals: consts::XYZ_TO_RGB * xyz.vals,
             _colorspace: PhantomData,
         }
+    }
+}
+
+impl From<RGB> for [u8; 3] {
+    /// Converts linear RGB to 8-bit sRGB array.
+    #[inline]
+    fn from(rgb: RGB) -> Self {
+        rgb.to_srgb()
     }
 }
 

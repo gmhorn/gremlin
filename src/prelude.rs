@@ -9,6 +9,6 @@
 //! ```
 
 pub use crate::camera::Camera;
-pub use crate::film::Save;
+// pub use crate::film::Save;
 pub use crate::shape::Shape;
 pub use crate::Float;

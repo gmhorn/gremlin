@@ -24,45 +24,7 @@ use std::{
     path::Path,
 };
 use rayon::prelude::*;
-
-mod buffer;
-pub use buffer::*;
-
-mod pixel;
-pub use pixel::*;
-
-mod rgb;
-pub use rgb::*;
-
-mod xyz;
-pub use xyz::*;
-
-use crate::{Float, color::Color};
-
-// TYPE DEFINITIONS
-
-/// A film that's generic over pixel type.
-pub type Film<P> = Buffer<FilmPixel<P>>;
-
-/// A buffer whose pixels are RGB values.
-pub type RGBBuffer = Buffer<RGB>;
-
-/// A film that takes RGB samples.
-pub type RGBFilm = Film<RGB>;
-
-/// A buffer whose pixels are XYZ values.
-pub type XYZBuffer = Buffer<XYZ>;
-
-/// A film that takes spectral samples.
-pub type SpectralFilm = Film<XYZ>;
-
-/// Used for saving an image to disk.
-pub trait Save {
-    /// Saves an image to disk, at the path specified.
-    fn save_image<P>(&self, path: P) -> ImageResult<()>
-    where
-        P: AsRef<Path>;
-}
+use crate::{Float, color::{Color, LinearRGB}};
 
 /// A rectangular grid of pixels.
 pub struct Buf<P> {
@@ -158,6 +120,18 @@ impl<CS: Copy> Pixel<CS> {
         self.count += 1;
     }
 }
+
+/// Convenience typedef for a buffer of pixels in a given color space.
+pub type Film<CS> = Buf<Pixel<CS>>;
+
+/// A film with [`RGB`] pixels.
+/// 
+/// [`RGB`]: ::crate::color::RGB
+pub type RGBFilm = Buf<Pixel<LinearRGB>>;
+
+/// A film with [`XYZ`] pixels.
+/// 
+/// [`XYZ`]: ::crate::color::XYZ
 
 impl<CS: Copy> Buf<Pixel<CS>> {
     /// Creates a snapshot of the buffer's values.

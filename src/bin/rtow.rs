@@ -1,10 +1,10 @@
 use gremlin::{
     camera::Perspective,
-    film::{Buf, RGBFilm, RGB},
+    film::{RGBFilm},
     geo::{Point, Ray},
     metrics::{Counter, Timer},
     prelude::*,
-    shape::{Intersection, Sphere, Surface},
+    shape::{Intersection, Sphere, Surface}, color::RGB,
 };
 use rand::prelude::*;
 
@@ -51,5 +51,5 @@ fn main() {
         RAY_COUNT.get() as f64 / timer.tock().as_secs_f64()
     );
 
-    img.snapshot().save_image("rtow.png").unwrap();
+    img.to_snapshot().save_image("rtow.png").unwrap();
 }
