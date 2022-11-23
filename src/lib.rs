@@ -6,6 +6,7 @@ pub mod color;
 pub mod film;
 pub mod geo;
 pub mod integrator;
+pub mod material;
 pub mod metrics;
 pub mod prelude;
 pub mod scene;

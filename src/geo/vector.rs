@@ -30,6 +30,9 @@ impl Vector {
     /// A vector of length 1 in the z direction.
     pub const Z_AXIS: Vector = Vector::new(0.0, 0.0, 1.0);
 
+    /// The zero-vector.
+    pub const ZERO: Vector = Vector::new(0.0, 0.0, 0.0);
+
     /// Construct a new vector with the given components.
     #[inline]
     pub const fn new(x: Float, y: Float, z: Float) -> Self {
@@ -126,6 +129,8 @@ impl Vector {
     pub fn is_nan(self) -> bool {
         self.x.is_nan() || self.y.is_nan() || self.z.is_nan()
     }
+
+    
 }
 
 // OPERATORS

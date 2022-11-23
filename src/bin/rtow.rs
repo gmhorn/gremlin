@@ -53,7 +53,7 @@ fn main() {
     let mut img = RGBFilm::new(800, 600);
     
     let mut cam = Perspective::new(img.aspect_ratio(), 55.0);
-    cam.move_to(1.0, 0.5, 1.5);
+    cam.move_to([1.0, 0.5, 1.5]);
     // cam.move_to(-3.0, 3.0, 1.0);
     // cam.look_at(0.0, 0.0, -1.0);
 
@@ -65,7 +65,7 @@ fn main() {
 
     let raster_to_ndc = img.raster_to_ndc();
     let timer = Timer::tick();
-    for _ in 0..128 {
+    for _ in 0..1024 {
         img.add_samples(|x, y| {
             let mut rng = rand::thread_rng();
             let (u, v) = raster_to_ndc(x + rng.gen::<Float>(), y + rng.gen::<Float>());

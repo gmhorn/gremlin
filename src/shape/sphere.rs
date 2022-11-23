@@ -19,11 +19,11 @@ impl Sphere {
     /// # Panics
     ///
     /// Panics if radius is not a finite, positive number.
-    pub fn new(center: Point, radius: Float) -> Self {
+    pub fn new(center: impl Into<Point>, radius: Float) -> Self {
         if radius.is_sign_negative() || !radius.is_normal() {
             panic!("Invalid radius {}; must be finite, positive number", radius);
         }
-        Self { center, radius }
+        Self { center: center.into(), radius: radius }
     }
 
     fn solve_quadratic(a: Float, b: Float, c: Float) -> Option<(Float, Float)> {
