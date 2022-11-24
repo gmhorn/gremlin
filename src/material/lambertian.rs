@@ -1,6 +1,6 @@
 use crate::{
     color::RGB,
-    geo::{Ray, Unit, Vector},
+    geo::{Ray, Vector},
     shape::Intersection,
 };
 use approx::relative_eq;
@@ -18,7 +18,7 @@ impl Lambertian {
 }
 
 impl BSDF for Lambertian {
-    fn scatter(&self, ray: &Ray, isect: &Intersection, rng: &mut impl Rng) -> Option<(RGB, Ray)> {
+    fn scatter(&self, _ray: &Ray, isect: &Intersection, rng: &mut impl Rng) -> Option<(RGB, Ray)> {
         let mut scatter_dir = Vector::from(UnitSphere.sample(rng)) + isect.norm.into();
 
         // Catch degenrate scatter direction

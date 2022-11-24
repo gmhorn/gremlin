@@ -1,7 +1,7 @@
 use super::{Axis, Vector};
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, Deref, Index, Neg, Sub};
+use std::ops::{Add, Index, Neg, Sub};
 
 /// A 3-dimensional point in euclidean space.
 ///

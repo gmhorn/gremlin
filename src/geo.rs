@@ -76,14 +76,39 @@ pub use self::vector::*;
 /// Used to identify a coordinate.
 ///
 /// Most the basic geometric structs in this package use named public fields,
-/// such `x`, `y`, and `z` for [`Point`]s and [`Vector`]s. Sometimes it's
-/// useful to be able to pull the out by-index. This field supports that.
+/// such as `x`, `y`, and `z` for [`Point`]s and [`Vector`]s. Sometimes it's
+/// useful to be able to pull them out by-index. This field supports that.
+///
+/// # Examples
+///
+/// Basic indexing:
 ///
 /// ```
+/// use gremlin::geo::{Axis, Vector};
+///
+/// let v = Vector::new(1.0, 2.0, 3.0);
+/// assert_eq!(1.0, v[Axis::X]);
+/// assert_eq!(2.0, v[Axis::Y]);
+/// assert_eq!(3.0, v[Axis::Z]);
+/// ```
+///
+/// Performing operations over indexes:
+///
+/// ```
+/// use gremlin::geo::{Axis, Point};
+///
+/// let p = Point::new(1.0, 2.0, 3.0);
+/// let sum_of_coords = Axis::ALL.iter().map(|&axis| p[axis]).sum();
+/// assert_eq!(6.0, sum_of_coords);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Axis {
     X,
     Y,
     Z,
+}
+
+impl Axis {
+    /// List of all axes. Convenient for iteration.
+    pub const ALL: [Axis; 3] = [Axis::X, Axis::Y, Axis::Z];
 }

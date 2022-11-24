@@ -1,10 +1,9 @@
-use std::{cmp::Ordering, mem::swap};
-
 use super::{Intersection, Shape};
 use crate::{
     geo::{Point, Ray, Unit},
     Float,
 };
+use std::{cmp::Ordering, mem};
 
 /// A geometric sphere.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -25,7 +24,7 @@ impl Sphere {
         }
         Self {
             center: center.into(),
-            radius: radius,
+            radius,
         }
     }
 
@@ -46,7 +45,7 @@ impl Sphere {
                 let mut x0 = q / a;
                 let mut x1 = c / q;
                 if x0 > x1 {
-                    swap(&mut x0, &mut x1);
+                    mem::swap(&mut x0, &mut x1);
                 }
                 Some((x0, x1))
             }
