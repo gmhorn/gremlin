@@ -1,4 +1,7 @@
-use gremlin::{film::RGBFilm, camera::Perspective, scene::Scene, shape::Sphere, material::Lambertian, color::RGB};
+use gremlin::{
+    camera::Perspective, color::RGB, film::RGBFilm, material::Lambertian, scene::Scene,
+    shape::Sphere,
+};
 
 fn main() {
     let mut img = RGBFilm::new(800, 600);
@@ -7,6 +10,4 @@ fn main() {
 
     let mut scene = Scene::default();
     // scene.add_primitive(Sphere::new([-0.5, 0.0, -1.0], 0.5), Lambertian::new(RGB::from([0.5, 0.5, 0.5])));
-    
-    
 }

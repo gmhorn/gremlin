@@ -1,7 +1,7 @@
-use super::Vector;
+use super::{Axis, Vector};
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, Neg, Sub};
+use std::ops::{Add, Deref, Index, Neg, Sub};
 
 /// A 3-dimensional point in euclidean space.
 ///
@@ -107,6 +107,19 @@ impl Sub for Point {
     }
 }
 
+impl Index<Axis> for Point {
+    type Output = Float;
+
+    #[inline]
+    fn index(&self, axis: Axis) -> &Self::Output {
+        match axis {
+            Axis::X => &self.x,
+            Axis::Y => &self.y,
+            Axis::Z => &self.z,
+        }
+    }
+}
+
 // APPROXIMATIONS
 
 impl AbsDiffEq for Point {
@@ -162,6 +175,13 @@ impl UlpsEq for Point {
 }
 
 // CONVERSIONS
+
+impl From<Point> for [Float; 3] {
+    #[inline]
+    fn from(pt: Point) -> Self {
+        [pt.x, pt.y, pt.z]
+    }
+}
 
 impl From<[Float; 3]> for Point {
     #[inline]

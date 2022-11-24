@@ -51,7 +51,7 @@ fn ray_color_2(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng
 
 fn main() {
     let mut img = RGBFilm::new(800, 600);
-    
+
     let mut cam = Perspective::new(img.aspect_ratio(), 55.0);
     cam.move_to([1.0, 0.5, 1.5]);
     // cam.move_to(-3.0, 3.0, 1.0);
@@ -61,7 +61,10 @@ fn main() {
     surfaces.push(Surface::from(Sphere::new(Point::new(-0.5, 0.0, -1.0), 0.5)));
     surfaces.push(Surface::from(Sphere::new(Point::new(-0.5, 0.0, -2.0), 0.5)));
     surfaces.push(Surface::from(Sphere::new(Point::new(0.5, 0.0, -1.0), 0.5)));
-    surfaces.push(Surface::from(Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0)));
+    surfaces.push(Surface::from(Sphere::new(
+        Point::new(0.0, -100.5, -1.0),
+        100.0,
+    )));
 
     let raster_to_ndc = img.raster_to_ndc();
     let timer = Timer::tick();

@@ -23,7 +23,10 @@ impl Sphere {
         if radius.is_sign_negative() || !radius.is_normal() {
             panic!("Invalid radius {}; must be finite, positive number", radius);
         }
-        Self { center: center.into(), radius: radius }
+        Self {
+            center: center.into(),
+            radius: radius,
+        }
     }
 
     fn solve_quadratic(a: Float, b: Float, c: Float) -> Option<(Float, Float)> {

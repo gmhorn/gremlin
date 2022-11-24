@@ -52,6 +52,9 @@
 
 // MODULES AND RE-EXPORTS
 
+mod bounds;
+pub use self::bounds::*;
+
 mod coords;
 pub use self::coords::*;
 
@@ -69,3 +72,18 @@ pub use self::unit::*;
 
 mod vector;
 pub use self::vector::*;
+
+/// Used to identify a coordinate.
+///
+/// Most the basic geometric structs in this package use named public fields,
+/// such `x`, `y`, and `z` for [`Point`]s and [`Vector`]s. Sometimes it's
+/// useful to be able to pull the out by-index. This field supports that.
+///
+/// ```
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Axis {
+    X,
+    Y,
+    Z,
+}

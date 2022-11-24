@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::{geo::Ray, shape::Intersection, color::RGB};
+use crate::{color::RGB, geo::Ray, shape::Intersection};
 
 mod lambertian;
 pub use lambertian::*;
@@ -9,9 +9,7 @@ pub trait BSDF {
     fn scatter(&self, ray: &Ray, isec: &Intersection, rng: &mut impl Rng) -> Option<(RGB, Ray)>;
 }
 
-pub enum Material {
-
-}
+pub enum Material {}
 
 #[derive(Debug)]
 pub struct Mat {
@@ -42,12 +40,14 @@ impl MatStore {
 
     pub fn add(&mut self, mat: Mat) -> MatHandle {
         self.0.push(mat);
-        MatHandle { mat: &self.0[self.0.len() - 1] }
+        MatHandle {
+            mat: &self.0[self.0.len() - 1],
+        }
     }
 }
 
 pub struct Prim<'a> {
-    mat: MatHandle<'a>
+    mat: MatHandle<'a>,
 }
 
 impl<'a> Prim<'a> {

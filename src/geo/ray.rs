@@ -4,27 +4,27 @@ use crate::Float;
 /// A geometric ray.
 #[derive(Debug)]
 pub struct Ray {
-    origin: Point,
-    dir: Vector,
+    pub origin: Point,
+    pub direction: Vector,
 }
 
 impl Ray {
     /// Construct a new ray with the given origin and direction.
     #[inline]
-    pub const fn new(origin: Point, dir: Vector) -> Self {
-        Self { origin, dir }
+    pub const fn new(origin: Point, direction: Vector) -> Self {
+        Self { origin, direction }
     }
 
     /// Evaluate the ray.
     #[inline]
     pub fn at(&self, t: Float) -> Point {
-        self.origin + (self.dir * t)
+        self.origin + (self.direction * t)
     }
 
     /// The ray's direction.
     #[inline]
     pub const fn direction(&self) -> Vector {
-        self.dir
+        self.direction
     }
 
     /// The ray's origin.

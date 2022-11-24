@@ -1,8 +1,7 @@
+use super::{Axis, Point, Unit};
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-
-use super::{Point, Unit};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A 3-dimensional vector.
 ///
@@ -129,8 +128,6 @@ impl Vector {
     pub fn is_nan(self) -> bool {
         self.x.is_nan() || self.y.is_nan() || self.z.is_nan()
     }
-
-    
 }
 
 // OPERATORS
@@ -228,6 +225,19 @@ impl DivAssign<Float> for Vector {
     #[inline]
     fn div_assign(&mut self, rhs: Float) {
         *self *= rhs.recip();
+    }
+}
+
+impl Index<Axis> for Vector {
+    type Output = Float;
+
+    #[inline]
+    fn index(&self, axis: Axis) -> &Self::Output {
+        match axis {
+            Axis::X => &self.x,
+            Axis::Y => &self.y,
+            Axis::Z => &self.z,
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{shape::Surface, material::Material};
+use crate::{material::Material, shape::Surface};
 
 pub struct Scene {}
 
@@ -14,6 +14,6 @@ impl Scene {
 
 impl Default for Scene {
     fn default() -> Self {
-        Self {  }
+        Self {}
     }
 }
