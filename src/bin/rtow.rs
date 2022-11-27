@@ -1,5 +1,5 @@
 use gremlin::{
-    camera::Pinhole,
+    camera::{Pinhole, ThinLens},
     color::RGB,
     film::RGBFilm,
     geo::{Point, Ray, Vector},
@@ -52,9 +52,18 @@ fn ray_color_2(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng
 fn main() {
     let mut img = RGBFilm::new(800, 600);
 
-    let cam = Pinhole::builder(img.aspect_ratio())
+    // let cam = Pinhole::builder(img.aspect_ratio())
+    //     .move_to([1.0, 0.5, 1.0])
+    //     .look_at([0.0, 0.0, -1.0])
+    //     .fov(55.0)
+    //     .build();
+
+    let cam = ThinLens::builder(img.aspect_ratio())
         .move_to([1.0, 0.5, 1.0])
         .look_at([0.0, 0.0, -1.0])
+        .fov(55.0)
+        .aperture(0.25)
+        .auto_focus()
         .build();
 
     let mut surfaces: Vec<Surface> = vec![];
@@ -82,5 +91,5 @@ fn main() {
         RAY_COUNT.get() as f64 / timer.tock().as_secs_f64()
     );
 
-    img.to_snapshot().save_image("rtow.png").unwrap();
+    img.to_snapshot().save_image("rtow-thinlens.png").unwrap();
 }

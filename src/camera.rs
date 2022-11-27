@@ -1,3 +1,7 @@
+//! Camera models.
+//! 
+//! The purpose of a camera is, given pixel, generate rays through that pixel.
+//! Generally many ray samples will be generated for each pixel.
 use crate::{
     geo::{Matrix, Point, Ray, Vector},
     Float,
@@ -8,6 +12,7 @@ use rand_distr::UnitDisc;
 const DEFAULT_LOOK_FROM: Point = Point::new(0.0, 0.0, -1.0);
 const DEFAULT_LOOK_AT: Point = Point::ORIGIN;
 const DEFAULT_FOV: Float = 75.0;
+const DEFAULT_APERTURE: Float = 0.1;
 
 /// The core trait for objects which generate rays.
 pub trait Camera {
@@ -36,7 +41,7 @@ impl Camera for Pinhole {
         // a proper vector, we'd need to subtract this with the camera's origin
         // point.
         //
-        // But since, by convention, the camera is a the origin and the screen
+        // But since, by convention, the camera is at the origin and the screen
         // at z = -1 (in camera space), we can skip the subtraction and use this
         // directly as a vector.
         let screen_pt = Vector {
@@ -124,8 +129,8 @@ impl ThinLens {
 impl Camera for ThinLens {
     fn ray(&self, u: Float, v: Float) -> Ray {
         let screen_pt = Point {
-            x: (2.0 * u - 1.0) * self.aspect_ratio * self.tan_half_fov,
-            y: (1.0 - 2.0 * v) * self.tan_half_fov,
+            x: (2.0 * u - 1.0) * self.focus_distance * self.aspect_ratio * self.tan_half_fov,
+            y: (1.0 - 2.0 * v) * self.focus_distance * self.tan_half_fov,
             z: -self.focus_distance,
         };
         let rand_in_disc: [Float; 2] = UnitDisc.sample(&mut thread_rng());
@@ -153,14 +158,15 @@ impl ThinLensBuilder {
             look_at: DEFAULT_LOOK_AT,
             inner: ThinLens {
                 aspect_ratio: aspect_ratio,
-                tan_half_fov: 0.5, // temporary!
-                focus_distance: 1.0,
-                aperture: 1.0,
+                tan_half_fov: 0.5,              // temporary!
+                focus_distance: 1.0,            // temporary!
+                aperture: DEFAULT_APERTURE,
                 cam_to_world: Matrix::IDENTITY, // temporary!
             },
         };
 
         builder.fov(DEFAULT_FOV);
+        builder.auto_focus();
         builder.recalculate_look_matrix();
         builder
     }
@@ -182,6 +188,26 @@ impl ThinLensBuilder {
     /// Set the field-of-view, in degrees.
     pub fn fov(&mut self, fov: Float) -> &mut Self {
         self.inner.tan_half_fov = (fov / 2.0).to_radians().tan();
+        self
+    }
+
+    /// Set the aperture.
+    pub fn aperture(&mut self, aperture: Float) -> &mut Self {
+        self.inner.aperture = aperture;
+        self
+    }
+
+    /// Set the focal length.
+    pub fn focal_length(&mut self, len: Float) -> &mut Self {
+        self.inner.focus_distance  = len;
+        self
+    }
+
+    /// Set the focal length so that the [`look_at`] point is in-focus.
+    /// 
+    /// [`look_at`]: Self::look_at
+    pub fn auto_focus(&mut self) -> &mut Self {
+        self.inner.focus_distance = (self.look_at - self.look_from).len();
         self
     }
 
