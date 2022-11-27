@@ -1,10 +1,10 @@
-use rayon::prelude::*;
 use crate::{
     camera::Camera,
     color::Color,
     film::Film,
     geo::{Point, Ray, Vector},
 };
+use rayon::prelude::*;
 
 pub trait Integrator<Li>: Send + Sync {
     fn radiance(&self, ray: &Ray) -> Li;
@@ -28,7 +28,8 @@ where
             let ray = Ray::new(Point::ORIGIN, Vector::X_AXIS);
             let rad = integrator.radiance(&ray);
             pixel.add_sample(rad);
-        });
+        },
+    );
     for _ in 0..1024 {
         film.add_samples(|x, y| {
             let ray = Ray::new(Point::ORIGIN, Vector::X_AXIS);

@@ -29,7 +29,6 @@ use crate::{
     Float,
 };
 use image::{ImageResult, Rgb, RgbImage};
-use rand::{Rng, rngs::ThreadRng, RngCore};
 use rayon::prelude::*;
 use std::{
     ops::{Deref, DerefMut},
@@ -260,22 +259,6 @@ impl<CS: Copy> Buffer<Pixel<CS>> {
             let y = idx as u32 / width;
             pixel.add_sample(func(x as Float, y as Float))
         });
-    }
-
-    pub fn add_samples_2<F, S>(&mut self, func: F)
-    where
-        F: Fn(Raster, &mut ThreadRng) -> S + Sync,
-        Color<CS>: From<S> + Send,
-    {
-        let width = self.width;
-        self.par_iter_mut().enumerate().for_each_init(
-            || rand::thread_rng(),
-            |rng, (idx, pixel)| {
-                let x = idx as u32 % width;
-                let y = idx as u32 / width;
-                pixel.add_sample(func(Raster::new(x, y), rng))
-            },
-        );
     }
 }
 
