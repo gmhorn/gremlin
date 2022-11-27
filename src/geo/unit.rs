@@ -1,6 +1,6 @@
-use super::Vector;
+use super::{Axis, Vector};
 use crate::Float;
-use std::ops::Neg;
+use std::ops::{Index, Neg};
 
 /// A 3-dimensional unit vector.
 ///
@@ -84,6 +84,19 @@ impl Neg for Unit {
     #[inline]
     fn neg(self) -> Self::Output {
         Self::Output::new(self.x.neg(), self.y.neg(), self.z.neg())
+    }
+}
+
+impl Index<Axis> for Unit {
+    type Output = Float;
+
+    #[inline]
+    fn index(&self, axis: Axis) -> &Self::Output {
+        match axis {
+            Axis::X => &self.x,
+            Axis::Y => &self.y,
+            Axis::Z => &self.z,
+        }
     }
 }
 

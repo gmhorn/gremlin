@@ -1,6 +1,6 @@
 use crate::Float;
 
-use super::{Point, Unit, Vector};
+use super::{Point, Ray, Unit, Vector};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -394,6 +394,15 @@ impl Mul<Point> for Matrix {
             y: self.0[1][0] * rhs.x + self.0[1][1] * rhs.y + self.0[1][2] * rhs.z + self.0[1][3],
             z: self.0[2][0] * rhs.x + self.0[2][1] * rhs.y + self.0[2][2] * rhs.z + self.0[2][3],
         }
+    }
+}
+
+impl Mul<Ray> for Matrix {
+    type Output = Ray;
+
+    #[inline]
+    fn mul(self, rhs: Ray) -> Self::Output {
+        Self::Output::new(self * rhs.origin, self * rhs.direction)
     }
 }
 

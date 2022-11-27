@@ -1,8 +1,7 @@
+use super::{Axis, Point, Unit};
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-
-use super::{Point, Unit};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A 3-dimensional vector.
 ///
@@ -29,6 +28,9 @@ impl Vector {
 
     /// A vector of length 1 in the z direction.
     pub const Z_AXIS: Vector = Vector::new(0.0, 0.0, 1.0);
+
+    /// The zero-vector.
+    pub const ZERO: Vector = Vector::new(0.0, 0.0, 0.0);
 
     /// Construct a new vector with the given components.
     #[inline]
@@ -223,6 +225,19 @@ impl DivAssign<Float> for Vector {
     #[inline]
     fn div_assign(&mut self, rhs: Float) {
         *self *= rhs.recip();
+    }
+}
+
+impl Index<Axis> for Vector {
+    type Output = Float;
+
+    #[inline]
+    fn index(&self, axis: Axis) -> &Self::Output {
+        match axis {
+            Axis::X => &self.x,
+            Axis::Y => &self.y,
+            Axis::Z => &self.z,
+        }
     }
 }
 

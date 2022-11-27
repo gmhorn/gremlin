@@ -28,6 +28,17 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign},
 };
 
+/// sRGB conversion trait.
+///
+/// Most libraries that write image files to disk, such as the [`image`] crate
+/// that Gremlin uses, assume sRGB color space data. Internally, Gremlin uses
+/// linear color spaces throughout its processing pipeline, only converting to
+/// sRGB at the end.
+pub trait SRGB {
+    /// Convert a color value to a 8-bit sRGB triple.
+    fn to_srgb(&self) -> [u8; 3];
+}
+
 /// The CIE 1931 color space.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct CIE1931;
@@ -125,6 +136,15 @@ impl<CS> From<[Float; 3]> for Color<CS> {
 /// A CIE 1931 tristimulus color value.
 pub type XYZ = Color<CIE1931>;
 
+impl SRGB for XYZ {
+    /// Converts an XYZ to sRGB by first converting to linear RGB, then gamma
+    /// correcting.
+    #[inline]
+    fn to_srgb(&self) -> [u8; 3] {
+        RGB::from(*self).to_srgb()
+    }
+}
+
 // TODO: Consider moving to Spectrum module?
 impl From<Sampled> for XYZ {
     /// Converts a sampled spectrum to XYZ by integrating against the CIE color-
@@ -149,8 +169,22 @@ impl From<Sampled> for XYZ {
 pub type RGB = Color<LinearRGB>;
 
 impl RGB {
-    /// Convert linear RGB to sRGB.
-    pub fn to_srgb(&self) -> [u8; 3] {
+    // Function for taking linear RGB to sRGB.
+    //
+    // Values from Bruce Lindbloom's page
+    // http://www.brucelindbloom.com/
+    fn gamma(v: Float) -> Float {
+        if v <= 0.0031308 {
+            12.92 * v
+        } else {
+            1.055 * v.powf(0.41667) - 0.055
+        }
+    }
+}
+
+impl SRGB for RGB {
+    /// Converts a linear RGB to sRGB by applying gamma correction.
+    fn to_srgb(&self) -> [u8; 3] {
         // Implementation note:
         //
         // This is more-or-less a direct port of John Walker's code from his
@@ -177,18 +211,6 @@ impl RGB {
         vals *= 255.0;
         [vals.x as u8, vals.y as u8, vals.z as u8]
     }
-
-    // Function for taking linear RGB to sRGB.
-    //
-    // Values from Bruce Lindbloom's page
-    // http://www.brucelindbloom.com/
-    fn gamma(v: Float) -> Float {
-        if v <= 0.0031308 {
-            12.92 * v
-        } else {
-            1.055 * v.powf(0.41667) - 0.055
-        }
-    }
 }
 
 impl From<XYZ> for RGB {
@@ -199,14 +221,6 @@ impl From<XYZ> for RGB {
             vals: consts::XYZ_TO_RGB * xyz.vals,
             _colorspace: PhantomData,
         }
-    }
-}
-
-impl From<RGB> for [u8; 3] {
-    /// Converts linear RGB to 8-bit sRGB array.
-    #[inline]
-    fn from(rgb: RGB) -> Self {
-        rgb.to_srgb()
     }
 }
 
