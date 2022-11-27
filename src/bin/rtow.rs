@@ -80,7 +80,7 @@ fn main() {
     let height = img.height() as Float;
 
     let timer = Timer::tick();
-    (0..128).for_each(|_| {
+    for _ in 0..128 {
         img.par_pixel_iter_mut().for_each_init(
             || rand::thread_rng(),
             |rng, (raster, pixel)| {
@@ -90,16 +90,9 @@ fn main() {
                 let ray = cam.ray(x / width, y / height);
 
                 pixel.add_sample(ray_color_2(ray, &surfaces, 0, rng));
-            })
-    });
-    // for _ in 0..128 {
-    //     img.add_samples(|x, y| {
-    //         let mut rng = rand::thread_rng();
-    //         let (u, v) = raster_to_ndc(x + rng.gen::<Float>(), y + rng.gen::<Float>());
-
-    //         ray_color_2(cam.ray(u, v), &surfaces, 0, &mut rng)
-    //     });
-    // }
+            });
+    }
+    
     println!("Traced {} rays in {:?}", RAY_COUNT.get(), timer.tock());
     println!(
         "{} Rays/Sec",
