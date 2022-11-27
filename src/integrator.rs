@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use crate::{
     camera::Camera,
     color::Color,
@@ -21,6 +22,13 @@ where
     Color<CS>: From<Li> + Copy + Send,
     CS: Copy,
 {
+    film.par_pixel_iter_mut().for_each_init(
+        || rand::thread_rng(),
+        |rng, (raster, pixel)| {
+            let ray = Ray::new(Point::ORIGIN, Vector::X_AXIS);
+            let rad = integrator.radiance(&ray);
+            pixel.add_sample(rad);
+        });
     for _ in 0..1024 {
         film.add_samples(|x, y| {
             let ray = Ray::new(Point::ORIGIN, Vector::X_AXIS);

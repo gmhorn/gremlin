@@ -25,14 +25,23 @@
 
 use crate::{
     color::{Color, LinearRGB, CIE1931, SRGB},
+    geo::Coords,
     Float,
 };
 use image::{ImageResult, Rgb, RgbImage};
+use rand::{Rng, rngs::ThreadRng, RngCore};
 use rayon::prelude::*;
 use std::{
     ops::{Deref, DerefMut},
     path::Path,
 };
+
+/// A typedef for raster-space coordinates.
+///
+/// Yes, just calling it _Raster_ and not something like _RasterPoint_ is
+/// abusing the term "raster". The point of this typedef is to be convenient
+/// shorthand for [`Coords<u32>`].
+pub type Raster = Coords<u32>;
 
 /// A rectangular grid of pixels.
 pub struct Buffer<P> {
@@ -72,6 +81,10 @@ impl<P> Buffer<P> {
         self.width as Float / self.height as Float
     }
 
+    pub fn coordinates_of(&self, idx: usize) -> Raster {
+        todo!();
+    }
+
     /// Save the buffer as an image at the path specified.
     ///
     /// Image format is derived from the file extension.
@@ -93,6 +106,54 @@ impl<P> Buffer<P> {
         let w = self.width as Float;
         let h = self.height as Float;
         move |x, y| (x / w, y / h)
+    }
+
+    /// Returns an iterator over the pixels.
+    pub fn pixel_iter(&self) -> impl Iterator<Item = (Raster, &P)> {
+        let width = self.width();
+        self.iter().enumerate().map(move |(idx, pixel)| {
+            let x = idx as u32 % width;
+            let y = idx as u32 / width;
+            (Raster::new(x, y), pixel)
+        })
+    }
+
+    /// Returns an iterator over the pixels. Iterator allows mutating the pixel
+    /// value.
+    pub fn pixel_iter_mut(&mut self) -> impl Iterator<Item = (Raster, &mut P)> {
+        let width = self.width();
+        self.iter_mut().enumerate().map(move |(idx, pixel)| {
+            let x = idx as u32 % width;
+            let y = idx as u32 / width;
+            (Raster::new(x, y), pixel)
+        })
+    }
+
+    /// Returns a parallel iterator over the pixels.
+    pub fn par_pixel_iter(&self) -> impl IndexedParallelIterator<Item = (Raster, &P)>
+    where
+        P: Sync,
+    {
+        let width = self.width();
+        self.par_iter().enumerate().map(move |(idx, pixel)| {
+            let x = idx as u32 % width;
+            let y = idx as u32 / width;
+            (Raster::new(x, y), pixel)
+        })
+    }
+
+    /// Returns a parallel iterator over the pixels. Allows mutating the pixel
+    /// value.
+    pub fn par_pixel_iter_mut(&mut self) -> impl IndexedParallelIterator<Item = (Raster, &mut P)>
+    where
+        P: Send,
+    {
+        let width = self.width();
+        self.par_iter_mut().enumerate().map(move |(idx, pixel)| {
+            let x = idx as u32 % width;
+            let y = idx as u32 / width;
+            (Raster::new(x, y), pixel)
+        })
     }
 }
 
@@ -199,6 +260,22 @@ impl<CS: Copy> Buffer<Pixel<CS>> {
             let y = idx as u32 / width;
             pixel.add_sample(func(x as Float, y as Float))
         });
+    }
+
+    pub fn add_samples_2<F, S>(&mut self, func: F)
+    where
+        F: Fn(Raster, &mut ThreadRng) -> S + Sync,
+        Color<CS>: From<S> + Send,
+    {
+        let width = self.width;
+        self.par_iter_mut().enumerate().for_each_init(
+            || rand::thread_rng(),
+            |rng, (idx, pixel)| {
+                let x = idx as u32 % width;
+                let y = idx as u32 / width;
+                pixel.add_sample(func(Raster::new(x, y), rng))
+            },
+        );
     }
 }
 
