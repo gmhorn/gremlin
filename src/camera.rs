@@ -1,5 +1,5 @@
 //! Camera models.
-//! 
+//!
 //! The purpose of a camera is, given pixel, generate rays through that pixel.
 //! Generally many ray samples will be generated for each pixel.
 use crate::{
@@ -158,8 +158,8 @@ impl ThinLensBuilder {
             look_at: DEFAULT_LOOK_AT,
             inner: ThinLens {
                 aspect_ratio: aspect_ratio,
-                tan_half_fov: 0.5,              // temporary!
-                focus_distance: 1.0,            // temporary!
+                tan_half_fov: 0.5,   // temporary!
+                focus_distance: 1.0, // temporary!
                 aperture: DEFAULT_APERTURE,
                 cam_to_world: Matrix::IDENTITY, // temporary!
             },
@@ -199,12 +199,12 @@ impl ThinLensBuilder {
 
     /// Set the focal length.
     pub fn focal_length(&mut self, len: Float) -> &mut Self {
-        self.inner.focus_distance  = len;
+        self.inner.focus_distance = len;
         self
     }
 
     /// Set the focal length so that the [`look_at`] point is in-focus.
-    /// 
+    ///
     /// [`look_at`]: Self::look_at
     pub fn auto_focus(&mut self) -> &mut Self {
         self.inner.focus_distance = (self.look_at - self.look_from).len();

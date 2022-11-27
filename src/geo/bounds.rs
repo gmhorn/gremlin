@@ -1,7 +1,6 @@
-use std::mem;
-
 use super::{Axis, Point, Ray};
 use crate::Float;
+use std::mem;
 
 /// An axis-aligned bounding box.
 #[derive(Debug)]

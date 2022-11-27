@@ -1,5 +1,5 @@
-use std::ops::{Neg, Add, Sub, Mul, Div};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 /// Represents a 2-dimensional point.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -35,7 +35,7 @@ impl<T: Neg<Output = T>> Neg for Coords<T> {
     }
 }
 
-impl<T: Add<Output=T>> Add for Coords<T> {
+impl<T: Add<Output = T>> Add for Coords<T> {
     type Output = Self;
 
     #[inline]
@@ -73,7 +73,10 @@ impl<T: Div<T, Output = T> + Copy> Div<T> for Coords<T> {
 
 // APPROXIMATIONS
 
-impl<T: AbsDiffEq> AbsDiffEq for Coords<T> where T::Epsilon: Copy {
+impl<T: AbsDiffEq> AbsDiffEq for Coords<T>
+where
+    T::Epsilon: Copy,
+{
     type Epsilon = T::Epsilon;
 
     #[inline]
@@ -89,7 +92,10 @@ impl<T: AbsDiffEq> AbsDiffEq for Coords<T> where T::Epsilon: Copy {
     }
 }
 
-impl<T: RelativeEq> RelativeEq for Coords<T> where T::Epsilon: Copy {
+impl<T: RelativeEq> RelativeEq for Coords<T>
+where
+    T::Epsilon: Copy,
+{
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
         T::default_max_relative()
@@ -108,7 +114,10 @@ impl<T: RelativeEq> RelativeEq for Coords<T> where T::Epsilon: Copy {
     }
 }
 
-impl<T: UlpsEq> UlpsEq for Coords<T> where T::Epsilon: Copy {
+impl<T: UlpsEq> UlpsEq for Coords<T>
+where
+    T::Epsilon: Copy,
+{
     #[inline]
     fn default_max_ulps() -> u32 {
         T::default_max_ulps()
