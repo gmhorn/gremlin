@@ -1,5 +1,5 @@
 use gremlin::{
-    camera::Perspective,
+    camera::Pinhole,
     color::RGB,
     film::RGBFilm,
     geo::{Point, Ray, Vector},
@@ -52,10 +52,10 @@ fn ray_color_2(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng
 fn main() {
     let mut img = RGBFilm::new(800, 600);
 
-    let mut cam = Perspective::new(img.aspect_ratio(), 55.0);
-    cam.move_to([1.0, 0.5, 1.5]);
-    // cam.move_to(-3.0, 3.0, 1.0);
-    // cam.look_at(0.0, 0.0, -1.0);
+    let cam = Pinhole::builder(img.aspect_ratio())
+        .move_to([1.0, 0.5, 1.0])
+        .look_at([0.0, 0.0, -1.0])
+        .build();
 
     let mut surfaces: Vec<Surface> = vec![];
     surfaces.push(Surface::from(Sphere::new(Point::new(-0.5, 0.0, -1.0), 0.5)));
@@ -68,7 +68,7 @@ fn main() {
 
     let raster_to_ndc = img.raster_to_ndc();
     let timer = Timer::tick();
-    for _ in 0..1024 {
+    for _ in 0..128 {
         img.add_samples(|x, y| {
             let mut rng = rand::thread_rng();
             let (u, v) = raster_to_ndc(x + rng.gen::<Float>(), y + rng.gen::<Float>());

@@ -24,7 +24,7 @@
 //! `(width-1, height-1)` in the lower right.
 
 use crate::{
-    color::{Color, LinearRGB, CIE1931},
+    color::{Color, LinearRGB, CIE1931, SRGB},
     Float,
 };
 use image::{ImageResult, Rgb, RgbImage};
@@ -78,11 +78,11 @@ impl<P> Buffer<P> {
     pub fn save_image<Q>(&self, path: Q) -> ImageResult<()>
     where
         Q: AsRef<Path>,
-        P: Into<[u8; 3]> + Copy,
+        P: SRGB,
     {
         RgbImage::from_fn(self.width, self.height, |x, y| {
             let idx = ((y * self.width) + x) as usize;
-            Rgb::<u8>::from(self.pixels[idx].into())
+            Rgb::<u8>::from(self.pixels[idx].to_srgb())
         })
         .save(path)
     }
