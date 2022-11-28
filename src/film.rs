@@ -93,14 +93,6 @@ impl<P> Buffer<P> {
         .save(path)
     }
 
-    /// Create a function that can convert raster-space values to NDC-space
-    /// values.
-    pub fn raster_to_ndc(&self) -> impl Fn(Float, Float) -> (Float, Float) {
-        let w = self.width as Float;
-        let h = self.height as Float;
-        move |x, y| (x / w, y / h)
-    }
-
     /// Returns an iterator over the pixels.
     pub fn pixel_iter(&self) -> impl Iterator<Item = (u32, u32, &P)> {
         let width = self.width();
@@ -213,47 +205,6 @@ impl<CS: Copy> Buffer<Pixel<CS>> {
             pixels: self.pixels.iter().map(|p| p.to_color()).collect(),
         }
     }
-
-    /// Add a sample value to each pixel using the supplied function.
-    ///
-    /// The supplied function must be parallelizable, and is run across multiple
-    /// pixels simultaneously. Often, the supplied function will be the main
-    /// raytracing integrator, and effectively implementing a single pass of a
-    /// main rendering loop.
-    ///
-    /// The values supplied to the function will be the raster-space values of
-    /// the pixel (converted to [`Float`] for convenience). This makes it
-    /// especially easy to pick a "random point in the pixel":
-    ///
-    /// ```no_run
-    /// use gremlin::color::RGB;
-    /// use gremlin::film::RGBFilm;
-    /// use gremlin::Float;
-    /// use rand::prelude::*;
-    ///
-    /// let mut img = RGBFilm::new(800, 600);
-    /// img.add_samples(|x, y| {
-    ///     let x = x + random::<Float>();
-    ///     let y = y + random::<Float>();
-    ///     pixel_color(x, y)
-    /// });
-    ///
-    /// fn pixel_color(x: Float, y: Float) -> RGB {
-    ///     todo!()
-    /// }
-    /// ```
-    pub fn add_samples<F, S>(&mut self, func: F)
-    where
-        F: Fn(Float, Float) -> S + Sync,
-        Color<CS>: From<S> + Send,
-    {
-        let width = self.width;
-        self.par_iter_mut().enumerate().for_each(|(idx, pixel)| {
-            let x = idx as u32 % width;
-            let y = idx as u32 / width;
-            pixel.add_sample(func(x as Float, y as Float))
-        });
-    }
 }
 
 #[cfg(test)]
@@ -286,7 +237,4 @@ mod test {
         pix.add_sample(Uniform(0.0));
         assert_eq!(XYZ::from([0.5, 0.5, 0.5]), pix.to_color());
     }
-
-    #[test]
-    fn add_samples() {}
 }
