@@ -12,16 +12,18 @@
 //! ```no_run
 //! use gremlin::film::RGBFilm;
 //! use gremlin::color::RGB;
+//! use gremlin::Float;
 //!
 //! let mut img = RGBFilm::new(800, 600);
-//! img.add_samples(|x, y| {
-//!     RGB::from([x / 800.0, y / 600.0, 0.25])
+//! img.pixel_iter_mut().for_each(|(px, py, pixel)| {
+//!     let color = RGB::from([px as Float / 800.0, py as Float / 600.0, 0.25]);
+//!     pixel.add_sample(color);
 //! });
 //! img.to_snapshot().save_image("out.png").unwrap();
 //! ```
 //!
-//! Raster space [`Buffer`]s runs from `(0, 0)` in the upper-left to
-//! `(width-1, height-1)` in the lower right.
+//! Raster space for the various pixel iteration methods runs from `(0, 0)` in
+//! the upper-left to `(width-1, height-1)` in the lower right.
 
 use crate::{
     color::{Color, LinearRGB, CIE1931, SRGB},
@@ -67,6 +69,10 @@ impl<P> Buffer<P> {
         self.height
     }
 
+    pub fn dimensions(&self) -> (u32, u32) {
+        (self.width, self.height)
+    }
+
     /// The aspect ratio (`width`/`height`) of the buffer
     pub fn aspect_ratio(&self) -> Float {
         self.width as Float / self.height as Float
@@ -87,12 +93,52 @@ impl<P> Buffer<P> {
         .save(path)
     }
 
-    /// Create a function that can convert raster-space values to NDC-space
-    /// values.
-    pub fn raster_to_ndc(&self) -> impl Fn(Float, Float) -> (Float, Float) {
-        let w = self.width as Float;
-        let h = self.height as Float;
-        move |x, y| (x / w, y / h)
+    /// Returns an iterator over the pixels.
+    pub fn pixel_iter(&self) -> impl Iterator<Item = (u32, u32, &P)> {
+        let width = self.width();
+        self.iter().enumerate().map(move |(idx, pixel)| {
+            let px = idx as u32 % width;
+            let py = idx as u32 / width;
+            (px, py, pixel)
+        })
+    }
+
+    /// Returns an iterator over the pixels. Iterator allows mutating the pixel
+    /// value.
+    pub fn pixel_iter_mut(&mut self) -> impl Iterator<Item = (u32, u32, &mut P)> {
+        let width = self.width();
+        self.iter_mut().enumerate().map(move |(idx, pixel)| {
+            let px = idx as u32 % width;
+            let py = idx as u32 / width;
+            (px, py, pixel)
+        })
+    }
+
+    /// Returns a parallel iterator over the pixels.
+    pub fn par_pixel_iter(&self) -> impl IndexedParallelIterator<Item = (u32, u32, &P)>
+    where
+        P: Sync,
+    {
+        let width = self.width();
+        self.par_iter().enumerate().map(move |(idx, pixel)| {
+            let px = idx as u32 % width;
+            let py = idx as u32 / width;
+            (px, py, pixel)
+        })
+    }
+
+    /// Returns a parallel iterator over the pixels. Allows mutating the pixel
+    /// value.
+    pub fn par_pixel_iter_mut(&mut self) -> impl IndexedParallelIterator<Item = (u32, u32, &mut P)>
+    where
+        P: Send,
+    {
+        let width = self.width();
+        self.par_iter_mut().enumerate().map(move |(idx, pixel)| {
+            let px = idx as u32 % width;
+            let py = idx as u32 / width;
+            (px, py, pixel)
+        })
     }
 }
 
@@ -142,12 +188,12 @@ pub type Film<CS> = Buffer<Pixel<CS>>;
 
 /// A film with [`RGB`] pixels.
 ///
-/// [`RGB`]: ::crate::color::RGB
+/// [`RGB`]: crate::color::RGB
 pub type RGBFilm = Buffer<Pixel<LinearRGB>>;
 
 /// A film with [`XYZ`] pixels.
 ///
-/// [`XYZ`]: ::crate::color::XYZ
+/// [`XYZ`]: crate::color::XYZ
 pub type SpectralFilm = Buffer<Pixel<CIE1931>>;
 
 impl<CS: Copy> Buffer<Pixel<CS>> {
@@ -158,47 +204,6 @@ impl<CS: Copy> Buffer<Pixel<CS>> {
             height: self.height,
             pixels: self.pixels.iter().map(|p| p.to_color()).collect(),
         }
-    }
-
-    /// Add a sample value to each pixel using the supplied function.
-    ///
-    /// The supplied function must be parallelizable, and is run across multiple
-    /// pixels simultaneously. Often, the supplied function will be the main
-    /// raytracing integrator, and effectively implementing a single pass of a
-    /// main rendering loop.
-    ///
-    /// The values supplied to the function will be the raster-space values of
-    /// the pixel (converted to [`Float`] for convenience). This makes it
-    /// especially easy to pick a "random point in the pixel":
-    ///
-    /// ```no_run
-    /// use gremlin::color::RGB;
-    /// use gremlin::film::RGBFilm;
-    /// use gremlin::Float;
-    /// use rand::prelude::*;
-    ///
-    /// let mut img = RGBFilm::new(800, 600);
-    /// img.add_samples(|x, y| {
-    ///     let x = x + random::<Float>();
-    ///     let y = y + random::<Float>();
-    ///     pixel_color(x, y)
-    /// });
-    ///
-    /// fn pixel_color(x: Float, y: Float) -> RGB {
-    ///     todo!()
-    /// }
-    /// ```
-    pub fn add_samples<F, S>(&mut self, func: F)
-    where
-        F: Fn(Float, Float) -> S + Sync,
-        Color<CS>: From<S> + Send,
-    {
-        let width = self.width;
-        self.par_iter_mut().enumerate().for_each(|(idx, pixel)| {
-            let x = idx as u32 % width;
-            let y = idx as u32 / width;
-            pixel.add_sample(func(x as Float, y as Float))
-        });
     }
 }
 
@@ -232,7 +237,4 @@ mod test {
         pix.add_sample(Uniform(0.0));
         assert_eq!(XYZ::from([0.5, 0.5, 0.5]), pix.to_color());
     }
-
-    #[test]
-    fn add_samples() {}
 }

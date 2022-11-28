@@ -1,9 +1,5 @@
-use crate::{
-    camera::Camera,
-    color::Color,
-    film::Film,
-    geo::{Point, Ray, Vector},
-};
+use crate::{camera::Camera, color::Color, film::Film, geo::Ray};
+use rayon::prelude::*;
 
 pub trait Integrator<Li>: Send + Sync {
     fn radiance(&self, ray: &Ray) -> Li;
@@ -21,10 +17,10 @@ where
     Color<CS>: From<Li> + Copy + Send,
     CS: Copy,
 {
-    for _ in 0..1024 {
-        film.add_samples(|x, y| {
-            let ray = Ray::new(Point::ORIGIN, Vector::X_AXIS);
-            integrator.radiance(&ray)
+    film.par_pixel_iter_mut()
+        .for_each_init(rand::thread_rng, |rng, (px, py, pixel)| {
+            let ray = cam.ray(px, py, rng);
+            let rad = integrator.radiance(&ray);
+            pixel.add_sample(rad);
         });
-    }
 }

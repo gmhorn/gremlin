@@ -11,9 +11,3 @@ impl Scene {
         todo!()
     }
 }
-
-impl Default for Scene {
-    fn default() -> Self {
-        Self {}
-    }
-}
