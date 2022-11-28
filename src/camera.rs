@@ -7,7 +7,7 @@
 //! needed.
 //!
 //! ```
-//! use gremlin::camera::ThinLens
+//! use gremlin::camera::ThinLens;
 //! use gremlin::prelude::*;
 //!
 //! let resolution = (800, 600);
@@ -17,6 +17,7 @@
 //!     .auto_focus()
 //!     .build();
 //! ```
+
 use crate::{
     geo::{Matrix, Point, Ray, Vector},
     Float,
