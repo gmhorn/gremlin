@@ -188,12 +188,12 @@ pub type Film<CS> = Buffer<Pixel<CS>>;
 
 /// A film with [`RGB`] pixels.
 ///
-/// [`RGB`]: ::crate::color::RGB
+/// [`RGB`]: crate::color::RGB
 pub type RGBFilm = Buffer<Pixel<LinearRGB>>;
 
 /// A film with [`XYZ`] pixels.
 ///
-/// [`XYZ`]: ::crate::color::XYZ
+/// [`XYZ`]: crate::color::XYZ
 pub type SpectralFilm = Buffer<Pixel<CIE1931>>;
 
 impl<CS: Copy> Buffer<Pixel<CS>> {

@@ -1,4 +1,4 @@
-//! Camera models.
+//! # Camera models.
 //!
 //! Cameras generate rays through a pixel. This is a major component of the
 //! top-level rendering loop. Generally speaking, camera models often require

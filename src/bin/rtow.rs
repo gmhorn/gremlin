@@ -9,6 +9,7 @@ use gremlin::{
 };
 use rand::prelude::*;
 use rand_distr::UnitSphere;
+use rayon::prelude::*;
 
 static RAY_COUNT: Counter = Counter::new();
 

@@ -1,4 +1,4 @@
-//! Shapes and surfaces.
+//! # Shapes and surfaces.
 //!
 //! To steal a definition from Mitsuba, a **shape** is a transition between
 //! different types of materials. Depending on the complexity of the render, a

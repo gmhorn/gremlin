@@ -4,7 +4,7 @@
 //! be simple, minimal, and fast (enough).
 //!
 //! * Uses minimal generics (underlying field is a compile-time flag, see
-//!   [`crate::Float`])
+//!   [`Float`])
 //! * Directly implements operator traits rather than relying on macros
 //! * Supports the subset of functionality needed by other modules
 //!
@@ -16,6 +16,10 @@
 //! spaces, etc, and the implements them in generic structs.
 //! * [`glam-rs`](https://github.com/bitshifter/glam-rs) - Fast float-valued
 //! vector, matrix, quaterion and affine structures with SIMD implementations.
+//! * [`nalgebra`](https://nalgebra.org) - A really impressive linear algebra
+//! library for Rust
+//! * [`ndarray`](https://github.com/rust-ndarray/ndarray) - An equally
+//! impressive, Numpy-like N-dimensional array library.
 //!
 //! Instead, the goal is to be mathematically correct, while speaking in the
 //! "domain language" of ray tracing. So, *e.g.* separate `Point`, `Vector` and
@@ -36,19 +40,24 @@
 //! The primitives' operators obey the following algebra:
 //!
 //! ```text
-//! Point - Point = Vector
+//! Point - Point  = Vector
 //! Point + Vector = Vector
 //!
+//! Scalar * Vector = Vector
 //! Vector * Scalar = Vector
 //! Vector / Scalar = Vector
 //! Vector + Vector = Vector
 //! Vector - Vector = Vector
 //!
-//! Matrix * Point = Point
+//! Scalar * Matrix = Matrix
+//! Matrix * Scalar = Matrix
+//! Matrix * Point  = Point
 //! Matrix * Vector = Vector
-//! Matrix * Unit = Vector
+//! Matrix * Unit   = Vector
 //! Matrix * Matrix = Matrix
 //! ```
+//!
+//! [`Float`]: crate::Float
 
 // MODULES AND RE-EXPORTS
 

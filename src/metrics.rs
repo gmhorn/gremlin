@@ -1,4 +1,7 @@
-//! Metrics.
+//! # Metrics.
+//! 
+//! Implements basic utilities for gathering and reporting metrics related to
+//! the raytracing runtime.
 
 use std::{
     sync::atomic::{AtomicU64, Ordering},
