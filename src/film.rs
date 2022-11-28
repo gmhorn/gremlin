@@ -12,16 +12,18 @@
 //! ```no_run
 //! use gremlin::film::RGBFilm;
 //! use gremlin::color::RGB;
+//! use gremlin::Float;
 //!
 //! let mut img = RGBFilm::new(800, 600);
-//! img.add_samples(|x, y| {
-//!     RGB::from([x / 800.0, y / 600.0, 0.25])
+//! img.pixel_iter_mut().for_each(|(px, py, pixel)| {
+//!     let color = RGB::from([px as Float / 800.0, py as Float / 600.0, 0.25]);
+//!     pixel.add_sample(color);
 //! });
 //! img.to_snapshot().save_image("out.png").unwrap();
 //! ```
 //!
-//! Raster space [`Buffer`]s runs from `(0, 0)` in the upper-left to
-//! `(width-1, height-1)` in the lower right.
+//! Raster space for the various pixel iteration methods runs from `(0, 0)` in
+//! the upper-left to `(width-1, height-1)` in the lower right.
 
 use crate::{
     color::{Color, LinearRGB, CIE1931, SRGB},
