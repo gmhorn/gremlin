@@ -1,11 +1,11 @@
 use gremlin::{
-    camera::{Pinhole, ThinLens},
+    camera::ThinLens,
     color::RGB,
     film::RGBFilm,
     geo::{Point, Ray, Vector},
     metrics::{Counter, Timer},
     prelude::*,
-    shape::{Intersection, Sphere, Surface},
+    shape::{Sphere, Surface},
 };
 use rand::prelude::*;
 use rand_distr::UnitSphere;
@@ -16,21 +16,7 @@ const WHITE: [Float; 3] = [1.0, 1.0, 1.0];
 const BLUE: [Float; 3] = [0.3, 0.5, 1.0];
 const BLACK: [Float; 3] = [0.0, 0.0, 0.0];
 
-fn ray_color(ray: &Ray, isect: Option<Intersection>) -> RGB {
-    if let Some(isect) = isect {
-        RGB::from([
-            isect.norm.x() + 1.0,
-            isect.norm.y() + 1.0,
-            isect.norm.z() + 1.0,
-        ]) * 0.5
-    } else {
-        let dir = ray.direction().normalize();
-        let t = 0.5 * (dir.y() + 1.0);
-        RGB::from(WHITE) * (1.0 - t) + RGB::from(BLUE) * t
-    }
-}
-
-fn ray_color_2(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng) -> RGB {
+fn ray_color(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng) -> RGB {
     RAY_COUNT.inc();
 
     if let Some(isect) = surfaces.intersect(&ray, 0.001, Float::INFINITY) {
@@ -38,7 +24,7 @@ fn ray_color_2(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng
             let rand_vec = Vector::from(UnitSphere.sample(rng));
             let target = isect.point + isect.norm.into() + rand_vec;
             let ray = Ray::new(isect.point, target - isect.point);
-            ray_color_2(ray, surfaces, depth + 1, rng) * 0.5
+            ray_color(ray, surfaces, depth + 1, rng) * 0.5
         } else {
             RGB::from(BLACK)
         }
@@ -51,14 +37,7 @@ fn ray_color_2(ray: Ray, surfaces: &impl Shape, depth: usize, rng: &mut impl Rng
 
 fn main() {
     let mut img = RGBFilm::new(800, 600);
-
-    // let cam = Pinhole::builder(img.aspect_ratio())
-    //     .move_to([1.0, 0.5, 1.0])
-    //     .look_at([0.0, 0.0, -1.0])
-    //     .fov(55.0)
-    //     .build();
-
-    let cam = ThinLens::builder(img.aspect_ratio())
+    let cam = ThinLens::builder(img.dimensions())
         .move_to([1.0, 0.5, 1.0])
         .look_at([0.0, 0.0, -1.0])
         .fov(55.0)
@@ -66,33 +45,22 @@ fn main() {
         .auto_focus()
         .build();
 
-    let mut surfaces: Vec<Surface> = vec![];
-    surfaces.push(Surface::from(Sphere::new(Point::new(-0.5, 0.0, -1.0), 0.5)));
-    surfaces.push(Surface::from(Sphere::new(Point::new(-0.5, 0.0, -2.0), 0.5)));
-    surfaces.push(Surface::from(Sphere::new(Point::new(0.5, 0.0, -1.0), 0.5)));
-    surfaces.push(Surface::from(Sphere::new(
-        Point::new(0.0, -100.5, -1.0),
-        100.0,
-    )));
-
-    let raster_to_ndc = img.raster_to_ndc();
-    let width = img.width() as Float;
-    let height = img.height() as Float;
+    let surfaces: Vec<Surface> = vec![
+        Surface::from(Sphere::new(Point::new(-0.5, 0.0, -1.0), 0.5)),
+        Surface::from(Sphere::new(Point::new(-0.5, 0.0, -2.0), 0.5)),
+        Surface::from(Sphere::new(Point::new(0.5, 0.0, -1.0), 0.5)),
+        Surface::from(Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0)),
+    ];
 
     let timer = Timer::tick();
     for _ in 0..128 {
-        img.par_pixel_iter_mut().for_each_init(
-            || rand::thread_rng(),
-            |rng, (raster, pixel)| {
-                let x = (raster.x as Float) + rng.gen::<Float>();
-                let y = (raster.y as Float) + rng.gen::<Float>();
-
-                let ray = cam.ray(x / width, y / height);
-
-                pixel.add_sample(ray_color_2(ray, &surfaces, 0, rng));
+        img.par_pixel_iter_mut()
+            .for_each_init(rand::thread_rng, |rng, (px, py, pixel)| {
+                let ray = cam.ray(px, py, rng);
+                pixel.add_sample(ray_color(ray, &surfaces, 0, rng));
             });
     }
-    
+
     println!("Traced {} rays in {:?}", RAY_COUNT.get(), timer.tock());
     println!(
         "{} Rays/Sec",

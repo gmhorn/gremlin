@@ -105,8 +105,8 @@ where
     #[inline]
     fn relative_eq(
         &self,
-        other: &Self, 
-        epsilon: Self::Epsilon, 
+        other: &Self,
+        epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
         T::relative_eq(&self.x, &other.x, epsilon, max_relative) &&
