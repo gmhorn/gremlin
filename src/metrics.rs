@@ -1,5 +1,5 @@
 //! # Metrics.
-//! 
+//!
 //! Implements basic utilities for gathering and reporting metrics related to
 //! the raytracing runtime.
 

@@ -1,7 +1,9 @@
-use super::{Axis, Point, Unit};
+use super::{Component, Point, Unit};
 use crate::Float;
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
 /// A 3-dimensional vector.
 ///
@@ -228,15 +230,26 @@ impl DivAssign<Float> for Vector {
     }
 }
 
-impl Index<Axis> for Vector {
+impl Index<Component> for Vector {
     type Output = Float;
 
     #[inline]
-    fn index(&self, axis: Axis) -> &Self::Output {
-        match axis {
-            Axis::X => &self.x,
-            Axis::Y => &self.y,
-            Axis::Z => &self.z,
+    fn index(&self, index: Component) -> &Self::Output {
+        match index {
+            Component::X => &self.x,
+            Component::Y => &self.y,
+            Component::Z => &self.z,
+        }
+    }
+}
+
+impl IndexMut<Component> for Vector {
+    #[inline]
+    fn index_mut(&mut self, index: Component) -> &mut Self::Output {
+        match index {
+            Component::X => &mut self.x,
+            Component::Y => &mut self.y,
+            Component::Z => &mut self.z,
         }
     }
 }

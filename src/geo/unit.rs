@@ -1,4 +1,4 @@
-use super::{Axis, Vector};
+use super::{Component, Vector};
 use crate::Float;
 use std::ops::{Index, Neg};
 
@@ -87,15 +87,15 @@ impl Neg for Unit {
     }
 }
 
-impl Index<Axis> for Unit {
+impl Index<Component> for Unit {
     type Output = Float;
 
     #[inline]
-    fn index(&self, axis: Axis) -> &Self::Output {
-        match axis {
-            Axis::X => &self.x,
-            Axis::Y => &self.y,
-            Axis::Z => &self.z,
+    fn index(&self, index: Component) -> &Self::Output {
+        match index {
+            Component::X => &self.x,
+            Component::Y => &self.y,
+            Component::Z => &self.z,
         }
     }
 }

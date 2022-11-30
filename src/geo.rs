@@ -82,42 +82,48 @@ pub use self::unit::*;
 mod vector;
 pub use self::vector::*;
 
-/// Used to identify a coordinate.
+/// Enum for indexing into a particular component value.
 ///
-/// Most the basic geometric structs in this package use named public fields,
-/// such as `x`, `y`, and `z` for [`Point`]s and [`Vector`]s. Sometimes it's
-/// useful to be able to pull them out by-index. This field supports that.
+/// Most geometric structs in this package use named public fields (_e.g._
+/// [`Point::x`], [`Vector::z`]) or public accessors (_e.g._ [`Unit::y()`]).
+///
+/// However, sometimes certain algorithms are easier to express if you treat
+/// these structs as bare arrays of component values. This enum allows for
+/// such constructions, while enforcing efficient compile-time bounds checking.
 ///
 /// # Examples
 ///
 /// Basic indexing:
 ///
 /// ```
-/// use gremlin::geo::{Axis, Vector};
+/// use gremlin::geo::{Component, Vector};
 ///
 /// let v = Vector::new(1.0, 2.0, 3.0);
-/// assert_eq!(1.0, v[Axis::X]);
-/// assert_eq!(2.0, v[Axis::Y]);
-/// assert_eq!(3.0, v[Axis::Z]);
+/// assert_eq!(1.0, v[Component::X]);
+/// assert_eq!(2.0, v[Component::Y]);
+/// assert_eq!(3.0, v[Component::Z]);
 /// ```
 ///
 /// Performing operations over indexes:
 ///
 /// ```
-/// use gremlin::geo::{Axis, Point};
+/// use gremlin::geo::{Component, Point};
 ///
 /// let p = Point::new(1.0, 2.0, 3.0);
-/// let sum_of_coords = Axis::ALL.iter().map(|&axis| p[axis]).sum();
+/// let sum_of_coords = Component::XYZ.iter().map(|&axis| p[axis]).sum();
 /// assert_eq!(6.0, sum_of_coords);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Axis {
+pub enum Component {
+    /// The component along the x-axis.
     X,
+    /// The component along the y-axis.
     Y,
+    /// The component along the z-axis.
     Z,
 }
 
-impl Axis {
-    /// List of all axes. Convenient for iteration.
-    pub const ALL: [Axis; 3] = [Axis::X, Axis::Y, Axis::Z];
+impl Component {
+    /// List of X, Y, Z components. Convenient for iteration.
+    pub const XYZ: [Component; 3] = [Component::X, Component::Y, Component::Z];
 }

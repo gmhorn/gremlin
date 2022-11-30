@@ -1,6 +1,7 @@
 use super::{Intersection, Shape};
 use crate::{geo::Ray, Float};
 
+#[derive(Debug)]
 pub struct Triangle;
 
 impl Shape for Triangle {
