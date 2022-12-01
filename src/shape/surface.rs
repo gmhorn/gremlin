@@ -8,6 +8,7 @@ use crate::{geo::Ray, Float};
 /// comparable slower dynamic dispatch (via [`Box<dyn Shape>`] or similar).
 ///
 /// [`Shape`]: crate::shape::Shape
+#[derive(Debug)]
 pub enum Surface {
     Sphere(Sphere),
     Triangle(Triangle),

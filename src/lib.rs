@@ -14,6 +14,12 @@ pub mod scene;
 pub mod shape;
 pub mod spectrum;
 
+use camera::Camera;
+use color::Color;
+use film::Film;
+use integrator::Integrator;
+use rayon::prelude::*;
+
 // Typedef for what floating-point value to use.
 //
 // Using generics was fine and all, but once you start getting outside the
@@ -41,3 +47,15 @@ pub type Float = f32;
 /// To use [`f32`], compile with the `--features "f32"` flag.
 #[cfg(not(feature = "f32"))]
 pub type Float = f64;
+
+pub fn render<CS, Li>(film: &mut Film<CS>, cam: &impl Camera, integrator: &impl Integrator<Li>)
+where
+    Color<CS>: From<Li> + Copy + Send,
+    CS: Copy,
+{
+    film.par_pixel_iter_mut()
+        .for_each_init(rand::thread_rng, |rng, (px, py, pixel)| {
+            let ray = cam.ray(px, py, rng);
+            let rad = integrator.radiance(&ray, rng);
+        });
+}
