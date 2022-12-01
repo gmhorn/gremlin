@@ -43,3 +43,20 @@ impl Bounds {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::geo::Vector;
+    use super::*;
+
+    #[test]
+    fn intersects() {
+        let bounds = Bounds::from_corners(Point::splat(-1.0), Point::splat(1.0));
+
+        let ray = Ray::new(Point::new(0.0, 0.0, -10.0), Vector::Z_AXIS);
+        assert_eq!(Some((9.0, 11.0)), bounds.intsersects(&ray, 0.0, Float::INFINITY));
+
+        let ray = Ray::new(Point::new(0.0, 0.0, -10.0), Vector::Y_AXIS);
+        assert_eq!(None, bounds.intsersects(&ray, 0.0, Float::INFINITY));
+    }
+}
